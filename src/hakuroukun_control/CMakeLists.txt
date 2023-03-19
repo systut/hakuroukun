@@ -30,5 +30,5 @@ catkin_install_python(PROGRAMS scripts/hakuroukun_control_node
 ## Comment out but not delete for future use
 # Catkin configuration to build tests
 # if(CATKIN_ENABLE_TESTING)
-#  catkin_add_nosetests(test/scart_visualizer_test.py)
+#  catkin_add_nosetests(test/hakuroukun_control_test.py)
 # endif()
