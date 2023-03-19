@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="port" default="/dev/ttyUSB0" />
+
+    <arg name="baud_rate" default="9600" />
+
+    <arg name="controller_rate" default="20" />
+
+    <!--Scheduler Node-->
+    <node pkg="hakuroukun_control" name="hakuroukun_control_node" type="hakuroukun_control_node" output="screen">
+        <param name="port" value="$(arg port)"/>
+        <param name="baud_rate" value="$(arg baud_rate)"/>
+        <param name="controller_rate" value="$(arg controller_rate)"/>
+    </node>
+</launch>
