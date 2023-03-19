@@ -1,14 +1,14 @@
 from setuptools import setup
 
 setup(
-    name="hakuroukun_control",
+    name="hakuroukun_communication",
     version="1.0.0",
     description="A package for Hakuroukun",
     url="https://ise.tut.ac.jp/",
     author="Tran Viet Thanh",
     author_email="tran.viet.thanh.du@tut.ac.jp",
     license="MIT",
-    packages=["src/hakuroukun_control"],
+    packages=["src/hakuroukun_communication"],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: BSD License",

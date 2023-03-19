@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>hakuroukun_control</name>
+  <name>hakuroukun_communication</name>
   <version>0.0.0</version>
-  <description>The hakuroukun_control package</description>
+  <description>The hakuroukun_communication package</description>
   <maintainer email="tran.viet.thanh.du@tut.jp">Tran Viet Thanh</maintainer>
   <license>TODO</license>
   <buildtool_depend>catkin</buildtool_depend>

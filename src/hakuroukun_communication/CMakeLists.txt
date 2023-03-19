@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(hakuroukun_control)
+project(hakuroukun_communication)
 
 
 find_package(catkin REQUIRED COMPONENTS
@@ -24,11 +24,11 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-catkin_install_python(PROGRAMS scripts/hakuroukun_control_node
+catkin_install_python(PROGRAMS scripts/hakuroukun_communication_node
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 ## Comment out but not delete for future use
 # Catkin configuration to build tests
 # if(CATKIN_ENABLE_TESTING)
-#  catkin_add_nosetests(test/hakuroukun_control_test.py)
+#  catkin_add_nosetests(test/hakuroukun_communication_test.py)
 # endif()

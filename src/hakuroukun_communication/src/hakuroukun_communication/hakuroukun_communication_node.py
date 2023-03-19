@@ -13,7 +13,7 @@ import rospy
 from geometry_msgs.msg import Twist
 
 
-class HakuroukunControlNode(object):
+class HakuroukunCommunicationNode(object):
     """!
     @brief This class privide a ROS node to control hakuroukun robot using serial
     connection to motor control circuit
@@ -24,7 +24,7 @@ class HakuroukunControlNode(object):
     def __init__(self) -> None:
         """! Class constructor
         """
-        rospy.init_node("hakuroukun_control_node", anonymous=True)
+        rospy.init_node("hakuroukun_communication_node", anonymous=True)
         
         port = rosparam.get_param("/port")
 

@@ -1,0 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import rospy
+from hakuroukun_communication.hakuroukun_communication_node import HakuroukunCommunicationNode
+
+try:
+    hakuroukun_communication_node = HakuroukunCommunicationNode()
+    hakuroukun_communication_node.run()
+except rospy.ROSInterruptException:
+    pass
