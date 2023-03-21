@@ -11,7 +11,8 @@
 import serial
 import rospy
 from geometry_msgs.msg import Twist
-
+import math
+import numpy as np
 
 class HakuroukunCommunicationNode(object):
     """!
@@ -72,5 +73,21 @@ class HakuroukunCommunicationNode(object):
         angular_velocity = self.velocity_msg.angular.z
 
         # TODO: Add system indentification equation here
+
+        sampling_time = 0.1
+
+        acceleration_command = (linear_velocity + 1.93)/0.003486
+
+        steering command = (math.degrees(np.arcsin(0.95*angular_velocity/0.27))+127.26)/0.2362
+
+        if acceleration_command > 680:
+            acceleration_command = 680
+        else if acceleration_command < 580:
+            acceleration_command = 580
+
+        if steering_command > 760:
+            steering_command = 760
+        else if steering_command < 370:
+            steering_command = 370
 
         return acceleration_command, steering_command
