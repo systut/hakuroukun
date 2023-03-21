@@ -74,17 +74,22 @@ class HakuroukunCommunicationNode(object):
 
         # TODO: Add system indentification equation here
 
+        ## NOTE: why sampling time is needed here?
         sampling_time = 0.1
 
+        ## NOTE: we should avoid magical number
         acceleration_command = (linear_velocity + 1.93)/0.003486
 
+        ## NOTE: we should avoid magical number
         steering command = (math.degrees(np.arcsin(0.95*angular_velocity/0.27))+127.26)/0.2362
 
+        ## NOTE: we should avoid magical number
         if acceleration_command > 680:
             acceleration_command = 680
         else if acceleration_command < 580:
             acceleration_command = 580
 
+        ## NOTE: we should avoid magical number
         if steering_command > 760:
             steering_command = 760
         else if steering_command < 370:
