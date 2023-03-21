@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  ros-master:
+    image: ros:noetic-ros-core
+    container_name: ros-master
+    command: stdbuf -o L roscore
+    #ports:
+    #  - "11311:11311"
+    network_mode: host
+
+  hakuroukun-robot:
+    user: root
+    depends_on: 
+      - ros-master
+    image: hakuroukun_robot:latest
+    build:
+      context: ..
+      dockerfile: ./hakuroukun_dockerfiles/Dockerfile
+    container_name: hakuroukun-robot
+    volumes:
+      - "../:/root/catkin_ws/src"
+    privileged: True
+    network_mode: host
+    entrypoint:
+      - tail
+      - -f
+      - /dev/null
