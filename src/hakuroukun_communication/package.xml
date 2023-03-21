@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>hakuroukun_communication</name>
-  <version>0.0.0</version>
+  <version>1.0.0</version>
   <description>The hakuroukun_communication package</description>
   <maintainer email="tran.viet.thanh.du@tut.jp">Tran Viet Thanh</maintainer>
   <license>TODO</license>
@@ -9,10 +9,10 @@
   <depend>geometry_msgs</depend>
   <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
-  <build_depend>edge_msgs</build_depend>
+  <!--<build_depend>edge_msgs</build_depend>-->
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
-  <exec_depend>edge_msgs</exec_depend>
+  <!--<exec_depend>edge_msgs</exec_depend>-->
   <export>
   </export>
 </package>
