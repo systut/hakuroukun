@@ -8,7 +8,7 @@ setup(
     author="Tran Viet Thanh",
     author_email="tran.viet.thanh.du@tut.ac.jp",
     license="MIT",
-    packages=["src/hakuroukun_communication"],
+    packages=["hakuroukun_communication"],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: BSD License",

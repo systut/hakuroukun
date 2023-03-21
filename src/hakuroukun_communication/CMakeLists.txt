@@ -5,7 +5,7 @@ project(hakuroukun_communication)
 find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
-  edge_msgs
+  #edge_msgs
   geometry_msgs
 )
 
@@ -14,7 +14,7 @@ catkin_python_setup()
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES
-CATKIN_DEPENDS rospy std_msgs edge_msgs
+CATKIN_DEPENDS rospy std_msgs #edge_msgs
 #  DEPENDS system_lib
 )
 
