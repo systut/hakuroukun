@@ -27,11 +27,13 @@ class HakuroukunCommunicationNode(object):
         """
         rospy.init_node("hakuroukun_communication_node", anonymous=True)
         
-        port = rosparam.get_param("/port")
+        port = rosparam.get_param("/hakuroukun_communication_node/port")
 
-        baud_rate = rosparam.get_param("/baud_rate")
+        baud_rate = rosparam.get_param(
+            "/hakuroukun_communication_node/baud_rate")
 
-        controller_rate = rosparam.get_param("/controller_rate")
+        controller_rate = rosparam.get_param(
+            "/hakuroukun_communication_node/controller_rate")
 
         self.connection = serial.Serial(port, baud_rate, timeout=None)
 
