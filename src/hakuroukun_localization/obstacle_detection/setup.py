@@ -1,14 +1,14 @@
-from setuptools import setup
+from setuptools import setup,find_packages
 
 setup(
-    name="hakuroukun_communication",
-    version="1.0",
+    name="obstacle_detection",
+    version="1.0.0",
     description="A package for Hakuroukun",
     url="https://ise.tut.ac.jp/",
-    author="Tran Viet Thanh",
-    author_email="tran.viet.thanh.du@tut.ac.jp",
+    author="Dinh Ngoc Duc",
+    author_email="dinh.ngoc.duc.mo@tut.ac.jp",
     license="MIT",
-    packages=["hakuroukun_communication",],
+    packages=find_packages("obstacle_detection"),
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: BSD License",
