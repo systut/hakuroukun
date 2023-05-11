@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="hakuroukun_communication",
-    version="1.0",
+    version="1.0.0",
     description="A package for Hakuroukun",
     url="https://ise.tut.ac.jp/",
     author="Tran Viet Thanh",
