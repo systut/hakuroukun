@@ -1,0 +1,198 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="hakuroukun">
+    
+<!-- ///////////////////////////////////////// STEERING //////////////////////////////////// -->
+
+    <!-- CONTINOUS -->
+    <xacro:macro name="steering_continuous" params="name parent_link mass size_x size_y size_z x y z file_name">
+        <link name="${name}">
+            <visual>
+                <geometry>
+                    <mesh filename="${file_name}" scale="0.001 0.001 0.001"/>
+                </geometry>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <material name="Grey"/>
+            </visual>
+
+            <collision>
+                <geometry>
+                    <mesh filename="${file_name}" scale="0.001 0.001 0.001"/>
+                </geometry>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>    
+            </collision>
+            
+            <xacro:inertial_box mass="${mass}" x="${size_x}" y="${size_y}" z="${size_z}" />
+        </link>
+        <joint name="${parent_link}_to_${name}" type="continuous">
+            <parent link="${parent_link}"/>
+            <child link="${name}"/>
+            <origin xyz="${x} ${y} ${z}"/>
+            <axis xyz="0 0 1"/>
+        </joint>
+
+        <transmission name="${name}_transmission">
+            <type>transmission_interface/SimpleTransmission</type>
+
+            <actuator name="${name}_motor" >
+                <mechanicalReduction>1.0</mechanicalReduction>
+                <!-- <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface> -->
+            </actuator>
+
+            <joint name="${parent_link}_to_${name}" type="continuous">
+                <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+            </joint>
+        </transmission>
+
+        <gazebo reference="${name}">
+            <material>Gazebo/Red</material>
+        </gazebo>
+
+    </xacro:macro> 
+
+    <!-- REVOLUTE -->
+
+    <xacro:macro name="steering_revolute" params="name parent_link mass size_x size_y size_z x y z upper_limit lower_limit file_name">
+        <link name="${name}">
+            <visual>
+                <geometry>
+                    <mesh filename="${file_name}" scale="0.001 0.001 0.001"/>
+                </geometry>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <material name="Grey"/>
+            </visual>
+
+            <collision>
+                <geometry>
+                    <mesh filename="${file_name}" scale="0.001 0.001 0.001"/>
+                </geometry>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>    
+            </collision>
+            
+            <xacro:inertial_box mass="${mass}" x="${size_x}" y="${size_y}" z="${size_z}" />
+        </link>
+
+        <joint name="${parent_link}_to_${name}" type="revolute">
+            <parent link="${parent_link}"/>
+            <child link="${name}"/>
+            <origin xyz="${x} ${y} ${z}"/>
+            <axis xyz="0 0 1"/>
+            <limit lower="${lower_limit}" upper="${upper_limit}" effort="10" velocity="10"/>
+        </joint>
+
+        <transmission name="${name}_transmission">
+            <type>transmission_interface/SimpleTransmission</type>
+
+            <actuator name="${name}_motor" >
+                <mechanicalReduction>1.0</mechanicalReduction>
+                <!-- <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface> -->
+            </actuator>
+
+            <joint name="${parent_link}_to_${name}" type="revolute">
+                <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+            </joint>
+        </transmission>
+
+        <gazebo reference="${name}">
+            <material>Gazebo/Red</material>
+        </gazebo>
+    </xacro:macro>
+
+<!-- ///////////////////////////////////////// WHEELS //////////////////////////////////// -->
+
+    <xacro:macro name="wheel" params="name parent_link mass radius thickness x y z mu1 mu2 kp kd file_name">
+        <link name="${name}" >
+            <visual>
+                <geometry>
+                    <mesh filename="${file_name}" scale="0.001 0.001 0.001"/>
+                </geometry>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <material name="White"/>
+            </visual>
+
+            <collision>
+                <geometry>
+                    <mesh filename="${file_name}" scale="0.001 0.001 0.001"/>
+                </geometry>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>    
+            </collision>
+            
+            <xacro:inertial_cylinder_y mass="${mass}" radius="${radius}" height="${thickness}" />        
+        </link>
+
+        <gazebo reference="${name}" >
+            <mu1 value="${mu1}"/>
+            <mu2 value="${mu2}"/>
+            <kp value="${kp}" />
+            <kd value="${kd}" />
+        </gazebo>
+
+        <joint name="${parent_link}_to_${name}" type="continuous">
+            <parent link="${parent_link}"/>
+            <child link="${name}"/>
+            <axis xyz="0 1 0" />
+            <origin xyz="${x} ${y} ${z}" />
+        </joint>
+
+        <transmission name="${name}_transmission">
+            <type>transmission_interface/SimpleTransmission</type>
+
+            <joint name="${parent_link}_to_${name}">
+                <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+            </joint>
+
+            <actuator name="${name}_motor">
+                <mechanicalReduction>1.0</mechanicalReduction>
+                <!-- <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface> -->
+            </actuator>
+
+        </transmission> 
+
+        <gazebo reference="${name}">
+            <material>Gazebo/Red</material>
+        </gazebo>
+
+    </xacro:macro>
+
+    <xacro:macro name="wheel_front" params="name parent_link mass radius thickness x y z mu1 mu2 kp kd file_name">
+        <link name="${name}" >
+            <visual>
+                <geometry>
+                    <mesh filename="${file_name}" scale="0.001 0.001 0.001"/>
+                </geometry>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <material name="White"/>
+            </visual>
+
+            <collision>
+                <geometry>
+                    <mesh filename="${file_name}" scale="0.001 0.001 0.001"/>
+                </geometry>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>    
+            </collision>
+            
+            <xacro:inertial_cylinder_y mass="${mass}" radius="${radius}" height="${thickness}" />        
+        </link>
+
+        <gazebo reference="${name}" >
+            <mu1 value="${mu1}"/>
+            <mu2 value="${mu2}"/>
+            <kp value="${kp}" />
+            <kd value="${kd}" />
+        </gazebo>
+
+        <joint name="${parent_link}_to_${name}" type="continuous">
+            <parent link="${parent_link}"/>
+            <child link="${name}"/>
+            <axis xyz="0 1 0" />
+            <origin xyz="${x} ${y} ${z}" />
+            <!-- <dynamics damping="0.0" friction="0.0"/> -->
+        </joint>
+
+
+        <gazebo reference="${name}">
+            <material>Gazebo/Red</material>
+        </gazebo>
+
+    </xacro:macro>
+
+</robot>
