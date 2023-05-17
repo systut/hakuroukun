@@ -7,7 +7,7 @@
   <xacro:property name="robot_length" value="1.430" />
   <xacro:property name="robot_width" value="0.810" />
   <xacro:property name="robot_height" value="1.070" />
-  <xacro:property name="robot_mass" value="200" />
+  <xacro:property name="robot_mass" value="240" />
   <!-- ///////////////////////////////////////////////////////////// -->
 
   <!-- /////////////////// Base link to Robot frame /////////////////// -->
@@ -29,6 +29,12 @@
   <xacro:property name="thickness" value="0.1" />
   <xacro:property name="radius" value="0.125" />
   <xacro:property name="mass_wheel" value="3.803" />
+  <!-- ///////////////////////////////////////////////////////////// -->
+
+    <!-- /////////////////// rear wheels /////////////////// -->
+  <xacro:property name="rear_thickness" value="0.499" />
+  <xacro:property name="rear_radius" value="0.125" />
+  <xacro:property name="rear_mass_wheel" value="17.606" />   <!--3.803+3.803+10-->
   <!-- ///////////////////////////////////////////////////////////// -->
   
 </robot>
