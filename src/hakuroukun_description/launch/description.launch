@@ -1,0 +1,30 @@
+<launch>
+
+    <!-- these are the arguments you can pass this launch file, for example paused:=true -->
+    <arg name="paused" default="false"/>
+    <arg name="use_sim_time" default="true"/>
+    <arg name="gui" default="true"/>
+    <arg name="headless" default="false"/>
+    <arg name="debug" default="false"/>
+    <arg name="world_name" default="worlds/empty.world"/>
+    <arg name="model" default="$(find hakuroukun_description)/urdf/hakuroukun.urdf.xacro"/>
+  
+    <!-- We resume the logic in empty_world.launch -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="debug" value="$(arg debug)" />
+        <arg name="gui" value="$(arg gui)" />
+        <arg name="paused" value="$(arg paused)"/>
+        <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+        <arg name="headless" value="$(arg headless)"/>
+        <arg name="world_name" value="$(arg world_name)"/>
+    </include>
+
+    <!-- URDFをパラメータに読み込み -->
+    <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
+
+    <!-- パラメータからURDFを読み取り、Gazeboでモデルを表示 -->
+    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" 
+            respawn="false" output="screen"
+            args="-z 1.0 -unpause -urdf -model hakuroukun -param robot_description"/>
+
+</launch>

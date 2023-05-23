@@ -1,0 +1,18 @@
+<launch>
+
+    <arg name="namespace" default="/hakuroukun" />
+
+    <!-- Load controller parameters -->
+    <rosparam command="load" file="$(find hakuroukun_control)/config/ackermann_control.yaml" />
+    <rosparam command="load" file="$(find hakuroukun_control)/config/steering_and_wheel_control.yaml" />
+
+    <!-- load the controllers -->
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+        output="screen" ns="/hakuroukun" 
+        args="
+        joint_state_publisher
+        ackermann_steering_controller
+        --shutdown-timeout 3"
+    />
+
+</launch>
