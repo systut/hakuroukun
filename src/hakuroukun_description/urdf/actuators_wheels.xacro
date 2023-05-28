@@ -44,7 +44,7 @@
         </transmission>
 
         <gazebo reference="${name}">
-            <material>Gazebo/Red</material>
+            <material>Gazebo/Grey</material>
         </gazebo>
 
     </xacro:macro> 
@@ -93,7 +93,7 @@
         </transmission>
 
         <gazebo reference="${name}">
-            <material>Gazebo/Red</material>
+            <material>Gazebo/Grey</material>
         </gazebo>
     </xacro:macro>
 
@@ -148,7 +148,7 @@
         </transmission> 
 
         <gazebo reference="${name}">
-            <material>Gazebo/Red</material>
+            <material>Gazebo/Grey</material>
         </gazebo>
 
     </xacro:macro>
@@ -190,7 +190,7 @@
 
 
         <gazebo reference="${name}">
-            <material>Gazebo/Red</material>
+            <material>Gazebo/Grey</material>
         </gazebo>
 
     </xacro:macro>
@@ -238,13 +238,13 @@
 
             <actuator name="${name}_motor">
                 <mechanicalReduction>1.0</mechanicalReduction>
-                <!-- <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface> -->
+                <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
             </actuator>
 
         </transmission> 
 
         <gazebo reference="${name}">
-            <material>Gazebo/Red</material>
+            <material>Gazebo/Grey</material>
         </gazebo>
 
     </xacro:macro>

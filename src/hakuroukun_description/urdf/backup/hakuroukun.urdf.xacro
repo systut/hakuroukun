@@ -52,7 +52,7 @@
     <link name="robot_frame">
         <visual>
             <geometry>  
-                <mesh filename="package://hakuroukun_description/meshes/new_base_link.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://hakuroukun_description/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
             </geometry>
             <origin rpy="0 0 0" xyz="0 0 0" />
             <material name="Green"/>
@@ -60,18 +60,13 @@
         
         <collision>
             <geometry>
-                <mesh filename="package://hakuroukun_description/meshes/new_base_link.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://hakuroukun_description/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
             </geometry>
             <origin rpy="0 0 0" xyz="0 0 0"/>
         </collision>
         
         <xacro:inertial_box mass="${robot_mass}" x="${robot_length}" y="${robot_width}" z="${robot_height}" />
-
     </link>
-
-    <gazebo reference="robot_frame">
-        <material>Gazebo/Green</material>
-    </gazebo>
 
     <joint name="base_link_to_robot_frame" type="fixed">
         <parent link="rear_axis_center" />
@@ -99,15 +94,25 @@
         kp="10000000" kd="40"
         file_name="package://hakuroukun_description/meshes/front_wheel.stl" />
 
-    <xacro:axis_and_wheel name="rear_wheel" 
+    <xacro:wheel name="rear_left_wheel" 
         parent_link="rear_axis_center" 
-        mass="${rear_mass_wheel}" 
-        radius="${rear_radius}"
-        thickness="${rear_thickness}" 
-        x="0.0" y="0.0" z="0.0" 
+        mass="${mass_wheel}" 
+        radius="${radius}"
+        thickness="${thickness}" 
+        x="0.0" y="0.4" z="0.0" 
         mu1="200" mu2="100" 
         kp="10000000" kd="40"
-        file_name="package://hakuroukun_description/meshes/new_rear.stl" />
+        file_name="package://hakuroukun_description/meshes/rear_left_wheel.stl" />
+
+    <xacro:wheel name="rear_right_wheel" 
+        parent_link="rear_axis_center" 
+        mass="${mass_wheel}" 
+        radius="${radius}"
+        thickness="${thickness}" 
+        x="0.0" y="-0.4" z="0.0" 
+        mu1="200" mu2="100" 
+        kp="10000000" kd="40"
+        file_name="package://hakuroukun_description/meshes/rear_right_wheel.stl" />
 
 <!-- ////////////////////////////// GAZEBO ROS PLUGIN //////////////////////////////////// -->
 
