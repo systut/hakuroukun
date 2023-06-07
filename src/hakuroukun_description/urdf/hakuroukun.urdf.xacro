@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<robot name="hakuroukun" xmlns:xacro="http://www.ros.org/wiki/xacro" >
+    
+    <!-- Import all robot parts which were xacroed -->
+    <xacro:include filename="$(find hakuroukun_description)/urdf/hakuroukun_inertia_box.xacro" />
+    <!-- Import Rviz colors -->
+    <xacro:include filename="$(find hakuroukun_description)/urdf/colors.xacro" />
+    <!-- Import robot properties -->
+    <xacro:include filename="$(find hakuroukun_description)/urdf/properties.xacro" />
+    <!-- Import wheels and actuator properties -->
+    <xacro:include filename="$(find hakuroukun_description)/urdf/actuators_wheels.xacro" />
+
+    <xacro:property name="robot_namespace" value="hakuroukun"/>
+
+    <!-- Base link-->
+    <link name="base_link">
+        <!-- <visual>
+            <geometry>
+                <box size="0.01 0.01 0.01"/>
+            </geometry>
+        </visual>
+        
+        <collision>
+            <geometry>
+                <box size="0.01 0.01 0.01"/>
+            </geometry>
+        </collision> -->
+    </link>
+    <gazebo reference="base_link">
+        <material>Gazebo/Red</material>
+    </gazebo>
+
+    <!-- rear center-->
+    <link name="rear_axis_center">
+        <visual>
+        <geometry>
+            <box size="0.01 0.01 0.01"/>
+        </geometry>
+        <material name="Red"/>
+        </visual>
+    </link>
+    <gazebo reference="rear_axis_center">
+        <material>Gazebo/Red</material>
+    </gazebo>
+    <joint name="base_link_to_rear_axis_center" type="fixed">
+        <parent link="base_link" />
+        <child link="rear_axis_center" />
+        <origin xyz="0.0 0.0 ${radius}" />
+    </joint>
+
+    <!-- Robot Frame-->
+    <link name="robot_frame">
+        <visual>
+            <geometry>  
+                <mesh filename="package://hakuroukun_description/meshes/new_base_link.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <material name="Green"/>
+        </visual>
+        
+        <collision>
+            <geometry>
+                <mesh filename="package://hakuroukun_description/meshes/new_base_link.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+        </collision>
+        
+        <xacro:inertial_box mass="${robot_mass}" x="${robot_length}" y="${robot_width}" z="${robot_height}" />
+
+    </link>
+
+    <gazebo reference="robot_frame">
+        <material>Gazebo/Green</material>
+    </gazebo>
+
+    <joint name="base_link_to_robot_frame" type="fixed">
+        <parent link="rear_axis_center" />
+        <child link="robot_frame" />
+        <origin xyz="${base_link_to_robot_frame_X} ${base_link_to_robot_frame_Y} ${base_link_to_robot_frame_Z}" />
+    </joint>
+
+<!-- ///////////////////////////////////////// STEERING //////////////////////////////////// -->
+    <xacro:steering_continuous name="front_wheel_shaft" 
+        parent_link="rear_axis_center" 
+        mass="${mass_steering_unit}"
+        size_x="${steering_X}"  size_y="${steering_Y}" size_z="${steering_Z}"
+        x="${rear_axis_center_to_steering_center}" y="-0.01" z="0.0"
+        file_name="package://hakuroukun_description/meshes/steering.stl" />
+
+<!-- ///////////////////////////////////////// WHEELS //////////////////////////////////// -->
+
+    <xacro:wheel_front name="front_wheel" 
+        parent_link="front_wheel_shaft" 
+        mass="${mass_wheel}" 
+        radius="${radius}"
+        thickness="${thickness}" 
+        x="0.0" y="0.0" z="0.0" 
+        mu1="200" mu2="100" 
+        kp="10000000" kd="40"
+        file_name="package://hakuroukun_description/meshes/front_wheel.stl" />
+
+    <xacro:axis_and_wheel name="rear_wheel" 
+        parent_link="rear_axis_center" 
+        mass="${rear_mass_wheel}" 
+        radius="${rear_radius}"
+        thickness="${rear_thickness}" 
+        x="0.0" y="0.0" z="0.0" 
+        mu1="200" mu2="100" 
+        kp="10000000" kd="40"
+        file_name="package://hakuroukun_description/meshes/new_rear.stl" />
+
+<!-- ////////////////////////////// GAZEBO ROS PLUGIN //////////////////////////////////// -->
+
+    <gazebo>
+        <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+            <robotNamespace>hakuroukun</robotNamespace>
+            <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+            <legacyModeNS>false</legacyModeNS>
+        </plugin>
+    </gazebo>
+
+</robot>

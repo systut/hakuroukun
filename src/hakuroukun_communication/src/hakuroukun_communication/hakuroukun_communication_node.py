@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # vim:fenc=utf-8
 #
@@ -6,11 +6,11 @@
 
 # Standard library
 
-
 # External library
 import serial
 import rospy
 from geometry_msgs.msg import Twist
+from std_msgs.msg import Bool
 import math
 import numpy as np
 import rosparam
@@ -30,19 +30,26 @@ class HakuroukunCommunicationNode(object):
         """
         rospy.init_node("hakuroukun_communication_node", anonymous=True)
         
-        port = rosparam.get_param("/hakuroukun_communication_node/port")
+        # Get parametes
+        port = rospy.get_param("/hakuroukun_communication_node/port")
 
-        baud_rate = rosparam.get_param(
+        baud_rate = rospy.get_param(
             "/hakuroukun_communication_node/baud_rate")
 
-        controller_rate = rosparam.get_param(
+        controller_rate = rospy.get_param(
             "/hakuroukun_communication_node/controller_rate")
 
         self.connection = serial.Serial(port, int(baud_rate), timeout=None)
 
+        # Velocity subscriber
         self.velocity_subscriber = rospy.Subscriber(
             "/cmd_vel", Twist, self._velocity_callback)
 
+        # Emergency stop signal subscriber
+        self.emergency_stop_sub = rospy.Subscriber(
+            "/emergency_stop", Bool, self._emergency_stop_callback)
+
+        # Ros Timer
         self.timer = rospy.Timer(
             rospy.Duration(1/controller_rate), 
             self._timer_callback)
@@ -93,14 +100,22 @@ class HakuroukunCommunicationNode(object):
         """! Apply system indentification so as to send the right voltage
         @param[in] msg: velocity message in Twist form
         """
-        linear_velocity = self.velocity_msg.linear.x
 
-        angular_velocity = self.velocity_msg.angular.z
+        # Emergency Stop Flag Check
+        if self.emergency_stop_flag:
+            linear_velocity = 0
 
+            angular_velocity = 0
+        
+        else:
+
+            linear_velocity = self.velocity_msg.linear.x
+
+            angular_velocity = self.velocity_msg.angular.z
+
+        # ==========================================================================
         # TODO: Add system indentification equation here
-
-        ## NOTE: why sampling time is needed here?
-        sampling_time = 0.1
+        # ==========================================================================
 
         ## NOTE: we should avoid magical number
         acceleration_command = (linear_velocity + 1.93)/0.003486

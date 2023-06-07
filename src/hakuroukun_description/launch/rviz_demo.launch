@@ -1,0 +1,21 @@
+<launch>
+
+    <arg name="model" default="$(find hakuroukun_description)/urdf/hakuroukun.urdf.xacro"/>
+    <arg name="gui" default="false" />
+    <arg name="rvizconfig" default="$(find hakuroukun_description)/rviz/urdf.rviz" />
+
+    <!-- Setting Gui Parameter to true for display joint slider -->
+    <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
+
+    <node if="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" />    
+    <!-- Starting joint state publisher node which will publish the joint values -->
+    <node unless="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+
+    <!-- Launch the robot state publisher -->
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+        <param name="publish_frequency" type="double" value="50.0" />
+    </node>
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+
+</launch>
