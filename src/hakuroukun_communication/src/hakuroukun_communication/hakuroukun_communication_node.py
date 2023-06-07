@@ -13,6 +13,9 @@ import rospy
 from geometry_msgs.msg import Twist
 import math
 import numpy as np
+import rosparam
+import time
+
 
 class HakuroukunCommunicationNode(object):
     """!
@@ -35,14 +38,16 @@ class HakuroukunCommunicationNode(object):
         controller_rate = rosparam.get_param(
             "/hakuroukun_communication_node/controller_rate")
 
-        self.connection = serial.Serial(port, baud_rate, timeout=None)
+        self.connection = serial.Serial(port, int(baud_rate), timeout=None)
 
         self.velocity_subscriber = rospy.Subscriber(
             "/cmd_vel", Twist, self._velocity_callback)
 
         self.timer = rospy.Timer(
-            rospy.Duration(controller_rate), 
+            rospy.Duration(1/controller_rate), 
             self._timer_callback)
+
+        self.sequence_id = 0
 
     def run(self) -> None:
         """! Start ros node
@@ -52,21 +57,39 @@ class HakuroukunCommunicationNode(object):
     # ==========================================================================
     # PRIVATE FUNCTION
     # ==========================================================================
-    def _timer_callback(self, event: rospy.TimerEvent) -> None:
+    def _timer_callback(self, event) -> None:
         """! Callback function for velocity timer
         @param[in] event: timer event
         """
-        acceleration_command, steering_command = self._apply_indentification()
+        # acceleration_command, steering_command = self._apply_indentification()
 
-        self.connection.write(f"{acceleration_command}{steering_command}")
-    
+        self._generate_command(acceleration_command, steering_command)
+
+        self.connection.write(bytes("0000000000000\r\n", encoding='ascii'))
+
+        self.connection.flush()
+
+        time.sleep(0.5)
+
+        data = b""
+
+        data = self.connection.readline()
+
+        rospy.loginfo(data)
+
+    def _generate_command(self, acceleration_command, steering_command):
+        """! Generate comment for serial communication
+        @param[in] msg: velocity message in Twist form
+        """
+        pass
+
     def _velocity_callback(self, msg: Twist) -> None:
         """! Callback function for velocity subscriber
         @param[in] msg: velocity message in Twist form
         """
         self.velocity_msg = msg
     
-    def _apply_indentification(self) -> Tuple[str, str]:
+    def _apply_indentification(self):
         """! Apply system indentification so as to send the right voltage
         @param[in] msg: velocity message in Twist form
         """
@@ -83,18 +106,18 @@ class HakuroukunCommunicationNode(object):
         acceleration_command = (linear_velocity + 1.93)/0.003486
 
         ## NOTE: we should avoid magical number
-        steering command = (math.degrees(np.arcsin(0.95*angular_velocity/0.27))+127.26)/0.2362
+        steering_command = (math.degrees(np.arcsin(0.95*angular_velocity/0.27))+127.26)/0.2362
 
         ## NOTE: we should avoid magical number
         if acceleration_command > 680:
             acceleration_command = 680
-        else if acceleration_command < 580:
+        elif acceleration_command < 580:
             acceleration_command = 580
 
         ## NOTE: we should avoid magical number
         if steering_command > 760:
             steering_command = 760
-        else if steering_command < 370:
+        elif steering_command < 370:
             steering_command = 370
 
         return acceleration_command, steering_command
