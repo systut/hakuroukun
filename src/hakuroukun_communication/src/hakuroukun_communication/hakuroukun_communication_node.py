@@ -45,16 +45,14 @@ class HakuroukunCommunicationNode(object):
         self.velocity_subscriber = rospy.Subscriber(
             "/cmd_vel", Twist, self._velocity_callback)
 
-        # Emergency stop signal subscriber
-        self.emergency_stop_sub = rospy.Subscriber(
-            "/emergency_stop", Bool, self._emergency_stop_callback)
-
         # Ros Timer
         self.timer = rospy.Timer(
-            rospy.Duration(1/controller_rate), 
+            rospy.Duration(1/float(controller_rate)), 
             self._timer_callback)
 
         self.sequence_id = 0
+
+        self.velocity_msg = Twist()
 
     def run(self) -> None:
         """! Start ros node
@@ -68,15 +66,13 @@ class HakuroukunCommunicationNode(object):
         """! Callback function for velocity timer
         @param[in] event: timer event
         """
-        # acceleration_command, steering_command = self._apply_indentification()
+        acceleration_command, steering_command = self._apply_indentification()
 
-        self._generate_command(acceleration_command, steering_command)
+        command = f"0{steering_command}{acceleration_command}"
 
-        self.connection.write(bytes("0000000000000\r\n", encoding='ascii'))
+        self.connection.write(bytes(f"{command}\r\n", encoding='ascii'))
 
         self.connection.flush()
-
-        time.sleep(0.5)
 
         data = b""
 
@@ -102,32 +98,27 @@ class HakuroukunCommunicationNode(object):
         """
 
         # Emergency Stop Flag Check
-        if self.emergency_stop_flag:
-            linear_velocity = 0
+        linear_velocity = self.velocity_msg.linear.x
 
-            angular_velocity = 0
-        
-        else:
-
-            linear_velocity = self.velocity_msg.linear.x
-
-            angular_velocity = self.velocity_msg.angular.z
+        angular_velocity = self.velocity_msg.angular.z
 
         # ==========================================================================
         # TODO: Add system indentification equation here
         # ==========================================================================
 
         ## NOTE: we should avoid magical number
-        acceleration_command = (linear_velocity + 1.93)/0.003486
-
+        acceleration_command = (linear_velocity + 1)*290
+        print(linear_velocity)
+        print(angular_velocity)
         ## NOTE: we should avoid magical number
         steering_command = (math.degrees(np.arcsin(0.95*angular_velocity/0.27))+127.26)/0.2362
-
+        print(acceleration_command)
+        print(steering_command)
         ## NOTE: we should avoid magical number
         if acceleration_command > 680:
             acceleration_command = 680
-        elif acceleration_command < 580:
-            acceleration_command = 580
+        elif acceleration_command < 290:
+            acceleration_command = 290
 
         ## NOTE: we should avoid magical number
         if steering_command > 760:
@@ -135,4 +126,4 @@ class HakuroukunCommunicationNode(object):
         elif steering_command < 370:
             steering_command = 370
 
-        return acceleration_command, steering_command
+        return int(acceleration_command), int(steering_command)
