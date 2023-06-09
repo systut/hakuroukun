@@ -80,6 +80,7 @@ class HakuroukunCommunicationNode(object):
 
         rospy.loginfo(data)
 
+
     def _generate_command(self, acceleration_command, steering_command):
         """! Generate comment for serial communication
         @param[in] msg: velocity message in Twist form
