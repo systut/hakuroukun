@@ -61,7 +61,6 @@ void setup()
   while (!Serial.available());
 }
 
-
 void loop()
 {
   if (Serial.available())

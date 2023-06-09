@@ -72,6 +72,7 @@ void loop() {
     if (command.length() != 9) {
       control_status = "1";
 
+
     }
     else {
       control_status = "0";
