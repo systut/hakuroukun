@@ -108,12 +108,10 @@ class HakuroukunCommunicationNode(object):
 
         ## NOTE: we should avoid magical number
         acceleration_command = (linear_velocity + 1)*290
-        print(linear_velocity)
-        print(angular_velocity)
+
         ## NOTE: we should avoid magical number
         steering_command = (math.degrees(np.arcsin(0.95*angular_velocity/0.27))+127.26)/0.2362
-        print(acceleration_command)
-        print(steering_command)
+
         ## NOTE: we should avoid magical number
         if acceleration_command > 680:
             acceleration_command = 680
