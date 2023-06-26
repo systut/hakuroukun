@@ -21,6 +21,9 @@ const int MD_ac_PWM = 12;
 const int LED_st = 40;
 const int LED_ac = 41;
 
+const int RELAY_ALARM = 50;
+const int RELAY_MOTOR = 51;
+
 int PM_st, PM_ac;
 int PUSH_stR = 0, PUSH_stL = 0, PUSH_acU = 0, PUSH_acD = 0;
 int pre_st = 0, pre_ac = 0;
@@ -37,6 +40,8 @@ String command = "";
 String acceleration = "290";
 String steering = "565";
 String control_status = "0";
+String direction = "0";
+String direction_mode = "0"; // 0 for forward, 1 for backward
 
 void setup() {
   Serial.begin(115200);
@@ -54,6 +59,9 @@ void setup() {
   pinMode(LED_st, OUTPUT);
   pinMode(LED_ac, OUTPUT);
 
+  pinMode(RELAY_ALARM, OUTPUT);
+  pinMode(RELAY_MOTOR, OUTPUT);
+
   digitalWrite(MD_st_DIR, LOW);
   digitalWrite(MD_st_PWM, LOW);
   digitalWrite(MD_ac_DIR, LOW);
@@ -61,6 +69,9 @@ void setup() {
 
   digitalWrite(LED_st, LOW);
   digitalWrite(LED_ac, LOW);
+
+  digitalWrite(RELAY_ALARM, LOW);
+  digitalWrite(RELAY_MOTOR, LOW);
 }
 
 
@@ -69,27 +80,36 @@ void loop() {
     command = Serial.readStringUntil("\r\n");
 
     // 0 000 000
-    if (command.length() != 9) {
+    if (command.length() != 10) {
       control_status = "1";
-
 
     }
     else {
       control_status = "0";
 
-      steering = command.substring(1, 4);
+      direction = command.substring(1, 2);
 
-      acceleration = command.substring(4, 7);
+      steering = command.substring(2, 5);
+
+      acceleration = command.substring(5, 8);
 
       com_st = steering.toInt();
 
       com_ac = acceleration.toInt();
     }
-    String response = control_status + steering + acceleration;
+    String response = control_status + direction + steering + acceleration;
 
     Serial.println(response);
 
-    Serial.flush();    
+    Serial.flush();
+  }
+
+  if (direction == "1") {
+    switch_backward();
+
+  } else {
+    switch_forward();
+
   }
 
   if ((com_st > PM_st_N + PM_st_LIML || com_st < PM_st_N - PM_st_LIMR) || (com_ac > PM_ac_N + PM_ac_LIMU || com_ac < PM_ac_N - PM_ac_LIMD))
@@ -100,6 +120,24 @@ void loop() {
 
   motor_st(com_st);
   motor_ac(com_ac);
+}
+
+void switch_backward() {
+  if (direction_mode == "1") return;
+
+  digitalWrite(RELAY_ALARM, HIGH);
+  digitalWrite(RELAY_MOTOR, HIGH);
+
+  direction_mode = "1";
+}
+
+void switch_forward() {
+  if (direction_mode == "0") return;
+
+  digitalWrite(RELAY_ALARM, LOW);
+  digitalWrite(RELAY_MOTOR, LOW);
+
+  direction_mode = "0";
 }
 
 void motor_st(int PM_st_REF)

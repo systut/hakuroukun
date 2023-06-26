@@ -68,7 +68,7 @@ class HakuroukunCommunicationNode(object):
         """
         acceleration_command, steering_command = self._apply_indentification()
 
-        command = f"0{steering_command}{acceleration_command}"
+        command = f"0{self.direction}{steering_command}{acceleration_command}"
 
         self.connection.write(bytes(f"{command}\r\n", encoding='ascii'))
 
@@ -97,9 +97,12 @@ class HakuroukunCommunicationNode(object):
         """! Apply system indentification so as to send the right voltage
         @param[in] msg: velocity message in Twist form
         """
+        self.direction = "0"
 
-        # Emergency Stop Flag Check
-        linear_velocity = self.velocity_msg.linear.x
+        if self.velocity_msg.linear.x < 0: 
+            self.direction = "1"
+
+        linear_velocity = abs(self.velocity_msg.linear.x)
 
         angular_velocity = self.velocity_msg.angular.z
 
