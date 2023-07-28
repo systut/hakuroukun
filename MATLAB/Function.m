@@ -8,7 +8,7 @@ function mx = Function(mx,u,dt)
     
     B = [dt*cos(mx(3)) 0
         dt*sin(mx(3)) 0
-        0 dtf
+        0 dt
         1 0
         0 1];
     

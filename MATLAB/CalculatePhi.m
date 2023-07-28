@@ -2,7 +2,7 @@ function [phi,flag] = CalculatePhi(P1,P2,param,x,y,theta,distp2)
     a = param(1);
     b = param(2);
     c = param(3);
-    kp = 1.0;%変える？ 0.67 1.5
+    kp = 1.0;
     n = [a b];
     Pn = [x y];
     
@@ -19,12 +19,6 @@ function [phi,flag] = CalculatePhi(P1,P2,param,x,y,theta,distp2)
     sgn = sign(cross([P1c 0],[P12 0]));
     beta = rad2deg(atan(kp*sgn(3)*dis));
     phi = rad2deg(angdiff(deg2rad(theta-theta_r),deg2rad(beta)));
-    
-    % if(norm(P12) <= norm(P1r))%ここ変える？
-    %     flag = 1;
-    % else
-    %     flag = 0;
-    % end
     
     distP = norm(P12) - norm(P1r);
     if(distP <= distp2)

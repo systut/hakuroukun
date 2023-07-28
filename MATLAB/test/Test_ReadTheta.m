@@ -10,4 +10,11 @@ theta = 0;
 
 rz_offset = 0.0;
 
-theta = ReadTheta(tcp,theta,rz_offset);
+% theta = ReadTheta(tcp,theta,rz_offset);
+
+tic
+while(toc < 10)
+    if(tcp.NumBytesAvailable >= 10)
+        theta = ReadTheta(tcp,theta,rz_offset);
+    end
+end

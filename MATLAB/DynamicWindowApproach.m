@@ -80,7 +80,7 @@ function [mx,traj]=GenerateTrajectory(mx,vt,ot,evaldt,model, dt)
     traj=mx;%軌跡データ
     while time<=evaldt
         time=time+dt;%シミュレーション時間の更新
-        mx=Function(mx,u);%運動モデルによる推移
+        mx=Function(mx,u,dt);%運動モデルによる推移
         traj=[traj mx];
     end
 end
