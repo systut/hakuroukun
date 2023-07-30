@@ -1,4 +1,4 @@
-function goal = GenerateGoal(start, plus, main_goal, mx, goal)
+function goal = GenerateGoal(start, plus, main_goal, mx)
     a1 = main_goal(1)-start(1);
     a2 = main_goal(2)-start(2);
     a = a2/a1;
@@ -21,8 +21,9 @@ function goal = GenerateGoal(start, plus, main_goal, mx, goal)
         A = plus*cos(theta_g);
         B = plus*sin(theta_g);
     end
-        x2 = xg+A;
-        y2 = yg+B;
+    
+    x2 = xg+A;
+    y2 = yg+B;
     
     goal = [x2,y2]';%DWAゴールの位置 [x(m),y(m)] DWA時に逐次更新
     

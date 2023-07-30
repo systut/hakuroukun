@@ -34,9 +34,9 @@ global flag_goal;flag_goal = 0;
 global flag_A;flag_A = 0;
 
 %% ---------------------------------------------
-global pdis;pdis = 0.3;
+global pdis;pdis = 0.8;
 global distp2;distp2 = 1.0;
-global plus; plus = 0.3;  %ゴール生成位置 自機＋〇
+global plus; plus = 1.5;  %ゴール生成位置 自機＋〇
 %% ---------------------------------------------
 x = 0.0;
 y = 0.0;
@@ -100,9 +100,6 @@ end
 rz_offset = theta/(offset_count/(1/0.15))*100;
 theta = theta_0;
 
-% Device_GPS
-% id = fopen('EXdata\gps','r');
-% [time,Pos] = ReadPosition(id,x,y,theta)
 port = 'COM9';
 [time,Pos] = ReadPosition2(port); % Get current Position of GPS
 P1 = Pos;
@@ -116,13 +113,11 @@ global start; start=[P1(1) P1(2)];                      %ロボットの初期�
 global main_goal; main_goal = [P2(1),P2(2)]';           %終了ポイント
 global mx; mx = [Pos(1) Pos(2) deg2rad(theta) 0 0]';    %ロボットの初期状態[x(m),y(m),yaw(Rad),v(m/s),ω(rad/s)]
 
-goal = GenerateGoal(start, plus, main_goal, mx, goal);
+goal = GenerateGoal(start, plus, main_goal, mx);
 
-%data = [];
 for i = 1:1
     for ii = 1:1:4
         fprintf("MAIN GOAL : %f\n",ii);
-        %data = [%data; ["MAIN GOAL", ii, goal(1), goal(2), mx(1), mx(2), deg2rad(theta) ,phi ,com_ac, com_s]];
         flag = 0;
         flag_A = 0;
         flag_goal = 0;
@@ -151,29 +146,24 @@ for i = 1:1
             distp2 = 0.5;
         end
         
-        goal = GenerateGoal(start, plus, main_goal, mx, goal);
+        goal = GenerateGoal(start, plus, main_goal, mx);
         fprintf("Generated Goal %f, %f\n",goal(1), goal(2));
-        %data = [%data; ["Generated Goal", ii, goal(1), goal(2), mx(1), mx(2), deg2rad(theta) ,phi ,com_ac, com_s]];
         Tstart = tic;
         tic
         while (flag == 0)
             
             while true
-                % Get Current State
-                % [time,Pos] = ReadPosition(id,x,y,theta);
-                [time,Pos] = ReadPosition2(port);
-                
-                x = Pos(1);
-                y = Pos(2);
-                fprintf("IMU READED %f \n", tcp.NumBytesAvailable);
                 if(tcp.NumBytesAvailable >= 10)
                     theta = rad2deg(angdiff(0,deg2rad(ReadTheta(tcp,theta,rz_offset))));
                     flush(tcp);
                     fprintf("Theta : %f \n", theta);
                 end
                 fprintf("Current Pos %f,%f,%f\n",x,y,theta);
-                %data = [%data; ["Current Pos", ii, goal(1), goal(2), mx(1), mx(2), deg2rad(theta) ,phi ,com_ac, com_s]];
-                % Set No detection at first and first run mess
+
+                [time,Pos] = ReadPosition2(port);
+                x = Pos(1);
+                y = Pos(2);
+
                 detect = 0;
                 velocity = 1;
                 if (DWA == 5)
@@ -242,11 +232,9 @@ for i = 1:1
                     
                     [phi,flag] = c_phi(x,y,theta);
                     
-                    if(true)
+                    if(DWA_go == 1)
                         fprintf('Dynamic Window Approach start!!')
-%                         [time,Pos] = ReadPosition(id,x,y,theta);
                         [time,Pos] = ReadPosition2(port);
-                        %data = [%data; ["DWA_start", ii, goal(1), goal(2), mx(1), mx(2), deg2rad(theta) ,phi ,com_ac, com_s]];
                         [u, mx, result, obstacle] = RunDWA(dt,scanMsg1,scanMsg2,goal,Pos,theta,result);
                         %アクセル踏込量設定
                         com_ac = round((u(1,1)+1.93)/0.003486);
@@ -269,23 +257,10 @@ for i = 1:1
                         com_str = sprintf("%d,%d",com_st,com_ac);%発進措置
                         writeline(arduino,com_str);
                         DWA = DWA + 1;
-                        %data = [%data; ["DWA running",ii, goal(1), goal(2), mx(1), mx(2), deg2rad(theta) ,phi ,com_ac, com_s]];
                     elseif(velocity == 1)%直進時
-                        com_s = round(538.78+phi/0.2362);%538.78
-                        if(com_s > 760)%760
-                            com_s = 760;
-                        elseif(com_s < 370)%370
-                            com_s = 370;
-                        end
-                        com_a = 630;
-                        if(com_a > 680)
-                            com_a = 680;
-                        elseif (com_a < 580)%290
-                            com_a = 580;%290
-                        end
-                        %data = [%data; ["Forward running", ii, goal(1), goal(2), mx(1), mx(2), deg2rad(theta) ,phi ,com_ac, com_s]];
-                    com_str = sprintf("%d,%d",com_s,com_a);%発進措置
-                    writeline(arduino,com_str);
+                        [com_s,com_a] = VelocityControl(phi);
+                        com_str = sprintf("%d,%d",com_s,com_a);%発進措置
+                        writeline(arduino,com_str);
                     end
                     
                     
@@ -294,9 +269,8 @@ for i = 1:1
                     end
                     
                     if(flag_goal == 0)
-                        goal = GenerateGoal(start, plus, main_goal, mx, goal);
+                        goal = GenerateGoal(start, plus, main_goal, mx);
                         fprintf("Generated Goal %f, %f\n",goal(1), goal(2));
-                        %data = [%data; ["Generated Goal", ii, goal(1), goal(2), mx(1), mx(2), deg2rad(theta) ,phi ,com_ac, com_s]];
                     end
                     
                     if (norm(main_goal(1:2)-goal(1:2))<pdis  && flag_goal == 0)
@@ -315,10 +289,6 @@ for i = 1:1
                         fprintf('Arrive Goal!!');
                         flag_A = 1;
                     end
-                    %% LOG DATA
-%                     header = ["Process", "Main_goal", "Goal_x", "Goal_y", "Pos_X", "Pos_Y", "Pos_Theta", "Pos_Phi", "Com Accelerate", "Com Steering"];
-%                     WriteToCsv(%data, header);
-%                     fprintf("%f,%f,%f,%f,%f,%s\n",time,x,y,theta,phi,com_str);
                     quiver(x,y,cos(deg2rad(theta)),sin(deg2rad(theta)),0.5,'Color','b','Marker','o');
                     plot(main_goal(1),main_goal(2),'*m');hold on;
                     plot(goal(1),goal(2),'*r');hold on;

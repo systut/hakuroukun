@@ -8,7 +8,7 @@ function ret = ReadTheta(tcp,theta,rz_offset)
         rot_z = (data_imu(7)-rz_offset)/100*0.15;
         theta = theta+rot_z;
     else
-        fprintf("message：%s\n",str_imu);
+        fprintf("message:%s\n",str_imu);
     end
     ret = theta;
 end
