@@ -1,0 +1,50 @@
+rz_offset =
+  -39.0000
+time =
+   3.2331e+04
+Pos =
+    3.8106  -20.1444
+32331.800000,3.814131,-20.136684,97.003000,0.258582,540,630
+32332.800000,3.810817,-20.137198,97.019500,0.050012,539,630
+32333.800000,3.817744,-20.141307,97.030000,0.404735,540,630
+32334.800000,3.824937,-20.266689,97.681000,-0.713249,536,630
+32335.800000,3.833254,-20.541617,98.807500,-3.287319,525,630
+{関数または変数 'lenght' が認識されません。
+エラー: <a href="matlab:matlab.internal.language.introspective.errorDocCallback('kyokusho_SHURON2>obodom1', 'C:\Users\y21n5\OneDrive\デスクトップ\2021年度研究_山口\修士研究_清掃ロボット\プログラム(MATLAB)\lidar\kyokusho_SHURON2.m', 644)" style="font-weight:bold">kyokusho_SHURON2>obodom1</a> (<a href="matlab: opentoline('C:\Users\y21n5\OneDrive\デスクトップ\2021年度研究_山口\修士研究_清掃ロボット\プログラム(MATLAB)\lidar\kyokusho_SHURON2.m',644,0)">行 644</a>)
+for ir1=1:lenght(IR1)
+エラー: <a href="matlab:matlab.internal.language.introspective.errorDocCallback('kyokusho_SHURON2>DWA_1', 'C:\Users\y21n5\OneDrive\デスクトップ\2021年度研究_山口\修士研究_清掃ロボット\プログラム(MATLAB)\lidar\kyokusho_SHURON2.m', 404)" style="font-weight:bold">kyokusho_SHURON2>DWA_1</a> (<a href="matlab: opentoline('C:\Users\y21n5\OneDrive\デスクトップ\2021年度研究_山口\修士研究_清掃ロボット\プログラム(MATLAB)\lidar\kyokusho_SHURON2.m',404,0)">行 404</a>)
+obstacle1=obodom1(mx);%障害物座標の計算1
+エラー: <a href="matlab:matlab.internal.language.introspective.errorDocCallback('kyokusho_SHURON2', 'C:\Users\y21n5\OneDrive\デスクトップ\2021年度研究_山口\修士研究_清掃ロボット\プログラム(MATLAB)\lidar\kyokusho_SHURON2.m', 205)" style="font-weight:bold">kyokusho_SHURON2</a> (<a href="matlab: opentoline('C:\Users\y21n5\OneDrive\デスクトップ\2021年度研究_山口\修士研究_清掃ロボット\プログラム(MATLAB)\lidar\kyokusho_SHURON2.m',205,0)">行 205</a>)
+                        u = DWA_1();} 
+serialport デバイスへの接続を検出できません。デバイスが接続されていることを確認し、新しい serialport オブジェクトを作成してください。
+rosshutdown
+NodeURI が http://192.168.43.108:52350/ のグローバル ノード /matlab_global_node_11113 をシャットダウン中
+Arduino Mega 2560 detected.
+To use this device with MATLAB, install <a href="matlab:matlab.internal.language.introspective.showAddon('ML_ARDUINO')">MATLAB Support Package for Arduino Hardware.</a> 
+To use this device with Simulink, install <a href="matlab:matlab.internal.language.introspective.showAddon('ARDUINO')">Simulink Support Package for Arduino Hardware.</a>
+
+kyokusho_SHURON2
+NodeURI が http://192.168.43.108:52399/ のグローバル ノード /matlab_global_node_28699 を初期化中
+グローバル ノードからマスター URI http://192.168.43.67:11311 を使用して ROS マスターに接続しています。
+[警告: ファイルが見つからないかアクセスが許可されていません] 
+[> <a href="matlab:matlab.internal.language.introspective.errorDocCallback('kyokusho_SHURON2', 'C:\Users\y21n5\OneDrive\デスクトップ\2021年度研究_山口\修士研究_清掃ロボット\プログラム(MATLAB)\lidar\kyokusho_SHURON2.m', 52)" style="font-weight:bold">kyokusho_SHURON2</a> (<a href="matlab: opentoline('C:\Users\y21n5\OneDrive\デスクトップ\2021年度研究_山口\修士研究_清掃ロボット\プログラム(MATLAB)\lidar\kyokusho_SHURON2.m',52,0)">行 52</a>) 内] 
+rz_offset =
+  -35.1791
+time =
+   3.2776e+04
+Pos =
+    3.7492  -19.2554
+{インデックスが配列要素数 (391) を超えています。
+エラー: <a href="matlab:matlab.internal.language.introspective.errorDocCallback('kyokusho_SHURON2>obodom1', 'C:\Users\y21n5\OneDrive\デスクトップ\2021年度研究_山口\修士研究_清掃ロボット\プログラム(MATLAB)\lidar\kyokusho_SHURON2.m', 650)" style="font-weight:bold">kyokusho_SHURON2>obodom1</a> (<a href="matlab: opentoline('C:\Users\y21n5\OneDrive\デスクトップ\2021年度研究_山口\修士研究_清掃ロボット\プログラム(MATLAB)\lidar\kyokusho_SHURON2.m',650,0)">行 650</a>)
+obdR1 = R1(m1);
+エラー: <a href="matlab:matlab.internal.language.introspective.errorDocCallback('kyokusho_SHURON2>DWA_1', 'C:\Users\y21n5\OneDrive\デスクトップ\2021年度研究_山口\修士研究_清掃ロボット\プログラム(MATLAB)\lidar\kyokusho_SHURON2.m', 404)" style="font-weight:bold">kyokusho_SHURON2>DWA_1</a> (<a href="matlab: opentoline('C:\Users\y21n5\OneDrive\デスクトップ\2021年度研究_山口\修士研究_清掃ロボット\プログラム(MATLAB)\lidar\kyokusho_SHURON2.m',404,0)">行 404</a>)
+obstacle1=obodom1(mx);%障害物座標の計算1
+エラー: <a href="matlab:matlab.internal.language.introspective.errorDocCallback('kyokusho_SHURON2', 'C:\Users\y21n5\OneDrive\デスクトップ\2021年度研究_山口\修士研究_清掃ロボット\プログラム(MATLAB)\lidar\kyokusho_SHURON2.m', 205)" style="font-weight:bold">kyokusho_SHURON2</a> (<a href="matlab: opentoline('C:\Users\y21n5\OneDrive\デスクトップ\2021年度研究_山口\修士研究_清掃ロボット\プログラム(MATLAB)\lidar\kyokusho_SHURON2.m',205,0)">行 205</a>)
+                        u = DWA_1();} 
+rosshutdown
+NodeURI が http://192.168.43.108:52399/ のグローバル ノード /matlab_global_node_28699 をシャットダウン中
+serialport デバイスへの接続を検出できません。デバイスが接続されていることを確認し、新しい serialport オブジェクトを作成してください。
+Arduino Mega 2560 detected.
+To use this device with MATLAB, install <a href="matlab:matlab.internal.language.introspective.showAddon('ML_ARDUINO')">MATLAB Support Package for Arduino Hardware.</a> 
+To use this device with Simulink, install <a href="matlab:matlab.internal.language.introspective.showAddon('ARDUINO')">Simulink Support Package for Arduino Hardware.</a>
+
