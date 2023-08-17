@@ -1,4 +1,4 @@
-from setuptools import setup,find_packages
+from setuptools import setup
 
 setup(
     name="obstacle_detection",
@@ -8,7 +8,8 @@ setup(
     author="Dinh Ngoc Duc",
     author_email="dinh.ngoc.duc.mo@tut.ac.jp",
     license="MIT",
-    packages=find_packages("obstacle_detection"),
+    packages=['obstacle_detection'],
+    package_dir={'':'src'},
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: BSD License",
@@ -19,3 +20,4 @@ setup(
         "Programming Language :: Python :: 3.6",
     ],
 )
+

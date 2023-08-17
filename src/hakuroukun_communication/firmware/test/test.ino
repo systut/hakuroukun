@@ -1,12 +1,13 @@
 #define SPEED_st 255
 #define SPEED_ac 100
-#define PM_st_N 565 //565 250
-#define PM_st_LIMR 195
-#define PM_st_LIML 195
-#define PM_ac_N 290 //290
-#define PM_ac_LIMU 390
-#define PM_ac_LIMD 20
+#define PM_st_N 550
+#define PM_st_LIM_R 195
+#define PM_st_LIM_L 195
+#define PM_ac_N 290
+#define PM_ac_LIM_U 390
+#define PM_ac_LIM_D 20
 #define TIME 1000
+#define TEST_TIME 10000
 
 const int BUTTON_stR = 30;
 const int BUTTON_stL = 31;
@@ -25,23 +26,23 @@ const int RELAY_ALARM = 50;
 const int RELAY_MOTOR = 51;
 
 int PM_st, PM_ac;
-int PUSH_stR = 0, PUSH_stL = 0, PUSH_acU = 0, PUSH_acD = 0;
+int PUSH_st_R = 0, PUSH_st_L = 0, PUSH_ac_U = 0, PUSH_ac_D = 0;
 int pre_st = 0, pre_ac = 0;
 
 unsigned long time_st = 0, time_ac = 0;
+unsigned long start_time;
 
 String com, com1, com2;
 int com_st = PM_st_N;
 int com_ac = PM_ac_N;
 
-
-
 String command = "";
 String acceleration = "290";
-String steering = "565";
+String steering = "550";
 String control_status = "0";
 String direction = "0";
 String direction_mode = "0"; // 0 for forward, 1 for backward
+bool stop_signal = false;
 
 void setup() {
   Serial.begin(115200);
@@ -76,15 +77,19 @@ void setup() {
 
 
 void loop() {
+  
   if (Serial.available()) {
+
     command = Serial.readStringUntil("\r\n");
 
-    // 0 000 000
+    // 00 000 000
     if (command.length() != 10) {
       control_status = "1";
 
     }
+
     else {
+
       control_status = "0";
 
       direction = command.substring(1, 2);
@@ -96,7 +101,9 @@ void loop() {
       com_st = steering.toInt();
 
       com_ac = acceleration.toInt();
+
     }
+
     String response = control_status + direction + steering + acceleration;
 
     Serial.println(response);
@@ -112,7 +119,7 @@ void loop() {
 
   }
 
-  if ((com_st > PM_st_N + PM_st_LIML || com_st < PM_st_N - PM_st_LIMR) || (com_ac > PM_ac_N + PM_ac_LIMU || com_ac < PM_ac_N - PM_ac_LIMD))
+  if ((com_st > PM_st_N + PM_st_LIM_L || com_st < PM_st_N - PM_st_LIM_R) || (com_ac > PM_ac_N + PM_ac_LIM_U || com_ac < PM_ac_N - PM_ac_LIM_D))
   {
     com_st = PM_st_N;
     com_ac = PM_ac_N;
@@ -120,6 +127,7 @@ void loop() {
 
   motor_st(com_st);
   motor_ac(com_ac);
+  
 }
 
 void switch_backward() {
@@ -207,6 +215,7 @@ void motor_ac(int PM_ac_REF)
 
 void robot_stop()
 {
+  com_ac = 290;
   motor_ac(PM_ac_N);
   motor_st(PM_st_N);
   Serial.print("stopped");

@@ -68,7 +68,7 @@ class HakuroukunCommunicationNode(object):
         """
         acceleration_command, steering_command = self._apply_indentification()
 
-        command = f"0{steering_command}{acceleration_command}"
+        command = f"0{self.direction}{steering_command}{acceleration_command}"
 
         self.connection.write(bytes(f"{command}\r\n", encoding='ascii'))
 
@@ -97,9 +97,12 @@ class HakuroukunCommunicationNode(object):
         """! Apply system indentification so as to send the right voltage
         @param[in] msg: velocity message in Twist form
         """
+        self.direction = "0"
 
-        # Emergency Stop Flag Check
-        linear_velocity = self.velocity_msg.linear.x
+        if self.velocity_msg.linear.x < 0: 
+            self.direction = "1"
+
+        linear_velocity = abs(self.velocity_msg.linear.x)
 
         angular_velocity = self.velocity_msg.angular.z
 
@@ -108,13 +111,18 @@ class HakuroukunCommunicationNode(object):
         # ==========================================================================
 
         ## NOTE: we should avoid magical number
-        acceleration_command = (linear_velocity + 1)*290
-        print(linear_velocity)
-        print(angular_velocity)
+        # acceleration_command = (linear_velocity + 1)*290
+        
+        # acceleration_command = (linear_velocity + 1.41) / 0.002817
+
+        acceleration_command = 290
+
         ## NOTE: we should avoid magical number
-        steering_command = (math.degrees(np.arcsin(0.95*angular_velocity/0.27))+127.26)/0.2362
-        print(acceleration_command)
-        print(steering_command)
+        # steering_command = (math.degrees(np.arcsin(0.95*angular_velocity/0.27))+127.26)/0.2362
+        # left : 760 - middle = 537 -right : 370 
+        
+        steering_command = angular_velocity
+        
         ## NOTE: we should avoid magical number
         if acceleration_command > 680:
             acceleration_command = 680
