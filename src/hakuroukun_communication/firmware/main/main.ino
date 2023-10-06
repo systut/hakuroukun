@@ -34,7 +34,7 @@ int com_ac = PM_ac_N;
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.setTimeout(50);
 
   pinMode(BUTTON_stR, INPUT);
@@ -170,5 +170,5 @@ void robot_stop()
   motor_st(PM_st_N);
   Serial.print("stopped");
   Serial.write(10);
-  while(1);
+  while (1);
 }

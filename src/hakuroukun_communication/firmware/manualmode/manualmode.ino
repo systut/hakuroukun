@@ -24,6 +24,8 @@ const int MD_AC_PWM = 12;
 const int LED_ST = 40;
 const int LED_AC = 41;
 
+const int RELAY_ALARM = 50;
+const int RELAY_MOTOR = 51;
 
 ////テスト用（Uno）
 //const int BUTTON_ST_R = 32; //右操舵ボタン
@@ -62,6 +64,12 @@ void setup() {
 
   pinMode(LED_ST, OUTPUT);
   pinMode(LED_AC, OUTPUT);
+
+  pinMode(RELAY_ALARM, OUTPUT);
+  pinMode(RELAY_MOTOR, OUTPUT);
+
+  digitalWrite(RELAY_ALARM, LOW);
+  digitalWrite(RELAY_MOTOR, LOW);
 }
 
 
