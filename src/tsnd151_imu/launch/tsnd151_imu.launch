@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="serial_port" default="/dev/ttyACM0" />
+
+    <arg name="publish_rate" default="100" />  <!-- Required : 100 -->
+
+    <node pkg="tsnd151_imu" type="tsnd151_imu_node.py" name="tsnd151_imu_node" required="true" output="screen">
+
+        <param name="serial_port" value="$(arg serial_port)"/>
+
+        <param name="publish_rate" value="$(arg publish_rate)"/>
+
+    </node>
+    
+</launch>
