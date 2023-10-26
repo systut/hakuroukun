@@ -141,8 +141,8 @@ int main(int argc, char **argv)
         u_ref<< 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
 
-        y_out<< 0.0,
-                0.0,
+        y_out<< 0.1,
+                0.1,
                 0.0;
 
         Eigen::MatrixXd A_in(2*model.nu*(mpc.predict_steps_-1), ((mpc.predict_steps_+1)*model.nx + (mpc.predict_steps_)*model.nu));
@@ -167,9 +167,10 @@ int main(int argc, char **argv)
         saveVector(B_in, "B_in");
 
         Eigen::Vector2d optimal_solution = mpc.SolveMPCProblem(H,f,A_eq,B_eq,A_in,B_in);
+        std::cout << optimal_solution << std::endl;
 
         saveVector(optimal_solution, "u_opt");
-
+        
         return 0;
 
 }

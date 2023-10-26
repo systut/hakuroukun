@@ -30,13 +30,18 @@ MPC::MPC(ros::NodeHandle nh, ros::NodeHandle private_nh, double sampling_time, s
     trajectory_.header = traj.header;
     trajectory_.points = std::vector<sdv_msgs::TrajectoryPoint>(traj.points.begin(), traj.points.end());
     ReadTrajectory();
-
     // std::cout << trajectory_.points.size() << std::endl;
     // std::cout << iterations_ << std::endl;
 
     // MPC Matrices
     std::tie(H_, f_) = SetStageCost();
     std::tie(Ai_, Bi_) = SetInequalityConstraints();
+
+    counter_= 1;
+    optimal_solution_ = Eigen::VectorXd(nu_); 
+
+    controller_publisher = nh_.advertise<std_msgs::Float64MultiArray>("cmd_controller_input", 1000);
+    controller_msg.data = {0.0, 0.0};
     
 }
 
@@ -55,7 +60,7 @@ void MPC::ReadTrajectory()
         u_ref_(0,i) = trajectory_.points.at(i).velocity_mps;
         u_ref_(1,i) = trajectory_.points.at(i).steering_angle;
     }
-    // end_goal_ = x_ref_.block(0, x_ref_.cols(), 3, 1);
+    end_goal_ = x_ref_.block(0, x_ref_.cols()-1, 3, 1);
 
     iterations_ = trajectory_.points.size() - predict_steps_;
 
@@ -75,6 +80,56 @@ void MPC::GetHorizonTrajectory(double current_step)
         u_N_(0,i) = u_ref_(0, current_step + i);
         u_N_(1,i) = u_ref_(1, current_step + i);     
     }
+    x_N_goal_ = x_N_.col(0);
+}
+
+void MPC::Control(Eigen::Vector3d robot_pose)
+{
+    double distance, goal_check_dis;
+    double lin_vel, steer_ang;
+    
+    goal_check_dis = (end_goal_ - robot_pose).norm();
+    // std::cout << "goal_check_dis:\n" << goal_check_dis << std::endl; 
+    Eigen::Vector2d robot_position = robot_pose.head<2>();
+    std::cout << "robot pose:\n" << robot_pose(0) << "," << robot_pose(1) << "," << robot_pose(2) << std::endl; 
+    
+
+    for (size_t i = counter_; i < iterations_; i++)
+    {
+        GetHorizonTrajectory(i);
+        distance = (x_N_goal_ - robot_pose).norm();
+        std::tie(Aeq_, Beq_) = SetEqualityConstraints(x_N_, u_N_, robot_pose);
+        optimal_solution_ = SolveMPCProblem(H_, f_, Aeq_, Beq_, Ai_, Bi_);
+
+        // lin_vel = std::min(optimal_solution_(0), 1.5);
+        lin_vel = optimal_solution_(0);
+        steer_ang = optimal_solution_(1);
+        // steer_ang = std::min(optimal_solution_(0), pi/4);
+
+        if (distance >= 0.05)
+        {   
+            counter_ = i;
+            break;
+        }
+
+        else if(goal_check_dis < 0.2)
+        {
+            ROS_WARN("LAST POINT");
+
+            counter_ = x_ref_.cols() -1;
+            break;
+            
+        }
+
+    }
+    // std::cout << "goal current" <<x_ref_.col(i) << std::endl;
+    std::cout << "control input:\n" << lin_vel << "," << steer_ang << "\n" << std::endl;
+    Eigen::Vector2d input;
+    input << lin_vel, steer_ang;
+    PublishControlCommand(input);
+
+    GenerateCSV(robot_pose, input);
+
 }
 
 
@@ -87,6 +142,49 @@ void MPC::SetMPCParameters()
     nx_ = model.nx;
     nu_ = model.nu;
     predict_steps_ = 10;
+}
+
+void MPC::PublishControlCommand(Eigen::Vector2d input)
+{
+    double linear_vel = input(0);
+    double angular_vel = input(1);
+
+    if (std::abs(angular_vel) < 0.01)
+    {
+        double angular_vel_ref = 0.0;
+    }
+    
+    controller_msg.data[0] = linear_vel;
+    controller_msg.data[1] = angular_vel;
+    std::cout << controller_msg.data[0] << "," << controller_msg.data[1] << std::endl;
+    controller_publisher.publish(controller_msg);
+
+}
+
+void MPC::GenerateCSV(const Eigen::Vector3d robot_pose, const Eigen::Vector2d input)
+{
+    std::ofstream export_data;
+
+   // Eigen::Vector3d error = pose - ref_.block(1, counter_, 3, 1);
+   // Eigen::Vector3d state_ref = ref_.block(1, counter_, 3, 1);
+
+    export_data.open("src/data/result/test_controller.csv", std::ios::out|std::ios::app);
+
+    for (long ii = 0; ii < robot_pose.rows(); ++ii)
+    {
+        export_data << robot_pose(ii) << ", ";
+    }
+    for (long ii = 0; ii < input.rows(); ++ii)
+    {
+        export_data << input(ii);
+        if (ii != (input.rows()-1))
+        {
+            export_data << ", ";
+        }
+    }
+
+    export_data << std::endl;
+
 }
 
 
@@ -142,14 +240,40 @@ std::tuple<Eigen::MatrixXd, Eigen::VectorXd> MPC::SetStageCost(){
 
 std::tuple<Eigen::MatrixXd, Eigen::VectorXd> MPC::SetInequalityConstraints()
 {
-    Eigen::MatrixXd S_(2*nu_, 2*nu_);
-    S_<< 1.0, 0.0 ,-1.0, 0.0,
+    // Eigen::MatrixXd S_(2*nu_, 2*nu_);
+    // S_<< 1.0, 0.0 ,-1.0, 0.0,
+    //     -1.0, 0.0 , 1.0, 0.0,
+    //      0.0, 1.0 , 0.0,-1.0,
+    //      0.0,-1.0 , 0.0, 1.0;
+         
+    // Eigen::MatrixXd K_(2*nu_,1);
+    // K_ << 1.5, 0.5, M_PI, 0.0;
+
+    Eigen::MatrixXd S_(8, 2*nu_);
+    S_<< 1.0, 0.0 , 0.0, 0.0,
+        -1.0, 0.0 , 0.0, 0.0,
+         0.0, 1.0 , 0.0, 0.0,
+         0.0,-1.0 , 0.0, 0.0, 
+         1.0, 0.0 ,-1.0, 0.0,
         -1.0, 0.0 , 1.0, 0.0,
          0.0, 1.0 , 0.0,-1.0,
          0.0,-1.0 , 0.0, 1.0;
          
-    Eigen::MatrixXd K_(2*nu_,1);
-    K_ << 1.5, 0.5, M_PI, 0.0;
+    Eigen::MatrixXd K_(S_.rows(),1);
+
+    double lin_vel_limit = 1.2;
+    double steer_ang_limit = M_PI/4;
+    double delta_lin_vel_limit = 1.2/0.05;
+    double delta_steer_ang_limit = M_PI/(3.5*0.05);
+    
+    K_ << lin_vel_limit, 
+          lin_vel_limit, 
+          steer_ang_limit, 
+          steer_ang_limit,
+          delta_lin_vel_limit,
+          delta_lin_vel_limit,
+          delta_steer_ang_limit,
+          delta_steer_ang_limit ;
 
     Eigen::MatrixXd A_u(S_.rows()*(predict_steps_-1), ((predict_steps_)*nu_));
     Eigen::MatrixXd B_u(K_.rows()*(predict_steps_-1), 1);
@@ -161,15 +285,13 @@ std::tuple<Eigen::MatrixXd, Eigen::VectorXd> MPC::SetInequalityConstraints()
         Eigen::MatrixXd zero_matrix_2 = Eigen::MatrixXd::Zero(S_.rows(), ((predict_steps_)*nu_ - S_.cols() - zero_matrix_1.cols()));
         A_u_k << zero_matrix_1, S_, zero_matrix_2;
 
-        A_u.row(S_.rows()*i)   = A_u_k.row(0);
-        A_u.row(S_.rows()*i+1) = A_u_k.row(1);
-        A_u.row(S_.rows()*i+2) = A_u_k.row(2);
-        A_u.row(S_.rows()*i+3) = A_u_k.row(3);
-    
-        B_u.row(K_.rows()*i)   = K_.row(0);
-        B_u.row(K_.rows()*i+1) = K_.row(1);
-        B_u.row(K_.rows()*i+2) = K_.row(2);
-        B_u.row(K_.rows()*i+3) = K_.row(3);
+        for (size_t ii = 0; ii < S_.rows(); ii++)
+        {
+            A_u.row(S_.rows()*i+ii)   = A_u_k.row(ii);
+
+            B_u.row(K_.rows()*i+ii)   = K_.row(ii);
+        }
+        
     }
 
     Eigen::MatrixXd A_in(S_.rows()*(predict_steps_-1), ((predict_steps_+1)*nx_ + (predict_steps_)*nu_));
@@ -340,11 +462,11 @@ Eigen::VectorXd MPC::SolveMPCProblem(Eigen::MatrixXd H, Eigen::VectorXd f,
             }
             
     }
-    std::cout << sol_u << std::endl;
+    // std::cout << sol_u << std::endl;
 
     Eigen::VectorXd new_u(nu_);
     new_u = u_ref_.col(0) + sol_u.col(0);
-    std::cout << new_u << std::endl;
+    // std::cout << new_u << std::endl;
 
     return new_u;
 }

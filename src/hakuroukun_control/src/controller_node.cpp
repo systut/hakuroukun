@@ -25,11 +25,24 @@ public:
         
         geometry_msgs::Twist control_input_;
 
-        // double yaw = tf::getYaw(odom_msg_.pose.orientation);
+        double yaw = tf::getYaw(odom_msg_.pose.orientation);
         // if (yaw < 0)
         // {yaw += 2.0 * M_PI;}
-        // robot_pose_ << odom_msg_.pose.position.x, odom_msg_.pose.position.y, yaw;
+        if (yaw != yaw)
+        {yaw = 0.0;}
 
+        double pose_x = std::round(odom_msg_.pose.position.x * 100.0) / 100.0;
+        double pose_y = std::round(odom_msg_.pose.position.y * 100.0) / 100.0;
+
+        robot_pose_ <<  pose_x, 
+                        pose_y, 
+                        yaw;
+
+        // std::cout << "X :" << robot_pose_(0) << std::endl;
+        // std::cout << "Y :" <<robot_pose_(1) << std::endl;
+
+        model_predictive_controller_.Control(robot_pose_);
+ 
     }
     
     void _odom_callback(const geometry_msgs::PoseStamped &odom_msg){
@@ -77,14 +90,6 @@ private:
         model_predictive_controller_ = MPC(nh_, private_nh_, sampling_time_, trajectory_);
     }
 };
-
-
-
-
-
-
-
-
 
 
 int main(int argc, char **argv)

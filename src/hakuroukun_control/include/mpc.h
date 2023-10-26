@@ -57,6 +57,8 @@ s.t.
 #include <nav_msgs/Path.h>
 #include <trajectory_msgs/JointTrajectory.h>
 #include <geometry_msgs/Vector3.h>
+#include <geometry_msgs/Twist.h>
+#include <std_msgs/Float64MultiArray.h>
 #include "sdv_msgs/Trajectory.h"
 #include "sdv_msgs/TrajectoryPoint.h"
 
@@ -73,9 +75,9 @@ public:
     
     MPC(ros::NodeHandle nh, ros::NodeHandle private_nh, double sampling_time, sdv_msgs::Trajectory &traj);
 
-    void Control();
     void ReadTrajectory();
     void GetHorizonTrajectory(double current_step);
+    void Control(Eigen::Vector3d robot_pose);
 
     std::tuple<Eigen::MatrixXd, Eigen::VectorXd> SetStageCost();
     std::tuple<Eigen::MatrixXd, Eigen::VectorXd> SetInequalityConstraints();
@@ -93,10 +95,12 @@ public:
     int iterations_;
     int predict_steps_;
     double sampling_time_;
+    int counter_;
 
     // Horizontal Reference Trajectory
     Eigen::MatrixXd x_N_;
     Eigen::MatrixXd u_N_;
+    Eigen::VectorXd x_N_goal_;
 
     // Set Cost Matrix
     Eigen::MatrixXd H_;
@@ -114,8 +118,14 @@ private:
 
     ros::NodeHandle nh_;
     ros::NodeHandle private_nh_;
+    ros::Publisher controller_publisher;
+    std_msgs::Float64MultiArray controller_msg;
+
 
     void SetMPCParameters();
+    void PublishControlCommand(Eigen::Vector2d input);
+    void GenerateCSV(const Eigen::Vector3d pose, const Eigen::Vector2d input);
+    
     // ==============================================
     // MPC FUNCTIONS
     // ==============================================
@@ -151,5 +161,8 @@ private:
     // // Set Inequality constraints
     // Eigen::MatrixXd Ai_;
     // Eigen::MatrixXd Bi_;
+
+    // MPC Solution
+    Eigen::VectorXd optimal_solution_;
 
 };

@@ -2,6 +2,7 @@
 #include <cmath>
 #include <mutex>
 #include <boost/make_shared.hpp>
+#include <filesystem>
 #include <ros/ros.h>
 #include <iostream>
 #include <string>
@@ -11,6 +12,7 @@
 #include "sdv_msgs/Trajectory.h"
 #include "sdv_msgs/TrajectoryPoint.h"
 
+
 class TrajectoryPubNode
 {
 public:
@@ -19,8 +21,11 @@ TrajectoryPubNode(ros::NodeHandle nh, ros::NodeHandle private_nh){
 
     nh_ = nh;
     private_nh_ = private_nh;
-    std::string file_path = "src/data/uturn.csv";
-    // std::string file_path = "src/data/lemniscate_of_gerono_ref.csv";
+    // std::cout << "Current path is " << std::filesystem::current_path() << '\n';
+
+    std::string file_path = "../catkin_ws/src/data/uturn.csv";
+    // std::string file_path = "../catkin_ws/src/data/uturn.csv";
+
     ReadReference(file_path);
 }
 
