@@ -10,9 +10,10 @@
 import serial
 import rospy
 from geometry_msgs.msg import Twist
-from std_msgs.msg import Float64MultiArray
+from std_msgs.msg import Bool
 import math
 import numpy as np
+import rosparam
 import time
 
 
@@ -39,9 +40,10 @@ class HakuroukunCommunicationNode(object):
             "/hakuroukun_communication_node/controller_rate")
 
         self.connection = serial.Serial(port, int(baud_rate), timeout=None)
-        
-        self.controller_subscriber = rospy.Subscriber(
-            "/cmd_controller_input", Float64MultiArray, self._controller_input_callback)
+
+        # Velocity subscriber
+        self.velocity_subscriber = rospy.Subscriber(
+            "/cmd_vel", Twist, self._velocity_callback)
 
         # Ros Timer
         self.timer = rospy.Timer(
@@ -51,9 +53,6 @@ class HakuroukunCommunicationNode(object):
         self.sequence_id = 0
 
         self.velocity_msg = Twist()
-
-        self.controller_msg = Float64MultiArray()
-        self.controller_msg.data = [0.0, 0.0]
 
     def run(self) -> None:
         """! Start ros node
@@ -69,13 +68,9 @@ class HakuroukunCommunicationNode(object):
         """
         acceleration_command, steering_command = self._apply_indentification()
 
-        rospy.loginfo(f"0{self.direction}{steering_command}{acceleration_command}")
-
         command = f"0{self.direction}{steering_command}{acceleration_command}"
 
         self.connection.write(bytes(f"{command}\r\n", encoding='ascii'))
-
-        time.sleep(3)
 
         self.connection.flush()
 
@@ -92,56 +87,42 @@ class HakuroukunCommunicationNode(object):
         """
         pass
 
-    def _controller_input_callback(self, msg: Float64MultiArray) -> None:
-        """! Callback function for Controller input subscriber
-        @param[in] msg: Controller input message in Float64MultiArray form
+    def _velocity_callback(self, msg: Twist) -> None:
+        """! Callback function for velocity subscriber
+        @param[in] msg: velocity message in Twist form
         """
-        self.controller_msg = msg
+        self.velocity_msg = msg
     
     def _apply_indentification(self):
         """! Apply system indentification so as to send the right voltage
         @param[in] msg: velocity message in Twist form
         """
+        self.direction = "0"
 
-        self.direction = 0
+        if self.velocity_msg.linear.x < 0: 
+            self.direction = "1"
 
-        if self.controller_msg.data[0] < 0:
-            self.direction = 1
+        linear_velocity = abs(self.velocity_msg.linear.x)
 
-        linear_velocity = abs(self.controller_msg.data[0])
+        angular_velocity = self.velocity_msg.angular.z
 
-        steering_angle = math.degrees(self.controller_msg.data[1])
-
-        # # ==========================================================================
-        # # TODO: Add system indentification equation here
-        # # ==========================================================================
+        # ==========================================================================
+        # TODO: Add system indentification equation here
+        # ==========================================================================
 
         ## NOTE: we should avoid magical number
-        if linear_velocity == 0:
-            acceleration_command = 290
-        else:
-            acceleration_command = (linear_velocity + 1)*290
-            # acceleration_command = (linear_velocity + 1.41) / 0.002817
+        acceleration_command = (linear_velocity + 1)*290
 
+        ## NOTE: we should avoid magical number
+        steering_command = (math.degrees(np.arcsin(0.95*angular_velocity/0.27))+127.26)/0.2362
+
+        ## NOTE: we should avoid magical number
         if acceleration_command > 680:
             acceleration_command = 680
         elif acceleration_command < 290:
             acceleration_command = 290
 
         ## NOTE: we should avoid magical number
-        if steering_angle >= -45 and steering_angle < -39:
-            steering_command = (steering_angle + 106) * 6
-        elif steering_angle >= -39 and steering_angle < 0:
-            steering_command = (steering_angle + 161) * 3.3
-        elif steering_angle >= 0 and steering_angle < 32:
-            steering_command = (steering_angle + 139) * (118/31)
-        elif steering_angle >= 32 and steering_angle <= 45:
-            steering_command = (steering_angle + 51) * (55/7)
-        elif steering_angle < -45:
-            steering_command = (-45 + 106) * 6
-        elif steering_angle > 45:
-            steering_command = (45 + 51) * (55/7)
-
         if steering_command > 760:
             steering_command = 760
         elif steering_command < 370:

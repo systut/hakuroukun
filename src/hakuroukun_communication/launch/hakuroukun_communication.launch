@@ -6,7 +6,7 @@
 
     <arg name="controller_rate" default="1" />
 
-    <!--Scheduler Node-->
+    <!-- Controller Node-->
     <node pkg="hakuroukun_communication" name="hakuroukun_communication_node" type="hakuroukun_communication_node" output="screen">
         <param name="port" value="$(arg port)"/>
         <param name="baud_rate" value="$(arg baud_rate)"/>

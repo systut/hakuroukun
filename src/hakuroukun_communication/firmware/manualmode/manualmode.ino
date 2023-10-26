@@ -1,4 +1,4 @@
-//st:steering ac:accel pm:potentiometer
+ //st:steering ac:accel pm:potentiometer
 
 #define SPEED_ST 255    //stモーター速度 (0-255)
 #define SPEED_AC 100    //acモーター速度
