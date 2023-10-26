@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <launch>
 
-    <arg name="imu_serial_port" default="/dev/ttyACM0" />
+    <arg name="imu_serial_port" default="/dev/ttyACM1" />
     <arg name="imu_publish_rate" default="100" />  <!-- Required : 100 -->
 
-    <arg name="gps_serial_port" default="/dev/ttyACM1" />
+    <arg name="gps_serial_port" default="/dev/ttyACM2" />
     <arg name="gps_baud" default="115200" />  <!-- Required : 100 -->
     <arg name="gps_debug" default="True" />  <!-- Required : 100 -->
 
@@ -21,5 +21,7 @@
 
     <!-- sentence to fix -->
     <node pkg="nmea_navsat_driver" type="nmea_topic_driver" name="nmea_topic_driver" />
+
+    <node name="hakuroukun_pose" pkg="hakuroukun_pose" type="hakuroukun_pose_node" output="screen"/>
     
 </launch>

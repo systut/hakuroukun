@@ -2,11 +2,12 @@ from tf.transformations import euler_from_quaternion
 import geonav_transform.geonav_conversions as gc
 import alvinxy.alvinxy as axy
 import math
+import time
 
 import rospy
 from sensor_msgs.msg import NavSatFix
 from sensor_msgs.msg import Imu
-from geometry_msgs.msg import Pose, Vector3
+from geometry_msgs.msg import PoseStamped
 
 class HakuroukunPose:
 
@@ -19,7 +20,8 @@ class HakuroukunPose:
         rospy.init_node("robot_localization", anonymous=True)
 
         ## Wait until got first (lat,lat,alt) from gps as origin
-        first_gps_mess = rospy.wait_for_message('/fix', NavSatFix, timeout=5)
+        first_gps_mess = rospy.wait_for_message('/fix', NavSatFix, timeout=10)
+
         self.lat0 = first_gps_mess.latitude
         self.lon0 = first_gps_mess.longitude
 
@@ -30,9 +32,9 @@ class HakuroukunPose:
 
         self.imu_sub = rospy.Subscriber("/imu/data_raw", Imu, self._imu_callback) 
 
-        self.pose_pub = rospy.Publisher("/robot_pose", Vector3, queue_size=10)
+        self.pose_pub = rospy.Publisher("/hakuroukun_pose/pose", PoseStamped, queue_size=10)
         
-        rospy.Timer(rospy.Duration(0.05), self._publish_pose)
+        rospy.Timer(rospy.Duration(0.1), self._publish_pose)
         
     def run(self):
         """! Start ros node
@@ -72,24 +74,31 @@ class HakuroukunPose:
 
     def _get_xy_from_lat_lon(self, lat,lon):
 
-        self.current_pose_x, self.current_pose_y = gc.ll2xy(lat,lon,self.lat0,self.lon0)
+        x,y = gc.ll2xy(lat,lon,self.lat0,self.lon0)
+
+        # print(x,y)
+
+        self.current_pose_x = x*math.cos(90) + y*math.sin(90)
+
+        self.current_pose_y = -x*math.sin(90) + y*math.cos(90)
+
 
     def _get_euler_from_quaternion(self):
         
         quaternion_ = [self.quaternion_x, self.quaternion_y, self.quaternion_z, self.quaternion_w]
         
-        (self.roll, self.pitch, self.yaw) = euler_from_quaternion(quaternion_)
-
     def _publish_pose(self, timer):
 
-        pose_msg = Vector3()
-        pose_msg.x = self.current_pose_x
-        pose_msg.y = self.current_pose_y
-        pose_msg.z = math.degrees(self.yaw)
+        now = rospy.get_rostime()
+        
+        pose_msg = PoseStamped()
+        pose_msg.header.stamp = now
+        pose_msg.pose.position.x = self.current_pose_x
+        pose_msg.pose.position.y = self.current_pose_y
+        pose_msg.pose.position.z = 0.0
+        pose_msg.pose.orientation.x = self.quaternion_x
+        pose_msg.pose.orientation.y = self.quaternion_y
+        pose_msg.pose.orientation.z = self.quaternion_z
+        pose_msg.pose.orientation.w = self.quaternion_w
 
         self.pose_pub.publish(pose_msg)
-
-
-
-
-    
