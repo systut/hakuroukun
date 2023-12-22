@@ -27,7 +27,7 @@ class TSND151_IMU:
         self.tsnd151 = TSND151.open(serial_port, wait_sec_on_open_for_stability=0.2, wait_sec_on_auto_close_for_stability=0.2)
         self.tsnd151.clear_all_queue()
         # self.tsnd151.close()
-        hz = 100
+        hz = 150
         # self.tsnd151.stop_recording()
         self.tsnd151.set_time()
         self.tsnd151.set_acc_range(16)  # +-16g
@@ -85,11 +85,13 @@ class TSND151_IMU:
             self.imu_msg.orientation.x =imu_data[0][6][1]/10000
             self.imu_msg.orientation.y =imu_data[0][6][2]/10000
             self.imu_msg.orientation.z =imu_data[0][6][3]/10000
+
             self.imu_msg.angular_velocity.x = float(imu_data[0][0]) * 0.0001745329   # 0.01 deg/s to rad/s
             self.imu_msg.angular_velocity.y = float(imu_data[0][1]) * 0.0001745329   # 0.01 deg/s to rad/s 
             self.imu_msg.angular_velocity.z = float(imu_data[0][2]) * 0.0001745329   # 0.01 deg/s to rad/s
-            self.imu_msg.linear_acceleration.x = float(imu_data[0][3]) / (10**6)      # 0.1 mili-g to m/s^2
-            self.imu_msg.linear_acceleration.y = float(imu_data[0][4]) / (10**6)      # 0.1 mili-g to m/s^2
-            self.imu_msg.linear_acceleration.z = float(imu_data[0][5]) / (10**6)      # 0.1 mili-g to m/s^2
+            
+            self.imu_msg.linear_acceleration.x = float(imu_data[0][3]) / (10**3)      # 0.1 mili-g to m/s^2
+            self.imu_msg.linear_acceleration.y = float(imu_data[0][4]) / (10**3)      # 0.1 mili-g to m/s^2
+            self.imu_msg.linear_acceleration.z = float(imu_data[0][5]) / (10**3)      # 0.1 mili-g to m/s^2
         
         self.imu_pub.publish(self.imu_msg)
