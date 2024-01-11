@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="file_name" default="uturn.csv"/>
+    <node name="trajectory_pub" pkg="hakuroukun_control" type="trajectory_pub_node" output="screen">
+        <param name="file_name" value="$(arg file_name)"/>
+    </node>
+</launch>

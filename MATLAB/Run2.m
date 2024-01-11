@@ -104,11 +104,12 @@ global mx; mx = [Pos(1) Pos(2) deg2rad(theta) 0 0]';    %ロボットの初期�
 for i = 1:1
     for ii = 1:1:4
         
+        % Initial flag
         flag = 0;
         flag_A = 0;
         flag_goal = 0;
         
-        % 
+        % Calculate path for point to point
         [a,b,c] = CalculatePath(P(ii,:),P(ii+1,:));
         param(1,:) = [a b c];
         c_phi = @(x,y,theta)CalculatePhi(P(ii,:),P(ii+1,:),param(1,:),x,y,theta,distp2);
@@ -135,8 +136,7 @@ for i = 1:1
         goal = GenerateGoal(start, plus, main_goal, mx, goal);
         
         Tstart = tic;
-        tic
-        
+        tics
         
         while (flag == 0)
             
@@ -203,7 +203,7 @@ for i = 1:1
                     [phi,flag] = c_phi(x,y,theta);
                     
                     %行動設定
-                    % AT DETECTION MOED
+                    % AT DETECTION MODE
                     if(detect == 1 && DWA == 0 && DWA_go == 0 && count == 0)%一時停止措置
                         stay=tic;
                         while(toc(stay) <= 1)%1秒待機
