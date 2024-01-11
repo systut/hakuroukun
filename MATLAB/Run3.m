@@ -35,7 +35,7 @@ imu_sub = ros.Subscriber(node, "/hakuroukun_pose/orientation","std_msgs/Float64"
 gps_sub = ros.Subscriber(node, "/hakuroukun_pose/pose", "geometry_msgs/PoseStamped");
 
 % Device_Arduino
-arduino = serialport("/dev/ttyACM0",9600);
+arduino = serialport("/dev/ttyACM2",9600);
 configureTerminator(arduino,"LF");
 %% Sensors : GPS - IMU
 global Pos;
