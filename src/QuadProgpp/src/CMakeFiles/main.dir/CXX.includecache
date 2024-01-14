@@ -1,0 +1,38 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/root/catkin_ws/src/QuadProgpp/src/Array.hh
+set
+-
+stdexcept
+-
+iostream
+-
+iomanip
+-
+cmath
+-
+cstdlib
+-
+stdexcept
+-
+
+/root/catkin_ws/src/QuadProgpp/src/QuadProg++.hh
+Array.hh
+/root/catkin_ws/src/QuadProgpp/src/Array.hh
+
+/root/catkin_ws/src/QuadProgpp/src/main.cc
+iostream
+-
+sstream
+-
+string
+-
+QuadProg++.hh
+/root/catkin_ws/src/QuadProgpp/src/QuadProg++.hh
+

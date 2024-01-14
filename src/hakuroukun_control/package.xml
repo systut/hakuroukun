@@ -50,6 +50,18 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
     <buildtool_depend>catkin</buildtool_depend>
     <build_depend>roslaunch</build_depend>
+    <build_depend>rospy</build_depend>
+    <build_depend>roscpp</build_depend>
+    <build_depend>std_msgs</build_depend>
+
+    <build_export_depend>rospy</build_export_depend>
+    <build_export_depend>roscpp</build_export_depend>
+    <build_export_depend>std_msgs</build_export_depend>
+
+    <exec_depend>rospy</exec_depend>
+    <exec_depend>roscpp</exec_depend>
+    
+    <exec_depend>std_msgs</exec_depend>
     <exec_depend>controller_manager</exec_depend>
     <exec_depend>ackermann_steering_controller</exec_depend>
     <exec_depend>joint_state_controller</exec_depend>
@@ -61,6 +73,7 @@
     <exec_depend>steer_drive_controller</exec_depend>
     <exec_depend>steer_bot_description</exec_depend>
 
+    <depend>sdv_msgs</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

@@ -10,7 +10,7 @@ if __name__ == '__main__':
         print("Turning on IMU")
         tsnd151._run()
     finally:
-        print("shuting down ##################")
+        print("Shuting down ")
         tsnd151.tsnd151.stop_recording()
         tsnd151.tsnd151.close()
         pass

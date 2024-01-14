@@ -1,0 +1,11 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import rospy
+from hakuroukun_pose.hakuroukun_pose_node import HakuroukunPose
+
+try:
+    hakuroukun_pose_node = HakuroukunPose()
+    hakuroukun_pose_node.run()
+except rospy.ROSInterruptException:
+    pass

@@ -1,8 +1,8 @@
 #define SPEED_st 255
-#define SPEED_ac 100
+#define SPEED_ac 255
 #define PM_st_N 565 //565 250
-#define PM_st_LIMR 195
-#define PM_st_LIML 195
+#define PM_st_LIMR 125
+#define PM_st_LIML 105
 #define PM_ac_N 290 //290
 #define PM_ac_LIMU 390
 #define PM_ac_LIMD 20
@@ -34,8 +34,6 @@ String com, com1, com2;
 int com_st = PM_st_N;
 int com_ac = PM_ac_N;
 
-
-
 String command = "";
 String acceleration = "290";
 String steering = "565";
@@ -44,6 +42,8 @@ String direction = "0";
 String direction_mode = "0"; // 0 for forward, 1 for backward
 
 void setup() {
+
+  Serial.setTimeout(2);
   Serial.begin(115200);
 
   pinMode(BUTTON_stR, INPUT);

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- TSND IMU -->
+    <arg name="imu_serial_port" default="/dev/ttyACM1" />
+    <arg name="imu_publish_rate" default="100" />  <!-- Required : 100 -->
+ 
+    <!-- Ichimill GPS -->
+    <arg name="gps_serial_port" default="/dev/ttyACM0" />
+    <arg name="gps_baud" default="115200" /> 
+    <arg name="gps_debug" default="True" />
+
+    <node pkg="tsnd151_imu" type="tsnd151_imu_node.py" name="tsnd151_imu_node" required="true">
+        <param name="serial_port" value="$(arg imu_serial_port)"/>
+        <param name="publish_rate" value="$(arg imu_publish_rate)"/>
+    </node>
+
+    <node pkg="f9p_ichimill" type="f9p_driver.py" name="f9p_driver" args="" >
+        <param name="port" value="$(arg gps_serial_port)"/>
+        <param name="baud" value="$(arg gps_baud)"/>
+        <param name="debug" value="$(arg gps_debug)"/>
+    </node>
+
+    <!-- sentence to fix -->
+    <node pkg="nmea_navsat_driver" type="nmea_topic_driver" name="nmea_topic_driver" />
+    
+    <!-- hakuroukun position publisher -->
+    <node name="hakuroukun_pose" pkg="hakuroukun_pose" type="hakuroukun_pose_node" output="screen"/>
+    
+</launch>
