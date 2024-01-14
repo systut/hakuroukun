@@ -73,12 +73,17 @@ public:
 
     MPC(){}
     
-    MPC(ros::NodeHandle nh, ros::NodeHandle private_nh, double sampling_time, sdv_msgs::Trajectory &traj);
+    MPC(ros::NodeHandle nh, ros::NodeHandle private_nh, double sampling_time);
 
-    void ReadTrajectory();
+    void setTrajectory(sdv_msgs::Trajectory &traj);
     void GetHorizonTrajectory(double current_step);
     void Control(Eigen::Vector3d robot_pose);
+    void StopMotion(Eigen::Vector3d robot_pose);
+    void StraightMotion(Eigen::Vector3d robot_pose);
 
+    // ==============================================
+    // MPC FUNCTIONS
+    // ==============================================
     std::tuple<Eigen::MatrixXd, Eigen::VectorXd> SetStageCost();
     std::tuple<Eigen::MatrixXd, Eigen::VectorXd> SetInequalityConstraints();
     std::tuple<Eigen::MatrixXd, Eigen::VectorXd> SetEqualityConstraints(Eigen::MatrixXd x_ref, 
@@ -96,6 +101,7 @@ public:
     int predict_steps_;
     double sampling_time_;
     int counter_;
+    std::vector<bool> curve_detect;
 
     // Horizontal Reference Trajectory
     Eigen::MatrixXd x_N_;
@@ -121,7 +127,7 @@ private:
     ros::Publisher controller_publisher;
     std_msgs::Float64MultiArray controller_msg;
 
-
+    void ReadTrajectory();
     void SetMPCParameters();
     void PublishControlCommand(Eigen::Vector2d input);
     void GenerateCSV(const Eigen::Vector3d pose, const Eigen::Vector2d input);
@@ -165,4 +171,8 @@ private:
     // MPC Solution
     Eigen::VectorXd optimal_solution_;
 
+    char filename_[30];
+
+    // Curve detection
+    bool curve_detection;
 };

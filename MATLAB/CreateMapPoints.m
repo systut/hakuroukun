@@ -9,9 +9,9 @@ function [P, point_num] = CreateMapPoints(length, width, n_width)
 
     P_0 = [0 0];
     for i = 0:n
-        P_under_n = P_0 + [i*n_width 0];
-        P_mid_n = P_0 + [i*n_width length/2];
-        P_upper_n = P_0 + [i*n_width length];
+        P_under_n = P_0 + [-i*n_width 0];
+        P_mid_n = P_0 + [-i*n_width length/2];
+        P_upper_n = P_0 + [-i*n_width length];
         P_under(i+1,:) = P_under_n;
         P_mid(i+1,:) = P_mid_n;
         P_upper(i+1,:) = P_upper_n;

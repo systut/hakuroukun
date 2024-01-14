@@ -39,32 +39,34 @@ int main(int argc, char **argv)
         trajectory_ = *trajectory_msg;
     }
 
-    MPC mpc(nh_, private_nh_, sampling_time_, trajectory_);
+    MPC mpc(nh_, private_nh_, sampling_time_);
+    mpc.setTrajectory(trajectory_);
     Model model(sampling_time_);
+
     Eigen::Vector3d robot_pose ;
-    // robot_pose = Eigen::VectorXd::Zero(3,1);
-    robot_pose << 0.0, 0.1, 0.0;
+    robot_pose << 0.0, 0.0, 0.0;
+    mpc.StraightMotion(robot_pose);
 
-    std::ofstream myfile;
-    myfile.open ("src/data/result/test_controller.csv");
-    for (size_t i = 0; i < mpc.iterations_; i++)
-    {
-        mpc.GetHorizonTrajectory(i);
-        // std::cout << mpc.x_N_ << std::endl;
-        std::tie(mpc.Aeq_, mpc.Beq_) =mpc.SetEqualityConstraints(mpc.x_N_, mpc.u_N_, robot_pose);
+    // std::ofstream myfile;
+    // myfile.open ("src/data/result/test_controller.csv");
+    // for (size_t i = 0; i < mpc.iterations_; i++)
+    // {
+    //     mpc.GetHorizonTrajectory(i);
+    //     // std::cout << mpc.x_N_ << std::endl;
+    //     std::tie(mpc.Aeq_, mpc.Beq_) =mpc.SetEqualityConstraints(mpc.x_N_, mpc.u_N_, robot_pose);
 
-        Eigen::VectorXd optimal_solution(model.nx);
-        optimal_solution = mpc.SolveMPCProblem(mpc.H_, mpc.f_, mpc.Aeq_, mpc.Beq_, mpc.Ai_, mpc.Bi_);
+    //     Eigen::VectorXd optimal_solution(model.nx);
+    //     optimal_solution = mpc.SolveMPCProblem(mpc.H_, mpc.f_, mpc.Aeq_, mpc.Beq_, mpc.Ai_, mpc.Bi_);
         
-        robot_pose = model.DynamicFunction(robot_pose, optimal_solution);
-        // std::cout << "current robot pose :" <<robot_pose << std::endl;
+    //     robot_pose = model.DynamicFunction(robot_pose, optimal_solution);
+    //     // std::cout << "current robot pose :" <<robot_pose << std::endl;
 
-        std::stringstream ss;
-        ss <<  robot_pose(0) << "," << robot_pose(1) << "," << robot_pose(2) << ", \n"; 
-        // std::cout << ss.str() << std::endl;
-        myfile << ss.str();
-    }
-    myfile.close();    
+    //     std::stringstream ss;
+    //     ss <<  robot_pose(0) << "," << robot_pose(1) << "," << robot_pose(2) << ", \n"; 
+    //     // std::cout << ss.str() << std::endl;
+    //     myfile << ss.str();
+    // }
+    // myfile.close();    
 
-    return 0;
+    // return 0;
 }

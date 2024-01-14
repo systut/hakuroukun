@@ -120,7 +120,7 @@ class HakuroukunCommunicationNode(object):
         if linear_velocity == 0:
             acceleration_command = 290
         else:
-            acceleration_command = (linear_velocity + 1)*290
+            acceleration_command = (linear_velocity + 1)*315
             # acceleration_command = (linear_velocity + 1.41) / 0.002817
 
         if acceleration_command > 680:
@@ -129,18 +129,8 @@ class HakuroukunCommunicationNode(object):
             acceleration_command = 290
 
         ## NOTE: we should avoid magical number
-        if steering_angle >= -45 and steering_angle < -39:
-            steering_command = (steering_angle + 106) * 6
-        elif steering_angle >= -39 and steering_angle < 0:
-            steering_command = (steering_angle + 161) * 3.3
-        elif steering_angle >= 0 and steering_angle < 32:
-            steering_command = (steering_angle + 139) * (118/31)
-        elif steering_angle >= 32 and steering_angle <= 45:
-            steering_command = (steering_angle + 51) * (55/7)
-        elif steering_angle < -45:
-            steering_command = (-45 + 106) * 6
-        elif steering_angle > 45:
-            steering_command = (45 + 51) * (55/7)
+        steering_command = round(538.78+steering_angle/0.2362) # 538
+        
 
         if steering_command > 760:
             steering_command = 760

@@ -9,6 +9,7 @@
 
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <std_msgs/Bool.h>
 #include <tf/tf.h>
 
 
@@ -17,60 +18,42 @@ class ControllerNode
 public:
 
     ControllerNode(ros::NodeHandle nh, ros::NodeHandle private_nh) {
-        _init(nh, private_nh);
-        _init_controller();
+        Init(nh, private_nh);
+        InitController();
     }
 
-    void _call_controller(const ros::TimerEvent &event){
-        
-        geometry_msgs::Twist control_input_;
+    void CallController(const ros::TimerEvent &event){
 
-        double yaw = tf::getYaw(odom_msg_.pose.orientation);
-        // if (yaw < 0)
-        // {yaw += 2.0 * M_PI;}
-        if (yaw != yaw)
-        {yaw = 0.0;}
+        // ===============================================
+        // Need to add Stop motion and emergency stop here
+        // ===============================================
 
-        double pose_x = std::round(odom_msg_.pose.position.x * 100.0) / 100.0;
-        double pose_y = std::round(odom_msg_.pose.position.y * 100.0) / 100.0;
 
-        robot_pose_ <<  pose_x, 
-                        pose_y, 
-                        yaw;
 
-        // std::cout << "X :" << robot_pose_(0) << std::endl;
-        // std::cout << "Y :" <<robot_pose_(1) << std::endl;
-
-        model_predictive_controller_.Control(robot_pose_);
- 
-    }
-    
-    void _odom_callback(const geometry_msgs::PoseStamped &odom_msg){
-        
-        odom_msg_ = odom_msg;
+        // model_predictive_controller_.Control(robot_pose_);
+        model_predictive_controller_.StraightMotion(robot_pose_);
     }
 
 
 private:
+    // ROS Node / Publishers / Subscribers
     ros::NodeHandle nh_, private_nh_;
     ros::Subscriber odom_sub_;
+    ros::Subscriber emergency_flag_sub;
     ros::Timer periodic_timer_;
-    MPC model_predictive_controller_;
-    
+    // ROS Message
     geometry_msgs::PoseStamped odom_msg_;
-
-    // Trajectory
-    double sampling_time_;
+    std_msgs::Bool emergency_flag_msg_;
+    Eigen::Vector3d robot_pose_;
     sdv_msgs::Trajectory trajectory_;
 
-    // Robot Pose
-    Eigen::Vector3d robot_pose_;
+    MPC model_predictive_controller_;
+    double sampling_time_;
 
-    void _init(ros::NodeHandle nh, ros::NodeHandle private_nh){
+    void Init(ros::NodeHandle nh, ros::NodeHandle private_nh){
 
         nh_ = nh;
         private_nh_ = private_nh;
-
         nh.param("controller_sampling_time", sampling_time_, 0.05);
 
         boost::shared_ptr<sdv_msgs::Trajectory const> traj_msg;
@@ -80,15 +63,42 @@ private:
             trajectory_ = *traj_msg;
         }
 
-        odom_sub_ = nh_.subscribe("/hakuroukun_pose/pose", 4, &ControllerNode::_odom_callback, this);
-
-        periodic_timer_ = private_nh_.createTimer(ros::Duration(sampling_time_), &ControllerNode::_call_controller, this);
+        odom_sub_ = nh_.subscribe("/hakuroukun_pose/pose", 4, &ControllerNode::OdomCallback, this);
+        // orientation_sub_ = nh_.subscribe("/hakuroukun_pose/orientation", 4, &ControllerNode::OrientationCallback, this);
+        // emergency_flag_sub = nh.subscribe("/emergency_flag", 1, &ControllerNode::EmergencyFlagCallback, this);
+        periodic_timer_ = private_nh_.createTimer(ros::Duration(0.01), &ControllerNode::CallController, this);
     }
 
-    void _init_controller() {
-
-        model_predictive_controller_ = MPC(nh_, private_nh_, sampling_time_, trajectory_);
+    void InitController() {
+        model_predictive_controller_ = MPC(nh_, private_nh_, sampling_time_);
+        model_predictive_controller_.setTrajectory(trajectory_);
     }
+
+    // ===============================================
+    // Callback function
+    // ===============================================
+    void OdomCallback(const geometry_msgs::PoseStamped &odom_msg) {
+        
+        odom_msg_ = odom_msg;
+        OdomToPose(odom_msg_);
+    }
+
+    void OdomToPose(const geometry_msgs::PoseStamped &odom_msg)
+    {
+        double pose_x = std::round(odom_msg.pose.position.x * 100.0) / 100.0;
+        double pose_y = std::round(odom_msg.pose.position.y * 100.0) / 100.0;
+        double yaw = tf::getYaw(odom_msg.pose.orientation);
+        if (yaw < 0)
+        {yaw += 2.0 * M_PI;}
+
+        robot_pose_ <<  pose_x, pose_y, yaw;
+    }
+    
+    void EmergencyFlagCallback(const std_msgs::Bool &emergency_flag_msg)
+    {
+        emergency_flag_msg_ = emergency_flag_msg;
+    }
+
 };
 
 

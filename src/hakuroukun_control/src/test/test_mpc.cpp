@@ -127,7 +127,8 @@ int main(int argc, char **argv)
         // trajectory_msg_.points[10].steering_angle = 0.0;
 
         // -----------------------------------------------------
-        MPC mpc(nh, private_nh, sampling_time_, trajectory_msg_);
+        MPC mpc(nh, private_nh, sampling_time_);
+        mpc.setTrajectory(trajectory_msg_);
         Model model(sampling_time_);
 
         Eigen::MatrixXd x_ref(model.nx, mpc.predict_steps_+1);

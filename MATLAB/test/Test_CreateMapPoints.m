@@ -3,10 +3,18 @@ clc
 close all
 
 % Input
-length = 14;
-width = 30;
-n_width = 1.5;
+length = 4;
+width = 4;
+n_width = 3;
 
 % Output
-[P, n] = CreateMapPoints(length, width, n_width);
-plot(P(:,1),P(:,2),'o','MarkerSize',10)
+[Points, n] = CreateMapPoints(length, width, n_width);
+% plot(P(:,1),P(:,2),'o','MarkerSize',10)
+
+global Pos; Pos = [0 0];
+global P;
+
+for i=1:n
+    P_i = Pos + Points(i,:);
+    P(i,:) = P_i;
+end
