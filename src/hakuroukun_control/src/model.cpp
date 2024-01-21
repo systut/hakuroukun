@@ -16,7 +16,6 @@ Model::Model(double sampling_time)
 {
     init();
     sampling_time_ = sampling_time;
-
 }
 
 // ========================================================
@@ -74,11 +73,5 @@ void Model::init()
     nx = 3;
     nu = 2;
     length_base = 0.95;
-
-    LIN_VEL_MAX = 1.5;
-    LIN_VEL_MAX = 0.5;
-    ANG_VEL_MAX = M_PI;
-    ANG_VEL_MAX = 0;
-
 }
 

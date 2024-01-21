@@ -55,8 +55,8 @@ while (toc < 1)
     Pos = GetPosition(gps_sub, theta);
 end
 %% Set Goals 
-length = 4;
-width = 4;
+length = 20;
+width = 13;
 n_width = 1;
 [Points, n] = CreateMapPoints(length, width, n_width);
 

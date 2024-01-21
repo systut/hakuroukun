@@ -37,7 +37,8 @@ class HakuroukunPose:
 
         self.dt = 0.01
         
-        self.orientation = 90.0
+        # self.orientation = 90.0 # Souma
+        self.orientation = 0.0
 
         rospy.sleep(1)
 
@@ -57,7 +58,7 @@ class HakuroukunPose:
 
         rospy.Timer(rospy.Duration(0.03), self._publish_orientation)
 
-        # rospy.Timer(rospy.Duration(0.03), self._log_pose)
+        rospy.Timer(rospy.Duration(0.03), self._log_pose)
         
     def run(self):
         """! Start ros node
@@ -73,7 +74,8 @@ class HakuroukunPose:
 
         x,y = gc.ll2xy(lat, lon, self.lat0, self.lon0)
 
-        rotation_angle = math.radians(-8.6732)
+        # rotation_angle = math.radians(-9.5561-8.6732-1.4321)  # nonhoi
+        rotation_angle = math.radians(-90-8.6732)
 
         current_pose_x = x*math.cos(rotation_angle) - y*math.sin(rotation_angle)
 

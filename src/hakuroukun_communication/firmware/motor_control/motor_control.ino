@@ -1,8 +1,8 @@
 #define SPEED_st 255
 #define SPEED_ac 255
 #define PM_st_N 565 //565 250
-#define PM_st_LIMR 125
-#define PM_st_LIML 105
+#define PM_st_LIMR 195
+#define PM_st_LIML 195
 #define PM_ac_N 290 //290
 #define PM_ac_LIMU 390
 #define PM_ac_LIMD 20

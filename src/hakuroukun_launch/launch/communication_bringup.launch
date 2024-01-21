@@ -2,16 +2,16 @@
 <launch>
 
     <arg name="serial_ON" default="true"/>
-    <arg name="file_name" default="uturn_constraints.csv"/> <!-- Reference file : source in /data/reference  -->
+    <arg name="file_name" default="uturn.csv"/> <!-- Reference file : source in /data/reference  -->
     
     <!-- Arduino Parameters -->
-    <arg name="arduino_port" default="/dev/ttyACM2"/>
+    <arg name="arduino_port" default="/dev/ttyACM1"/>
     <arg name="arduino_baud_rate" default="115200" />
     <arg name="arduino_controller_rate" default="0.5" />
 
     <!-- Communication Node-->
     <group if="$(arg serial_ON)">
-        <node pkg="hakuroukun_communication" name="hakuroukun_communication_node" type="hakuroukun_communication_node">
+        <node pkg="hakuroukun_communication" name="hakuroukun_communication_node" type="hakuroukun_communication_node" output="screen">
             <param name="port" value="$(arg arduino_port)"/>
             <param name="baud_rate" value="$(arg arduino_baud_rate)"/>
             <param name="controller_rate" value="$(arg arduino_controller_rate)"/>
