@@ -1,0 +1,22 @@
+
+{
+  "length_base" : 0.95,
+
+  "car_l": 0.42,
+  "car_w": 0.42,
+
+  "g"   : 9.81,
+
+  "R_in" : 0.14,
+  "R_out" : 0.14,
+
+  "max_dist_proj": 0.5,
+
+  "E_long" : 0.9,
+  "E_eps" : 0.95,
+
+  "initial_velocity" : 1.0,
+  "s_trust_region" : 0.2,
+
+  "vx_zero": 0.3
+}
