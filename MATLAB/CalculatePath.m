@@ -16,5 +16,5 @@ function [a,b,c] = CalculatePath(P1,P2)
         line_x = linspace(P1(1),P2(1),100);
         line_y = a*line_x+c;
     end
-    plot(line_x,line_y,'Color','r');
+    % plot(line_x,line_y,'Color','r');
 end
