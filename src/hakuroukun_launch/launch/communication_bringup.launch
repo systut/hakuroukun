@@ -5,7 +5,7 @@
     <arg name="file_name" default="uturn_constraints.csv"/> <!-- Reference file : source in /data/reference  -->
     
     <!-- Arduino Parameters -->
-    <arg name="arduino_port" default="/dev/ttyACM2"/>
+    <arg name="arduino_port" default="/dev/ttyACM1"/>
     <arg name="arduino_baud_rate" default="115200" />
     <arg name="arduino_controller_rate" default="0.5" />
 
