@@ -18,20 +18,20 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-Set(SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/mpc.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/model.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/test/QuadProg++.cpp
-    )
+# Set(SOURCES
+#     ${CMAKE_CURRENT_SOURCE_DIR}/src/mpc.cpp
+#     ${CMAKE_CURRENT_SOURCE_DIR}/src/model.cpp
+#     ${CMAKE_CURRENT_SOURCE_DIR}/src/test/QuadProg++.cpp
+#     )
 
-set(HEADERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/mpc.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/model.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/QuadProg++.h
+# set(HEADERS
+#     ${CMAKE_CURRENT_SOURCE_DIR}/include/mpc.h
+#     ${CMAKE_CURRENT_SOURCE_DIR}/include/model.h
+#     ${CMAKE_CURRENT_SOURCE_DIR}/include/QuadProg++.h
 
-    )
+#     )
 
-add_library(mpc ${SOURCES} ${HEADERS})
+# add_library(mpc ${SOURCES} ${HEADERS})
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -119,7 +119,7 @@ add_library(mpc ${SOURCES} ${HEADERS})
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-    INCLUDE_DIRS include
+    # INCLUDE_DIRS include
     # DEPENDS EIGEN3
     CATKIN_DEPENDS roscpp
 )
@@ -131,9 +131,9 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-    include
-    /usr/include/libserial/
-    ${catkin_INCLUDE_DIRS}
+    # include
+    # /usr/include/libserial/
+    # ${catkin_INCLUDE_DIRS}
     # ${EIGEN_INCLUDE_DIRS}
 )
 
@@ -152,23 +152,23 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/hakuroukun_control_node.cpp)
 
-add_executable(controller_node src/controller_node.cpp)
-target_link_libraries(controller_node ${catkin_LIBRARIES} mpc)
+# add_executable(controller_node src/controller_node.cpp)
+# target_link_libraries(controller_node ${catkin_LIBRARIES} mpc)
 
-add_executable(trajectory_pub_node src/trajectory_pub_node.cpp)
-target_link_libraries(trajectory_pub_node ${catkin_LIBRARIES} mpc)
+# add_executable(trajectory_pub_node src/trajectory_pub_node.cpp)
+# target_link_libraries(trajectory_pub_node ${catkin_LIBRARIES} mpc)
 
-add_executable(test_trajectory_pub src/test/test_trajectory_pub.cpp)
-target_link_libraries(test_trajectory_pub ${catkin_LIBRARIES} mpc)
+# add_executable(test_trajectory_pub src/test/test_trajectory_pub.cpp)
+# target_link_libraries(test_trajectory_pub ${catkin_LIBRARIES} mpc)
 
-add_executable(test_model src/test/test_model.cpp)
-target_link_libraries(test_model ${catkin_LIBRARIES} mpc)
+# add_executable(test_model src/test/test_model.cpp)
+# target_link_libraries(test_model ${catkin_LIBRARIES} mpc)
 
-add_executable(test_mpc src/test/test_mpc.cpp)
-target_link_libraries(test_mpc ${catkin_LIBRARIES} mpc)
+# add_executable(test_mpc src/test/test_mpc.cpp)
+# target_link_libraries(test_mpc ${catkin_LIBRARIES} mpc)
 
-add_executable(test_controller src/test/test_controller.cpp)
-target_link_libraries(test_controller ${catkin_LIBRARIES} mpc)
+# add_executable(test_controller src/test/test_controller.cpp)
+# target_link_libraries(test_controller ${catkin_LIBRARIES} mpc)
 
 
 ## Rename C++ executable without prefix
