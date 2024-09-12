@@ -226,11 +226,11 @@ CostMatrix Cost::getSoftConstraintCost() const
     z_MPC z_cost = z_MPC::Ones();
     // cost of "real" inputs
 
-    Z_cost(si_index.con_track,si_index.con_track) = cost_param_.sc_quad_track;
+    // Z_cost(si_index.con_track,si_index.con_track) = cost_param_.sc_quad_track;
     // Z_cost(si_index.con_tire,si_index.con_tire) = cost_param_.sc_quad_tire;
     // Z_cost(si_index.con_alpha,si_index.con_alpha) = cost_param_.sc_quad_alpha;
 
-    z_cost(si_index.con_track) = cost_param_.sc_lin_track;
+    // z_cost(si_index.con_track) = cost_param_.sc_lin_track;
     // z_cost(si_index.con_tire) = cost_param_.sc_lin_tire;
     // z_cost(si_index.con_alpha) = cost_param_.sc_lin_alpha;
 

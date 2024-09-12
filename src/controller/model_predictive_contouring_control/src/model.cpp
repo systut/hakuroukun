@@ -39,21 +39,21 @@ StateVector Model::getF(const State &x,const Input &u) const
     const double dVs = u.dVs;
 
     StateVector f;
-    f(0) = v*std::cos(delta)*std::cos(phi);
-    f(1) = v*std::cos(delta)*std::sin(phi);
-    f(2) = v*std::sin(delta) / param_.length_base;
-    f(3) = vs;
-    f(4) = dV;
-    f(5) = dDelta;
-    f(6) = dVs;
-
-    // f(0) = v*std::cos(delta+phi);
-    // f(1) = v*std::sin(delta+phi);
+    // f(0) = v*std::cos(delta)*std::cos(phi);
+    // f(1) = v*std::cos(delta)*std::sin(phi);
     // f(2) = v*std::sin(delta) / param_.length_base;
     // f(3) = vs;
     // f(4) = dV;
     // f(5) = dDelta;
     // f(6) = dVs;
+
+    f(0) = v*std::cos(delta+phi);
+    f(1) = v*std::sin(delta+phi);
+    f(2) = v*std::sin(delta) / param_.length_base;
+    f(3) = vs;
+    f(4) = dV;
+    f(5) = dDelta;
+    f(6) = dVs;
 
     return f;
 }
@@ -78,86 +78,22 @@ LinModelMatrix Model::getModelJacobian(const State &x, const Input &u) const
 
     const StateVector f = getF(x,u);
 
-    // f1 = v*std::cos(delta)*std::cos(phi);
-    const double df1_dx = 0.0;
-    const double df1_dy = 0.0;
-    const double df1_dphi = -v*std::cos(delta)*std::sin(phi);
-    const double df1_ds = 0.0;
-    const double df1_dV = std::cos(delta)*std::cos(phi);
-    const double df1_dDelta = -v*std::sin(delta)*std::cos(phi);
-    const double df1_dVs = 0.0; 
-
-    // f2 = v*std::cos(delta)*std::sin(phi);
-    const double df2_dx = 0.0;
-    const double df2_dy = 0.0;
-    const double df2_dphi = v*std::cos(delta)*std::cos(phi);
-    const double df2_ds = 0.0;
-    const double df2_dV = std::cos(delta)*std::sin(phi);
-    const double df2_dDelta = -v*std::sin(delta)*std::sin(phi);
-    const double df2_dVs = 0.0; 
-
-    // f3 = v*std::sin(delta) / length_base;
-    const double df3_dx = 0.0;
-    const double df3_dy = 0.0;
-    const double df3_dphi = 0.0;
-    const double df3_ds = 0.0;
-    const double df3_dV = std::sin(delta) / param_.length_base;
-    const double df3_dDelta = v*std::cos(delta) / param_.length_base;
-    const double df3_dVs = 0.0; 
-    
-    // f4 = vs;
-    const double df4_dx = 0.0;
-    const double df4_dy = 0.0;
-    const double df4_dphi = 0.0;
-    const double df4_ds = 0.0;
-    const double df4_dV = 0.0;
-    const double df4_dDelta = 0.0;
-    const double df4_dVs = 1.0; 
-
-    // f5 = dV;
-    const double df5_dx = 0.0;
-    const double df5_dy = 0.0;
-    const double df5_dphi = 0.0;
-    const double df5_ds = 0.0;
-    const double df5_dV = 0.0;
-    const double df5_dDelta = 0.0;
-    const double df5_dVs = 0.0;
-
-    // f6 = dDelta;
-    const double df6_dx = 0.0;
-    const double df6_dy = 0.0;
-    const double df6_dphi = 0.0;
-    const double df6_ds = 0.0;
-    const double df6_dV = 0.0;
-    const double df6_dDelta = 0.0;
-    const double df6_dVs = 0.0;
-    
-    // f7 = dVs;
-    const double df7_dx = 0.0;
-    const double df7_dy = 0.0;
-    const double df7_dphi = 0.0;
-    const double df7_ds = 0.0;
-    const double df7_dV = 0.0;
-    const double df7_dDelta = 0.0;
-    const double df7_dVs = 0.0;
-
-    // // ==============================
-    // // f1 = v*std::cos(delta+phi);
+    // // f1 = v*std::cos(delta)*std::cos(phi);
     // const double df1_dx = 0.0;
     // const double df1_dy = 0.0;
-    // const double df1_dphi = -v*std::sin(delta+phi);
+    // const double df1_dphi = -v*std::cos(delta)*std::sin(phi);
     // const double df1_ds = 0.0;
-    // const double df1_dV = std::cos(delta+phi);
-    // const double df1_dDelta = -v*std::sin(delta+phi);
+    // const double df1_dV = std::cos(delta)*std::cos(phi);
+    // const double df1_dDelta = -v*std::sin(delta)*std::cos(phi);
     // const double df1_dVs = 0.0; 
 
-    // // f2 = v*std::sin(delta+phi);
+    // // f2 = v*std::cos(delta)*std::sin(phi);
     // const double df2_dx = 0.0;
     // const double df2_dy = 0.0;
-    // const double df2_dphi = v*std::cos(delta+phi);
+    // const double df2_dphi = v*std::cos(delta)*std::cos(phi);
     // const double df2_ds = 0.0;
-    // const double df2_dV = std::sin(delta+phi);
-    // const double df2_dDelta = v*std::cos(delta+phi);
+    // const double df2_dV = std::cos(delta)*std::sin(phi);
+    // const double df2_dDelta = -v*std::sin(delta)*std::sin(phi);
     // const double df2_dVs = 0.0; 
 
     // // f3 = v*std::sin(delta) / length_base;
@@ -204,6 +140,70 @@ LinModelMatrix Model::getModelJacobian(const State &x, const Input &u) const
     // const double df7_dV = 0.0;
     // const double df7_dDelta = 0.0;
     // const double df7_dVs = 0.0;
+
+    // ==============================
+    // f1 = v*std::cos(delta+phi);
+    const double df1_dx = 0.0;
+    const double df1_dy = 0.0;
+    const double df1_dphi = -v*std::sin(delta+phi);
+    const double df1_ds = 0.0;
+    const double df1_dV = std::cos(delta+phi);
+    const double df1_dDelta = -v*std::sin(delta+phi);
+    const double df1_dVs = 0.0; 
+
+    // f2 = v*std::sin(delta+phi);
+    const double df2_dx = 0.0;
+    const double df2_dy = 0.0;
+    const double df2_dphi = v*std::cos(delta+phi);
+    const double df2_ds = 0.0;
+    const double df2_dV = std::sin(delta+phi);
+    const double df2_dDelta = v*std::cos(delta+phi);
+    const double df2_dVs = 0.0; 
+
+    // f3 = v*std::sin(delta) / length_base;
+    const double df3_dx = 0.0;
+    const double df3_dy = 0.0;
+    const double df3_dphi = 0.0;
+    const double df3_ds = 0.0;
+    const double df3_dV = std::sin(delta) / param_.length_base;
+    const double df3_dDelta = v*std::cos(delta) / param_.length_base;
+    const double df3_dVs = 0.0; 
+    
+    // f4 = vs;
+    const double df4_dx = 0.0;
+    const double df4_dy = 0.0;
+    const double df4_dphi = 0.0;
+    const double df4_ds = 0.0;
+    const double df4_dV = 0.0;
+    const double df4_dDelta = 0.0;
+    const double df4_dVs = 1.0; 
+
+    // f5 = dV;
+    const double df5_dx = 0.0;
+    const double df5_dy = 0.0;
+    const double df5_dphi = 0.0;
+    const double df5_ds = 0.0;
+    const double df5_dV = 0.0;
+    const double df5_dDelta = 0.0;
+    const double df5_dVs = 0.0;
+
+    // f6 = dDelta;
+    const double df6_dx = 0.0;
+    const double df6_dy = 0.0;
+    const double df6_dphi = 0.0;
+    const double df6_ds = 0.0;
+    const double df6_dV = 0.0;
+    const double df6_dDelta = 0.0;
+    const double df6_dVs = 0.0;
+    
+    // f7 = dVs;
+    const double df7_dx = 0.0;
+    const double df7_dy = 0.0;
+    const double df7_dphi = 0.0;
+    const double df7_ds = 0.0;
+    const double df7_dV = 0.0;
+    const double df7_dDelta = 0.0;
+    const double df7_dVs = 0.0;
 
     // Jacobians
     // Matrix A

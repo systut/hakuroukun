@@ -62,7 +62,7 @@ State Integrator::simTimeStep(const State &x, const Input &u,const double ts) co
         std::cout << "Warning" << std::endl;
     }
     for(int i = 0;i<integration_steps;i++)
-        x_next = RK4(x_next,u,fine_time_step_);
+        x_next = EF(x_next,u,fine_time_step_);
 
     return x_next;
 }

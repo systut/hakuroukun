@@ -55,7 +55,7 @@ set(HEADERS
 
     )
 
-add_library(mpcc ${SOURCES} ${HEADERS})
+add_library(mpcc_lib ${SOURCES} ${HEADERS})
 find_package(Python REQUIRED Development)
 find_package(PythonLibs 2.7 REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
@@ -87,14 +87,30 @@ catkin_package(
 ## Build ##
 ###########
 
-add_executable(MPCC src/main.cpp)
-target_link_libraries(MPCC ${catkin_LIBRARIES} mpcc
+add_executable(mpcc src/main.cpp)
+target_link_libraries(mpcc ${catkin_LIBRARIES} mpcc_lib
 /root/catkin_ws/src/controller/model_predictive_contouring_control/include/External/hpipm/lib/lib/libhpipm.a
-/root/catkin_ws/src/controller/model_predictive_contouring_control/include/External/blasfeo/lib/lib/libblasfeo.a
-)
-target_link_libraries(MPCC ${Python_LIBRARIES})
-target_link_libraries(MPCC Python::Python)
+/root/catkin_ws/src/controller/model_predictive_contouring_control/include/External/blasfeo/lib/lib/libblasfeo.a)
+target_link_libraries(mpcc ${Python_LIBRARIES})
+target_link_libraries(mpcc Python::Python)
 
-# install(DIRECTORY
-#     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
+add_executable(mpcc_node src/mpcc_controller_node.cpp)
+target_link_libraries(mpcc_node ${catkin_LIBRARIES} mpcc_lib
+/root/catkin_ws/src/controller/model_predictive_contouring_control/include/External/hpipm/lib/lib/libhpipm.a
+/root/catkin_ws/src/controller/model_predictive_contouring_control/include/External/blasfeo/lib/lib/libblasfeo.a)
+target_link_libraries(mpcc_node ${Python_LIBRARIES})
+target_link_libraries(mpcc_node Python::Python)
+
+# add_executable(mpcc src/main.cpp)
+# target_link_libraries(mpcc ${catkin_LIBRARIES} mpcc_lib
+# /home/musashi/work/duc/robot_hakuroukun/hakuroukun_ws/src/controller/model_predictive_contouring_control/include/External/hpipm/lib/lib/libhpipm.a
+# /home/musashi/work/duc/robot_hakuroukun/hakuroukun_ws/src/controller/model_predictive_contouring_control/include/External/blasfeo/lib/lib/libblasfeo.a)
+# target_link_libraries(mpcc ${Python_LIBRARIES})
+# target_link_libraries(mpcc Python::Python)
+
+# add_executable(mpcc_node src/mpcc_controller_node.cpp)
+# target_link_libraries(mpcc_node ${catkin_LIBRARIES} mpcc_lib
+# /home/musashi/work/duc/robot_hakuroukun/hakuroukun_ws/src/controller/model_predictive_contouring_control/include/External/hpipm/lib/lib/libhpipm.a
+# /home/musashi/work/duc/robot_hakuroukun/hakuroukun_ws/src/controller/model_predictive_contouring_control/include/External/blasfeo/lib/lib/libblasfeo.a)
+# target_link_libraries(mpcc_node ${Python_LIBRARIES})
+# target_link_libraries(mpcc_node Python::Python)

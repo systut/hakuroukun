@@ -2,21 +2,21 @@
 {
   "length_base" : 0.95,
 
-  "car_l": 0.42,
-  "car_w": 0.42,
+  "car_l": 0.4,
+  "car_w": 0.3,
 
   "g"   : 9.81,
 
-  "R_in" : 0.14,
-  "R_out" : 0.14,
+  "R_in" : 0.5,
+  "R_out" : 0.5,
 
-  "max_dist_proj": 0.5,
+  "max_dist_proj": 1.0,
 
   "E_long" : 0.9,
   "E_eps" : 0.95,
 
-  "initial_velocity" : 1.0,
-  "s_trust_region" : 0.2,
+  "initial_velocity" : 0.8,
+  "s_trust_region" : 1,
 
-  "vx_zero": 0.3
+  "vx_zero": 0.1
 }

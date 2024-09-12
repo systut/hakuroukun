@@ -1,11 +1,11 @@
 
 {
   "n_sqp": 2,
-  "n_reset": 5,
-  "sqp_mixing" : 0.8,
-  "n_sim": 282,
+  "n_reset": 2,
+  "sqp_mixing" : 1.0,
+  "n_sim": 241,
   "Ts": 0.05,
-  "v0": 0.2,
+  "v0": 0.8,
   
   "model_path": "src/controller/model_predictive_contouring_control/config/model.json",
   "cost_path": "src/controller/model_predictive_contouring_control/config/cost.json",

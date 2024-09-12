@@ -221,7 +221,7 @@ MPCReturn MPC::runMPC(State &x0)
 {
     auto t1 = std::chrono::high_resolution_clock::now();
     int solver_status = -1;
-    x0.s = track_.porjectOnSpline(x0);
+    x0.s = track_.projectOnSpline(x0);
     x0.unwrap(track_.getLength());
     if(valid_initial_guess_)
         updateInitialGuess(x0);

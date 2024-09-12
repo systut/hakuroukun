@@ -16,6 +16,10 @@
 
 #include "model_predictive_contouring_control/track.h"
 namespace mpcc{
+
+Track::Track()
+{}
+
 Track::Track(std::string file) 
 {
     /////////////////////////////////////////////////////
@@ -47,4 +51,11 @@ TrackPos Track::getTrack()
             Eigen::Map<Eigen::VectorXd>(X_inner.data(), X_inner.size()), Eigen::Map<Eigen::VectorXd>(Y_inner.data(), Y_inner.size()),
             Eigen::Map<Eigen::VectorXd>(X_outer.data(), X_outer.size()), Eigen::Map<Eigen::VectorXd>(Y_outer.data(), Y_outer.size())};
 }
+
+void Track::setTrack(std::vector<double> x, std::vector<double> y)
+{
+    X = Eigen::Map<Eigen::VectorXd>(x.data(), x.size());
+    Y = Eigen::Map<Eigen::VectorXd>(y.data(), y.size());
+}
+
 }
