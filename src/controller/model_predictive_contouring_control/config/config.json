@@ -1,0 +1,15 @@
+
+{
+  "n_sqp": 2,
+  "n_reset": 5,
+  "sqp_mixing" : 0.8,
+  "n_sim": 282,
+  "Ts": 0.05,
+  "v0": 0.2,
+  
+  "model_path": "src/controller/model_predictive_contouring_control/config/model.json",
+  "cost_path": "src/controller/model_predictive_contouring_control/config/cost.json",
+  "bounds_path": "src/controller/model_predictive_contouring_control/config/bounds.json",
+  "track_path": "src/controller/model_predictive_contouring_control/config/uturn.json",
+  "normalization_path": "src/controller/model_predictive_contouring_control/config/normalization.json"
+}

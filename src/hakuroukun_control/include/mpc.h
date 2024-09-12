@@ -80,6 +80,17 @@ public:
     void Control(Eigen::Vector3d robot_pose);
     void StopMotion(Eigen::Vector3d robot_pose);
     void StraightMotion(Eigen::Vector3d robot_pose);
+    void Control2(Eigen::Vector3d robot_pose);
+
+    void StraightMotionWithKp(Eigen::Vector3d robot_pose);
+    void StraightMotionWithStanley(Eigen::Vector3d robot_pose);
+    
+    // ==============================================
+    // P - Controller for Straight motion
+    // ==============================================
+    double Kp;
+    void Control3(Eigen::Vector3d robot_pose);
+    void Control4(Eigen::Vector3d gps_pose);
 
     // ==============================================
     // MPC FUNCTIONS

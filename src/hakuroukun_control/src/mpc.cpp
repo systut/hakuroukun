@@ -57,13 +57,16 @@ void MPC::ReadTrajectory()
 
     for(int i=0; i<trajectory_.points.size(); i++)
     {
+        // X_ref = [x,y,theta]
         x_ref_(0,i) = trajectory_.points.at(i).x;
         x_ref_(1,i) = trajectory_.points.at(i).y;
         x_ref_(2,i) = trajectory_.points.at(i).heading;
         
+        // U_ref = [v, delta]
         u_ref_(0,i) = trajectory_.points.at(i).velocity_mps;
         u_ref_(1,i) = trajectory_.points.at(i).steering_angle;
         
+        // Get curve detection base on steering angle
         if (u_ref_(1,i) != 0)
         {
             curve_detect.push_back(true);
@@ -93,111 +96,21 @@ void MPC::GetHorizonTrajectory(double current_step)
         x_N_(1,i) = x_ref_(1, current_step + i);    // y
         x_N_(2,i) = x_ref_(2, current_step + i);    // theta
         
-        u_N_(0,i) = u_ref_(0, current_step + i);
-        u_N_(1,i) = u_ref_(1, current_step + i);     
+        u_N_(0,i) = u_ref_(0, current_step + i);    // v
+        u_N_(1,i) = u_ref_(1, current_step + i);    // delta   
     }
     x_N_goal_ = x_N_.col(0);
-}
-
-void MPC::Control(Eigen::Vector3d robot_pose)
-{
-    double distance, goal_check_dis;
-    double lin_vel, steer_ang;
-
-    goal_check_dis = (end_goal_ - robot_pose).norm();
-    // std::cout << "goal_check_dis:\n" << goal_check_dis << std::endl; 
-    Eigen::Vector2d robot_position = robot_pose.head<2>();
-
-    for (size_t i = counter_; i < iterations_; i++)
-    {
-        if (curve_detect[i] == true)
-        {
-            lin_vel = 1.0;
-            steer_ang = 0.0;
-        }
-        else
-        {
-            GetHorizonTrajectory(i);
-            Eigen::Vector2d mpc_goal = x_N_goal_.head<2>(); 
-            distance = (robot_position - mpc_goal).norm();
-            // std::cout << "current_goal_distance:" <<  distance << "\n" << std::endl;
-           
-            // Set Constraints in current step
-            std::tie(Aeq_, Beq_) = SetEqualityConstraints(x_N_, u_N_, robot_pose);
-
-            // Solve MPC Problems
-            optimal_solution_ = SolveMPCProblem(H_, f_, Aeq_, Beq_, Ai_, Bi_);
-
-            // lin_vel = optimal_solution_(0);
-            lin_vel = std::min(optimal_solution_(0), 1.0);
-
-            if (steer_ang > 0)
-            {
-                steer_ang = std::min(optimal_solution_(1), 0.69813170079);
-            }
-            else if (steer_ang < 0)
-            {
-                steer_ang = std::max(optimal_solution_(1), -0.69813170079);
-            }
-
-        }
-        
-        if (distance <= 0.25)
-        {   
-            counter_ = i;
-            break;
-        }
-
-        else if(goal_check_dis < 1.0)
-        {
-            ROS_WARN("LAST POINT");
-            counter_ = x_ref_.cols() -1;
-            break;
-        }
-    }
-    
-    double distance_to_goal = (end_goal_.head<2>() - robot_position).norm();
-
-    // ============================================================================================
-    // Need to Constraints for Straight Running Motion
-    // Need to Constraints for Turning Motion
-    // 1. How know when to run straight
-    // 2. From Initial position, adjust to the running trajectory -> 
-    // 3. Off-track how many to turn back
-    // 4. What is the new running straight steering angle -> potentiometer    
-    // ============================================================================================
-
-    if (distance_to_goal < 0.5)
-    {
-        lin_vel = 0.9;
-    }
-
-    if (distance_to_goal < 0.1)
-    {
-        StopMotion(robot_pose);
-    }
-    else
-    {
-        // std::cout << counter_ << std::endl;
-        Eigen::Vector2d input;
-        input << lin_vel, steer_ang;
-        PublishControlCommand(input);
-    }
 }
 
 void MPC::StopMotion(Eigen::Vector3d robot_pose)
 {
     double linear_vel = 0;
-    double angular_vel = 0;
+    double steer_angle = 0;
 
     controller_msg.data[0] = linear_vel;
-    controller_msg.data[1] = angular_vel;
+    controller_msg.data[1] = steer_angle;
     controller_publisher.publish(controller_msg);
 }
-
-// void MPC::StraightMotion()
-// {
-// }
 
 // ========================================================
 // PRIVATE FUNCTION
@@ -207,21 +120,21 @@ void MPC::SetMPCParameters()
     Model model(sampling_time_);
     nx_ = model.nx;
     nu_ = model.nu;
-    predict_steps_ = 10;
+    predict_steps_ = 20;
 }
 
 void MPC::PublishControlCommand(Eigen::Vector2d input)
 {
     double linear_vel = input(0);
-    double angular_vel = input(1);
+    double steer_angle = input(1);
 
-    if (std::abs(angular_vel) < 0.01)
+    if (std::abs(steer_angle) < 0.01)
     {
         double angular_vel_ref = 0.0;
     }
     
     controller_msg.data[0] = linear_vel;
-    controller_msg.data[1] = angular_vel;
+    controller_msg.data[1] = steer_angle;
     // std::cout << controller_msg.data[0] << "," << controller_msg.data[1] << std::endl;
     controller_publisher.publish(controller_msg);
 }
@@ -252,7 +165,6 @@ void MPC::GenerateCSV(const Eigen::Vector3d robot_pose, const Eigen::Vector2d in
 
 }
 
-
 // ========================================================
 // MPC FUNCTIONS
 // ========================================================
@@ -262,7 +174,7 @@ std::tuple<Eigen::MatrixXd, Eigen::VectorXd> MPC::SetStageCost(){
     Eigen::MatrixXd R(nu_,nu_);
     Q   <<  100.0,  0.0,    0.0,
             0.0,  100.0,    0.0,
-            0.0,    0.0,    0.01;
+            0.0,    0.0,    0.0001;
 
     R   <<  0.0001, 0,
             0, 0.0001;
@@ -319,10 +231,10 @@ std::tuple<Eigen::MatrixXd, Eigen::VectorXd> MPC::SetInequalityConstraints()
 
     double lin_vel_ub = 1.5;
     double lin_vel_lb = 0.0;
-    double steer_ang_ub = 2 * M_PI/9;
-    double steer_ang_lb = 2 * M_PI/9;
-    double delta_lin_vel_limit = 1.5/0.05;
-    double delta_steer_ang_limit = steer_ang_lb / 0.05;
+    double steer_ang_ub = 0.785398;
+    double steer_ang_lb = 0.785398;
+    double delta_lin_vel_limit = 1.5/sampling_time_;
+    double delta_steer_ang_limit = steer_ang_lb / sampling_time_;
     
     K_ << lin_vel_ub, 
           lin_vel_lb, 
@@ -348,8 +260,7 @@ std::tuple<Eigen::MatrixXd, Eigen::VectorXd> MPC::SetInequalityConstraints()
             A_u.row(S_.rows()*i+ii)   = A_u_k.row(ii);
 
             B_u.row(K_.rows()*i+ii)   = K_.row(ii);
-        }
-        
+        }  
     }
 
     Eigen::MatrixXd A_in(S_.rows()*(predict_steps_-1), ((predict_steps_+1)*nx_ + (predict_steps_)*nu_));
@@ -417,6 +328,26 @@ std::tuple<Eigen::MatrixXd, Eigen::VectorXd> MPC::SetEqualityConstraints(Eigen::
 Eigen::VectorXd MPC::SolveMPCProblem(Eigen::MatrixXd H, Eigen::VectorXd f,
                                     Eigen::MatrixXd A_eq, Eigen::VectorXd B_eq,
                                     Eigen::MatrixXd A_in, Eigen::VectorXd B_in) {
+    // Set value for QP Matrices
+
+    // The problem is in the form:
+
+    // min 0.5 * x G x + g0 x
+    // s.t.
+    //     CE^T x + ce0 = 0             -> CE^T x = -ce0        -> Aeq X = -Beq
+    //     CI^T x + ci0 >= 0            -> -CI^T x <= ci0       -> -Ain X <= Bin
+        
+    //  The matrix and vectors dimensions are as follows:
+    //      G: n * n
+    // 		g0: n
+                    
+    // 		CE: neq * p
+    // 	    ce0: p
+                    
+    // 	    CI: nin * m
+    //      ci0: m
+
+    //      x: n
 
     // Quadratic Programming
     quadprogpp::Matrix<double> H_qp, A_eq_qp, A_in_qp;
@@ -425,7 +356,6 @@ Eigen::VectorXd MPC::SolveMPCProblem(Eigen::MatrixXd H, Eigen::VectorXd f,
     int n = H.rows();
     int neq = A_eq.rows();
     int nin = A_in.rows();
-    double sum = 0.0;
 
     H_qp.resize(n,n);
     A_eq_qp.resize(n,neq);
@@ -438,8 +368,6 @@ Eigen::VectorXd MPC::SolveMPCProblem(Eigen::MatrixXd H, Eigen::VectorXd f,
     Eigen::MatrixXd H_T = H.transpose();
     Eigen::MatrixXd A_eq_T = A_eq.transpose();
     Eigen::MatrixXd A_in_T = A_in.transpose();
-
-    // Set value for QP Matrices
 
     for (size_t i = 0; i < n; i++)
     {
@@ -464,11 +392,9 @@ Eigen::VectorXd MPC::SolveMPCProblem(Eigen::MatrixXd H, Eigen::VectorXd f,
 
     for (size_t i = 0; i < neq; i++)
     {B_eq_qp[i] = -B_eq(i);}
-    // {B_eq_qp[i] = B_eq(i);}
 
 
     for (size_t i = 0; i < nin; i++)
-    // {B_in_qp[i] = -B_in(i);}
     {B_in_qp[i] = B_in(i);}
 
     quadprogpp::solve_quadprog(H_qp,f_qp,A_eq_qp,B_eq_qp,A_in_qp,B_in_qp,x_qp);
@@ -529,6 +455,76 @@ Eigen::VectorXd MPC::SolveMPCProblem(Eigen::MatrixXd H, Eigen::VectorXd f,
     return new_u;
 }
 
+void MPC::Control(Eigen::Vector3d robot_pose)
+{
+    double distance, goal_check_dis;
+    double lin_vel, steer_ang;
+
+    goal_check_dis = (end_goal_ - robot_pose).norm();
+    // std::cout << "goal_check_dis:\n" << goal_check_dis << std::endl; 
+    Eigen::Vector2d robot_position = robot_pose.head<2>();
+
+    for (size_t i = counter_; i < iterations_; i++)
+    {
+        GetHorizonTrajectory(i);
+        Eigen::Vector2d mpc_goal = x_N_goal_.head<2>(); 
+        distance = (robot_position - mpc_goal).norm();
+        // std::cout << "current_goal_distance:" <<  distance << "\n" << std::endl;
+        
+        // Set Constraints in current step
+        std::tie(Aeq_, Beq_) = SetEqualityConstraints(x_N_, u_N_, robot_pose);
+
+        // Solve MPC Problems
+        optimal_solution_ = SolveMPCProblem(H_, f_, Aeq_, Beq_, Ai_, Bi_);
+
+        // lin_vel = optimal_solution_(0);
+        lin_vel = std::min(optimal_solution_(0), 1.0);
+
+        if (steer_ang > 0)
+        {
+            steer_ang = std::min(optimal_solution_(1), 0.69813170079);
+        }
+        else if (steer_ang < 0)
+        {
+            steer_ang = std::max(optimal_solution_(1), -0.69813170079);
+        }
+
+        // Check for step goal---------
+
+        if (distance <= 0.25)
+        {   
+            counter_ = i;
+            break;
+        }
+
+        else if(goal_check_dis < 1.0)
+        {
+            ROS_WARN("LAST POINT");
+            counter_ = x_ref_.cols() -1;
+            break;
+        }
+    }
+
+    double distance_to_goal = (end_goal_.head<2>() - robot_position).norm();
+
+    if (distance_to_goal < 0.5)
+    {
+        lin_vel = 0.9;
+    }
+
+    if (distance_to_goal < 0.1)
+    {
+        StopMotion(robot_pose);
+    }
+    else
+    {
+        // std::cout << counter_ << std::endl;
+        Eigen::Vector2d input;
+        input << lin_vel, steer_ang;
+        PublishControlCommand(input);
+    }
+}
+
 void MPC::StraightMotion(Eigen::Vector3d robot_pose)
 {
     double step_goal_distance;               // Current Horizon goal
@@ -543,7 +539,7 @@ void MPC::StraightMotion(Eigen::Vector3d robot_pose)
         step_goal_distance = (robot_position - mpc_goal).norm();
         // std::cout << "current_goal_distance:" <<  step_goal_distance << "\n" << std::endl;
     
-        if (step_goal_distance > 0.7)
+        if (step_goal_distance > 0.3)
         {
             counter_ = i;
             break;
@@ -565,73 +561,397 @@ void MPC::StraightMotion(Eigen::Vector3d robot_pose)
         steer_ang = 0.0;
     }
 
-    std::cout << counter_ << "," << lin_vel << "," << steer_ang << std::endl;
+    std::cout << counter_ << "," << curve_detect[counter_] << "," << lin_vel << "," << steer_ang << std::endl;
+    // std::cout << "step :" << counter_ << ", curve :" << curve_detect[counter_] << ", linear vel :" << lin_vel << ", steering angle :" << steer_ang << std::endl;
     Eigen::Vector2d input;
     input << lin_vel, steer_ang;
     PublishControlCommand(input);
 
-    // for (size_t i = counter_; i < iterations_; i++)
-    // {
-    //     GetHorizonTrajectory(i);
-    //     Eigen::Vector2d mpc_goal = x_N_goal_.head<2>(); 
-    //     distance = (robot_position - mpc_goal).norm();
-    //     // std::cout << "current_goal_distance:" <<  distance << "\n" << std::endl;
-        
-    //     // Set Constraints in current step
-    //     std::tie(Aeq_, Beq_) = SetEqualityConstraints(x_N_, u_N_, robot_pose);
+}
 
-    //     // Solve MPC Problems
-    //     optimal_solution_ = SolveMPCProblem(H_, f_, Aeq_, Beq_, Ai_, Bi_);
+void MPC::Control2(Eigen::Vector3d robot_pose)
+{
+    double step_goal_distance;      // Current Horizon goal
+    double lin_vel, steer_ang;      // Robot Control Vars (v, phi)
 
-    //     // lin_vel = optimal_solution_(0);
-    //     lin_vel = std::min(optimal_solution_(0), 1.0);
+    Eigen::Vector2d robot_position = robot_pose.head<2>();
 
-    //     if (steer_ang > 0)
-    //     {
-    //         steer_ang = std::min(optimal_solution_(1), 0.69813170079);
-    //     }
-    //     else if (steer_ang < 0)
-    //     {
-    //         steer_ang = std::max(optimal_solution_(1), -0.69813170079);
-    //     }
-        
-    //     if (distance <= 0.25)
-    //     {   
-    //         counter_ = i;
-    //         break;
-    //     }
-    //     else if(goal_check_dis < 1.0)
-    //     {
-    //         ROS_WARN("LAST POINT");
-    //         counter_ = x_ref_.cols() -1;
-    //         break;
-    //     }
-    // }
+    for (size_t i = counter_; i < iterations_; i++)
+    {
+        GetHorizonTrajectory(counter_);
+        Eigen::Vector2d mpc_goal = x_N_goal_.head<2>();
+        std::cout << "Current goal : "  << mpc_goal << ", current position : " << robot_position << std::endl;
+        step_goal_distance = (robot_position - mpc_goal).norm();
+        // std::cout << "current_goal_distance:" <<  step_goal_distance << "\n" << std::endl;
     
-    // double distance_to_goal = (end_goal_.head<2>() - robot_position).norm();
-    // if (distance_to_goal < 0.5)
-    // {
-    //     lin_vel = 0.9;
-    // }
+        if (step_goal_distance > 0.5)
+        {
+            counter_ = i;
+            break;
+        }
+        else
+        {
+            counter_ = i+1;
+        }
+    }
 
-    // if (distance_to_goal < 0.1)
-    // {
-    //     StopMotion(robot_pose);
-    // }
-    // else
-    // {
-    //     // std::cout << counter_ << std::endl;
-    //     Eigen::Vector2d input;
-    //     input << lin_vel, steer_ang;
-    //     PublishControlCommand(input);
-    // }
+    if (curve_detect[counter_] == 0)
+    {
+        lin_vel = 1.0;
+        steer_ang = 0.0;
+    }
+    else
+    {
+        // Set Constraints in current step
+        std::tie(Aeq_, Beq_) = SetEqualityConstraints(x_N_, u_N_, robot_pose);
+
+        // Solve MPC Problems
+        optimal_solution_ = SolveMPCProblem(H_, f_, Aeq_, Beq_, Ai_, Bi_);
+
+        // lin_vel = optimal_solution_(0);
+        lin_vel = std::min(optimal_solution_(0), 1.0);
+
+        if (steer_ang > 0)
+        {
+            steer_ang = std::min(optimal_solution_(1), 0.639635);     // 0.69813170079     0.785398
+        }
+        else if (steer_ang < 0)
+        {
+            steer_ang = std::max(optimal_solution_(1), -0.639635);    // 0.69813170079     0.785398
+        }
+        // steer_ang = -steer_ang;
+    }
+
+    std::cout << "step :" << counter_ << ", curve :" << curve_detect[counter_] << ", linear vel :" << lin_vel << ", steering angle :" << steer_ang << std::endl;
+    Eigen::Vector2d input;
+    input << lin_vel, steer_ang;
+    PublishControlCommand(input);
 
 }
 
+void MPC::Control3(Eigen::Vector3d robot_pose)
+{
+    double step_goal_distance;      // Current Horizon goal
+    double lin_vel, steer_ang;      // Robot Control Vars (v, phi)
 
+    Eigen::Vector2d robot_position = robot_pose.head<2>();
 
+    for (size_t i = counter_; i < iterations_; i++)
+    {
+        GetHorizonTrajectory(counter_);
+        Eigen::Vector2d mpc_goal = x_N_goal_.head<2>();
+        std::cout << "Current goal : "  << mpc_goal << ", current position : " << robot_position << std::endl;
+        step_goal_distance = (robot_position - mpc_goal).norm();
 
+        if (step_goal_distance > 0.4)
+        {
+            counter_ = i;
+            break;
+        }
+        else
+        {
+            counter_ = i+1;
+        }
+    }
 
+    // Straight Motion
+    if (curve_detect[counter_] == 0)
+    {
+        // double y_des = x_N_goal_(1);
+        // double curr_y = robot_position(1);
+        // double e_lat = curr_y - y_des;
+        // std::cout << "y_ref, y_pos, e_lat :"  << y_des << "," << curr_y << "," << e_lat << std::endl;
+        // Kp = 0.9;
 
+        // if (abs(e_lat) > 0.)
+        // {
+        //     lin_vel = 1.0;
+        //     steer_ang = Kp * e_lat;
+        //     std::cout << "input : " << lin_vel << "," << steer_ang << std::endl; 
+        // }
+        // else
+        // {
+        //     lin_vel = 1.0;
+        //     steer_ang = 0.0;
+        // }
+        lin_vel = 1.0;
+        steer_ang = 0.0;
+    }
+    // Turning Motion
+    else
+    {
+        // Set Constraints in current step
+        std::tie(Aeq_, Beq_) = SetEqualityConstraints(x_N_, u_N_, robot_pose);
 
+        // Solve MPC Problems
+        optimal_solution_ = SolveMPCProblem(H_, f_, Aeq_, Beq_, Ai_, Bi_);
 
+        lin_vel = optimal_solution_(0);
+        // lin_vel = std::min(optimal_solution_(0), 1.0);
+
+        if (steer_ang > 0)
+        {
+            steer_ang = std::min(optimal_solution_(1), 0.639635);     // 0.69813170079     0.785398
+        }
+        else if (steer_ang < 0)
+        {
+            steer_ang = std::max(optimal_solution_(1), -0.639635);    // 0.69813170079     0.785398
+        }
+        steer_ang = -steer_ang;
+    }
+
+    std::cout << "step :" << counter_ << ", curve :" << curve_detect[counter_] << ", linear vel :" << lin_vel << ", steering angle :" << steer_ang << std::endl;
+    Eigen::Vector2d input;
+    input << lin_vel, steer_ang;
+    PublishControlCommand(input);
+
+}
+
+void MPC::StraightMotionWithKp(Eigen::Vector3d robot_pose)
+{
+    double step_goal_distance;               // Current Horizon goal
+    double lin_vel, steer_ang;      // Robot Control Vars (v, phi)
+
+    Eigen::Vector2d robot_position = robot_pose.head<2>();
+
+    for (size_t i = counter_; i < iterations_; i++)
+    {
+        GetHorizonTrajectory(counter_);
+        Eigen::Vector2d mpc_goal = x_N_goal_.head<2>();
+        step_goal_distance = (robot_position - mpc_goal).norm();
+        // std::cout << "current_goal_distance:" <<  step_goal_distance << "\n" << std::endl;
+    
+        if (step_goal_distance > 0.3)
+        {
+            counter_ = i;
+            break;
+        }
+        else
+        {
+            counter_ = i+1;
+        }
+    }
+
+    if (curve_detect[counter_] == 0)
+    {
+        double y_des = x_N_goal_(1);
+        double curr_y = robot_position(1);
+        double e_lat = curr_y - y_des;
+        std::cout << "y_ref, y_pos, e_lat :"  << y_des << "," << curr_y << "," << e_lat << std::endl;
+
+        if (abs(e_lat) > 0.1)
+        {
+            double curr_orient = x_N_goal_(2);
+            Kp = 2;
+            if (curr_orient == 0)
+            {
+                lin_vel = 1;
+                steer_ang = -Kp * e_lat;
+                std::cout << "input : " << lin_vel << "," << steer_ang << std::endl; 
+            }
+            else
+            {
+                lin_vel = 1;
+                steer_ang = Kp * e_lat;
+                std::cout << "input : " << lin_vel << "," << steer_ang << std::endl; 
+            }
+        }
+
+        else if (abs(e_lat) < 0.1 && abs(e_lat) > 0.05 )
+        {
+            double curr_orient = x_N_goal_(2);
+            Kp = 0.8;
+            if (curr_orient == 0)
+            {
+                lin_vel = 0.5;
+                steer_ang = -Kp * e_lat;
+                std::cout << "input : " << lin_vel << "," << steer_ang << std::endl; 
+            }
+            else
+            {
+                lin_vel = 0.5;
+                steer_ang = Kp * e_lat;
+                std::cout << "input : " << lin_vel << "," << steer_ang << std::endl; 
+            }
+        }
+        
+        else
+        {
+            lin_vel = 1.0;
+            steer_ang = 0.0;
+        }
+    }
+    else
+    {
+        lin_vel = 0.0;
+        steer_ang = 0.0;
+    }
+
+    std::cout << counter_ << "," << curve_detect[counter_] << "," << lin_vel << "," << steer_ang << std::endl;
+    // std::cout << "step :" << counter_ << ", curve :" << curve_detect[counter_] << ", linear vel :" << lin_vel << ", steering angle :" << steer_ang << std::endl;
+    Eigen::Vector2d input;
+    input << lin_vel, steer_ang;
+    PublishControlCommand(input);
+}
+
+void MPC::StraightMotionWithStanley(Eigen::Vector3d robot_pose)
+{
+    double step_goal_distance;               // Current Horizon goal
+    double lin_vel, steer_ang;      // Robot Control Vars (v, phi)
+
+    Eigen::Vector2d robot_position = robot_pose.head<2>();
+
+    for (size_t i = counter_; i < iterations_; i++)
+    {
+        GetHorizonTrajectory(counter_);
+        Eigen::Vector2d mpc_goal = x_N_goal_.head<2>();
+        step_goal_distance = (robot_position - mpc_goal).norm();
+    
+        if (step_goal_distance > 0.3)
+        {
+            counter_ = i;
+            break;
+        }
+        else
+        {
+            counter_ = i+1;
+        }
+    }
+
+    if (curve_detect[counter_] == 0)
+    {
+        
+        double pos_x = robot_pose(0);
+        double pos_y = robot_pose(1);
+        double theta = robot_pose(2);
+        double a,b,c;
+        double e, phi, delta;
+
+        std::cout << pos_x << "," << pos_y << "," << theta << std::endl;
+
+        if (x_N_goal_(2) == 0)
+        {
+            a = 0;
+            b = -1;
+            c = 0;
+            e = (a*pos_x + b*pos_y + c)/sqrt(a*a + b*b);
+            Kp = 0.9;
+            phi = atan2(b,-a)-theta;
+            delta = phi + atan2(1,Kp*e);
+        
+            lin_vel = 1;
+            steer_ang = delta;
+        }
+        if (x_N_goal_(2) == 3)
+        {
+            a = 0;
+            b = -1;
+            c = -3;
+            e = (a*pos_x + b*pos_y + c)/sqrt(a*a + b*b);
+            Kp = 0.9;
+            phi = atan2(b,-a)-theta;
+            delta = phi + atan2(1,Kp*e);
+            lin_vel = 1;
+            steer_ang = delta;
+        }
+    }
+    else
+    {
+        lin_vel = 0.0;
+        steer_ang = 0.0;
+    }
+
+    std::cout << counter_ << "," << curve_detect[counter_] << "," << lin_vel << "," << steer_ang << std::endl;
+    double distance_to_goal = (end_goal_.head<2>() - robot_position).norm();
+    if (distance_to_goal < 0.5)
+    {
+        lin_vel = 0.9;
+    }
+
+    if (distance_to_goal < 0.1)
+    {
+        StopMotion(robot_pose);
+    }
+    else
+    {
+        Eigen::Vector2d input;
+        input << lin_vel, steer_ang;
+        PublishControlCommand(input);
+    }
+
+}
+
+void MPC::Control4(Eigen::Vector3d front_wheel_pose)
+{
+    double step_goal_distance;      // Current Horizon goal
+    double lin_vel, steer_ang;      // Robot Control Vars (v, phi)
+
+    Eigen::Vector2d robot_position = front_wheel_pose.head<2>();
+
+    for (size_t i = counter_; i < iterations_; i++)
+    {
+        GetHorizonTrajectory(counter_);
+        Eigen::Vector2d mpc_goal = x_N_goal_.head<2>();
+        // std::cout << "Current goal : "  << mpc_goal << ", current position : " << robot_position << std::endl;
+        step_goal_distance = (robot_position - mpc_goal).norm();
+
+        if (step_goal_distance > 0.4)
+        {
+            counter_ = i;
+            break;
+        }
+        else
+        {
+            counter_ = i+1;
+        }
+    }
+
+    // Straight Motion
+    if (curve_detect[counter_] == 0)
+    {
+        lin_vel = 1.0;
+        steer_ang = 0.0;
+    }
+    // Turning Motion
+    else
+    {
+        // Set Constraints in current step
+        std::tie(Aeq_, Beq_) = SetEqualityConstraints(x_N_, u_N_, front_wheel_pose);
+
+        // Solve MPC Problems
+        optimal_solution_ = SolveMPCProblem(H_, f_, Aeq_, Beq_, Ai_, Bi_);
+
+        lin_vel = optimal_solution_(0);
+        // lin_vel = std::min(optimal_solution_(0), 1.0);
+
+        if (steer_ang > 0)
+        {
+            steer_ang = std::min(optimal_solution_(1), 0.69813170079);     // 0.69813170079     0.785398       0.639635
+        }
+        else if (steer_ang < 0)
+        {
+            steer_ang = std::max(optimal_solution_(1), -0.69813170079);    // 0.69813170079     0.785398       0.639635
+        }
+        steer_ang = -steer_ang;
+    }
+
+    std::cout << "step :" << counter_ << ", curve :" << curve_detect[counter_] << ", linear vel :" << lin_vel << ", steering angle :" << steer_ang << std::endl;
+    
+    double distance_to_goal = (end_goal_.head<2>() - robot_position).norm();
+    if (distance_to_goal < 0.3)
+    {
+        lin_vel = 0.9;
+    }
+
+    if (distance_to_goal < 0.1)
+    {
+        StopMotion(front_wheel_pose);
+    }
+    else
+    {
+        Eigen::Vector2d input;
+        input << lin_vel, steer_ang;
+        PublishControlCommand(input);
+    }
+
+}

@@ -1,15 +1,14 @@
 clear all
 format compact
 n = 1;                  %点群データn番目
-n_max = 720;            %総データ数
-L_theta1 = 30;          %判定除外角 50 : arctan(39/33)
+n_max = 1947;            %総データ数
+angle_increament = rad2deg(0.003228769404814);
+L_theta1 = 30;          %判定除外角
 L_theta2 = 45;
-distance_long = 1.7;    %閾値(長)
-distance_long = 0.101;
+distance_long = 0.5;    %閾値(長)
 distance_short = 0.5;   %閾値(短)
-distance_short = 0.1;   %閾値(短)
 
-rosinit('127.0.0.1');
+% rosinit('127.0.0.1');
 
 node = ros.Node('rplidar_ros_to_matlab');
 left_laser_sub = ros.Subscriber(node,"/left_scan","sensor_msgs/LaserScan");
@@ -25,12 +24,12 @@ while true
 
     %検出工程2(Left)
     while(n <= n_max)
-        if(((15)/0.5 < n) && (n <= (180-L_theta1)/0.5))%側方検出範囲
-            if(scanMsg2.Ranges(n) <= distance_short)
+        if(((15)/angle_increament < n) && (n <= (180-L_theta1)/angle_increament))   %側方検出範囲
+            if(scanMsg2.Ranges(n) <= distance_short && scanMsg2.Ranges(n)~= Inf)
                 fprintf("Left Side obstacle detected\n");
             end
-        elseif((0 < n)&&(n <= (15)/0.5) || ((270+L_theta2)/0.5 <= n)&&(n < n_max))%前方検出範囲
-            if(scanMsg2.Ranges(n) <= distance_long )
+        elseif((0 < n)&&(n <= (15)/angle_increament) || ((270+L_theta2)/angle_increament <= n)&&(n < n_max))%前方検出範囲
+            if(scanMsg2.Ranges(n) <= distance_long && scanMsg2.Ranges(n)~= Inf)
                 fprintf("Left Front obstacle detected\n");
             end
         end
@@ -44,12 +43,12 @@ while true
 
     %検出工程1(Right)
     while(n <= n_max)
-        if(((180+L_theta1)/0.5 <= n) && (n < (345)/0.5))%側方検出範囲
-            if(scanMsg1.Ranges(n) <= distance_short)
+        if(((180+L_theta1)/angle_increament <= n) && (n < (345)/angle_increament))%側方検出範囲
+            if(scanMsg1.Ranges(n) <= distance_short && scanMsg1.Ranges(n)~= Inf)
                 fprintf("Right Side obstacle detected\n");
             end
-        elseif((0 < n)&&(n <= (L_theta2)/0.5) || ((345)/0.5 <= n)&&(n < n_max))%前方検出範囲
-            if(scanMsg1.Ranges(n) <= distance_long )
+        elseif((0 < n)&&(n <= (15)/angle_increament) || ((345)/angle_increament <= n)&&(n < n_max))%前方検出範囲
+            if(scanMsg1.Ranges(n) <= distance_long && scanMsg1.Ranges(n)~= Inf)
                 fprintf("Right Front obstacle detected\n");
             end
         end

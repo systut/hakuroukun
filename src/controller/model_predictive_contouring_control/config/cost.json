@@ -1,0 +1,23 @@
+
+{
+  "qC" : 0.01,
+  "qL" : 100.0,
+  "qVs" : 0.02,
+
+  "qMu": 0.001,
+
+  "rV" : 1E-6,
+  "rDelta" : 1E-6,
+  "rVs" : 1E-6,
+
+  "rdV" : 1E-4,
+  "rdDelta" : 5E-3,
+  "rdVs" : 1E-5,
+
+  "qCNmult": 10,
+  "qRNmult": 10,
+
+  "sc_quad_track": 10.0,
+
+  "sc_lin_track": 1.0
+}

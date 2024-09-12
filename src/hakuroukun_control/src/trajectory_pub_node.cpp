@@ -9,8 +9,10 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <std_msgs/Float64.h>
 #include "sdv_msgs/Trajectory.h"
 #include "sdv_msgs/TrajectoryPoint.h"
+
 
 
 class TrajectoryPubNode
@@ -21,11 +23,11 @@ TrajectoryPubNode(ros::NodeHandle nh, ros::NodeHandle private_nh){
 
     nh_ = nh;
     private_nh_ = private_nh;
-    // std::cout << "Current path is " << std::filesystem::current_path() << '\n';
-
-    std::string file_path = "../catkin_ws/src/data/uturn.csv";
-    // std::string file_path = "../catkin_ws/src/data/uturn.csv";
-
+    if (nh.getParam("/trajectory_pub/file_name", file_name))
+    {
+        file_path = "../catkin_ws/src/data/reference/" + file_name;
+        // std::cout << file_path << std::endl;
+    }    
     ReadReference(file_path);
 }
 
@@ -45,6 +47,9 @@ private:
     ros::NodeHandle nh_;
     ros::NodeHandle private_nh_;
     sdv_msgs::Trajectory trajectory_msg_;
+
+    std::string file_path;
+    std::string file_name;
 
 std::tuple<int, int> GetRowAndColumn(std::string file_path)
 {

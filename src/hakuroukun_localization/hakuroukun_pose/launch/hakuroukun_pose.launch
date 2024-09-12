@@ -2,11 +2,11 @@
 <launch>
 
     <!-- TSND IMU -->
-    <arg name="imu_serial_port" default="/dev/ttyACM1" />
+    <arg name="imu_serial_port" default="/dev/ttyACM0" />
     <arg name="imu_publish_rate" default="100" />  <!-- Required : 100 -->
  
     <!-- Ichimill GPS -->
-    <arg name="gps_serial_port" default="/dev/ttyACM0" />
+    <arg name="gps_serial_port" default="/dev/ttyACM2" />
     <arg name="gps_baud" default="115200" /> 
     <arg name="gps_debug" default="True" />
 
