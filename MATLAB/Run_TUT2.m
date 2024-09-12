@@ -23,16 +23,8 @@ velocity = 1;
 count = 0;
 com_s = 537;
 
-%% Device connection setup
-% LIDAR SETUP
-% ノード設定
-node = ros.Node('ros_to_matlab');
-% LiDARデータのサブスクライバ
-right_laser_sub = ros.Subscriber(node,"/left_scan","sensor_msgs/LaserScan");
-left_laser_sub = ros.Subscriber(node,"/right_scan","sensor_msgs/LaserScan");
-% Robot Pose Subscriber
-imu_sub = ros.Subscriber(node, "/hakuroukun_pose/orientation","std_msgs/Float64");
-gps_sub = ros.Subscriber(node, "/hakuroukun_pose/pose", "geometry_msgs/PoseStamped");
+%% Connection setup
+[publisher, subscriber] = InitROS();
 
 % Device_Arduino
 arduino = serialport("/dev/ttyACM1",9600);
@@ -43,18 +35,13 @@ global theta;
 
 x = 0.0;
 y = 0.0;
-% theta = 0.0;
 theta_0 = 90.0;
 
 % Get IMU Data 0 -> Initial Theta_0
-tic
-while (toc < 1)
-end
-tic
-while (toc < 1)
-    theta = theta_0 + GetTheta(imu_sub);
-    Pos = GetPosition(gps_sub, theta);
-end
+sleep(2);
+theta = GetTheta(subscriber.imu);
+Pos = GetPosition(subscriber.gps, theta);
+
 %% Set Goals 
 global P1 P2 P3 P4;
 global P;
@@ -81,8 +68,6 @@ global flag_A;flag_A = 0;
 global pdis;pdis = 1.5;
 global distp2;distp2 = 1.5;
 global plus; plus = 1.5;  %ゴール生成位置 自機＋〇
-
-goal = GenerateGoal(start_point, plus, main_goal, robot_state);
 
 %% RUN ROBOT
 for i = 1:1
@@ -125,8 +110,8 @@ for i = 1:1
 
             while true
                 % Get Current State
-                theta = GetTheta(imu_sub);
-                Pos = GetPosition(gps_sub, theta);
+                theta = GetTheta(subscriber.imu);
+                Pos = GetPosition(subscriber.gps, theta);
                 x = Pos(1);
                 y = Pos(2);
 
@@ -143,7 +128,7 @@ for i = 1:1
                     tic
 
                     % % Obstacle detection check LiDAR left
-                    % scanMsg2 = receive(left_laser_sub,10);
+                    % scanMsg2 = receive(subscriber.left_lidar,10);
                     % n = 1;
                     % 
                     % %検出工程2(Left)
@@ -161,7 +146,7 @@ for i = 1:1
                     % end
                     % 
                     % % Obstacle detection check LiDAR right
-                    % scanMsg1 = receive(right_laser_sub,10);
+                    % scanMsg1 = receive(subscriber.right_lidar,10);
                     % n = 1;
                     % 
                     % %検出工程1(Right)
@@ -200,8 +185,8 @@ for i = 1:1
                     if(DWA_go == 1)
 
                         disp('Dynamic Window Approach start_point!!')
-                        theta = GetTheta(imu_sub);
-                        Pos = GetPosition(gps_sub, theta);
+                        theta = GetTheta(subscriber.imu);
+                        Pos = GetPosition(subscriber.gps, theta);
 
                         [u, robot_state, result, obstacle] = RunDWA(dt,scanMsg1,scanMsg2,goal,Pos,theta,result);
                         %アクセル踏込量設定
