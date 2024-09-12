@@ -1,21 +1,22 @@
 %大学取材用（12/22）(1/17)
 clc
 clear
+close all
 format compact
 %% Refactored parameters 
 dt = 1.0;   %刻み時間[s]
-global result;result.x = [];
+global result; result.x = [];
 
 %% Obstacle detection
-global scanMsg1;
-global scanMsg2;
-global obstacle;
-n = 1;                  %点群データn番目
-n_max = 720;            %総データ数
-L_theta1 = 30;          %判定除外角 50 : arctan(39/33)
+global scanMsg1;        % Right Scan Message
+global scanMsg2;        % Left Scan Message
+global obstacle;        % Obstacle
+angle_increament = rad2deg(0.004623388871551);
+scan_max = 1360;            %総データ数
+L_theta1 = 30;          %判定除外角 
 L_theta2 = 45;
-distance_long = 1.0;    %閾値(長)
-distance_short = 0.5;   %閾値(短)
+distance_long = 1.5;    %閾値(長)
+distance_short = 0.8;   %閾値(短)
 %%
 DWA = 0;
 DWA_go = 0;
@@ -43,37 +44,41 @@ global theta;
 
 x = 0.0;
 y = 0.0;
-theta_0 = 0.0;
+theta_0 = 90.0;
 
-% Get IMU Data 0 -> Initial Theta_0
+% Waiting for connection to come through
 tic
 while (toc < 1)
 end
+
+% ロボットの初期位置推定
 tic
 while (toc < 1)
     theta = theta_0 + GetTheta(imu_sub);
     Pos = GetPosition(gps_sub, theta);
 end
-%% Set Goals 
-length = 20;
-width = 13;
-n_width = 1;
+
+%% Set main goals 
+length = 8;
+width = 6;
+n_width = 1.5;
 [Points, n] = CreateMapPoints(length, width, n_width);
 
-global P;P = [];
-
+global P;
+P = [];
 for i=1:n
     P_i = Pos + Points(i,:);
     P(i,:) = P_i;
 end
-
+P_loop = LoopRun(P, 2);
+P = [P_loop; [0 0]];
 %% Generate local goal
 
 % ロボットの初期位置
 global start_point; start_point=P(1,:);
 % 終了ポイント
 global main_goal; main_goal = P(2,:)';
-% ロボットの初期状態[x(m),y(m),yaw(Rad),v(m/s),ω(rad/s)]
+% ロボットの初期状態 [x(m),y(m),yaw(Rad),v(m/s),steering_rate ω(rad/s)]
 global robot_state; robot_state = [Pos(1) Pos(2) deg2rad(theta) 0 0]';
 global goal;
 global flag_goal;flag_goal = 0;
@@ -86,9 +91,11 @@ goal = GenerateGoal(start_point, plus, main_goal, robot_state);
 
 %% RUN ROBOT
 for i = 1:1
-    for ii = 1:1:(n-1)
+    for ii = 1:1:(height(P)-1)
         % Initial flag
-        flag = 0;
+        flag = 0;           % phi angle flag
+        flag_A = 0;         % last goal flag
+        flag_goal = 0;      % local goal reach main goal flag
 
         % Calculate path for point to point
         [a,b,c] = CalculatePath(P(ii,:),P(ii+1,:));
@@ -97,8 +104,7 @@ for i = 1:1
 
         start_point = P(ii,:);
         main_goal = P(ii+1,:)';
-        % fprintf("%f,%f \n",P(ii,1),P(ii,2));
-
+        fprintf("%f, %f\n" , main_goal(1), main_goal(2));
         goal = GenerateGoal(start_point, plus, main_goal, robot_state);
 
         Tstart = tic;
@@ -108,7 +114,7 @@ for i = 1:1
 
             while true
                 % Get Current State
-                theta = GetTheta(imu_sub);
+                theta = theta_0 + GetTheta(imu_sub);
                 Pos = GetPosition(gps_sub, theta);
                 x = Pos(1);
                 y = Pos(2);
@@ -124,19 +130,17 @@ for i = 1:1
 
                 if (toc >= 1)
                     tic
-
-                    % Obstacle detection check LiDAR left
+                    scanMsg1 = receive(right_laser_sub,10);
                     scanMsg2 = receive(left_laser_sub,10);
                     n = 1;
-
                     % 検出工程2(Left)
-                    while(n <= n_max)
-                        if(((15)/0.5 < n) && (n <= (180-L_theta1)/0.5))%側方検出範囲
-                            if(scanMsg2.Ranges(n) <= distance_short)
+                    while(n <= scan_max)
+                        if(((15)/angle_increament < n) && (n <= (180-L_theta1)/angle_increament))%側方検出範囲
+                            if(scanMsg2.Ranges(n) <= distance_short && scanMsg2.Ranges(n)~= Inf)
                                 detect = 1;
                             end
-                        elseif((0 < n)&&(n <= (15)/0.5) || ((270+L_theta2)/0.5 <= n)&&(n < n_max))%前方検出範囲
-                            if(scanMsg2.Ranges(n) <= distance_long )
+                        elseif((0 < n)&&(n <= (15)/angle_increament) || ((270+L_theta2)/angle_increament <= n)&&(n < scan_max))%前方検出範囲
+                            if(scanMsg2.Ranges(n) <= distance_long && scanMsg2.Ranges(n)~= Inf)
                                 detect = 1;
                             end
                         end
@@ -144,40 +148,39 @@ for i = 1:1
                     end
 
                     % Obstacle detection check LiDAR right
-                    scanMsg1 = receive(right_laser_sub,10);
+                    scanMsgRight = receive(right_laser_sub,10);
                     n = 1;
 
                     % 検出工程1(Right)
-                    while(n <= n_max)
-                        if(((180+L_theta1)/0.5 <= n) && (n < (345)/0.5))%側方検出範囲
-                            if(scanMsg1.Ranges(n) <= distance_short)
+                    while(n <= scan_max)
+                        if(((180+L_theta1)/angle_increament <= n) && (n < (345)/angle_increament))%側方検出範囲
+                            if(scanMsg1.Ranges(n) <= distance_short && scanMsg1.Ranges(n)~= Inf)
                                 detect = 1;
                             end
-                        elseif((0 < n)&&(n <= (L_theta2)/0.5) || ((345)/0.5 <= n)&&(n < n_max))%前方検出範囲
-                            if(scanMsg1.Ranges(n) <= distance_long )
+                        elseif((0 < n)&&(n <= (L_theta2)/angle_increament) || ((345)/angle_increament <= n)&&(n < scan_max))%前方検出範囲
+                            if(scanMsg1.Ranges(n) <= distance_long && scanMsg1.Ranges(n)~= Inf)
                                 detect = 1;
                             end
                         end
                         n = n+1;
                     end
 
-                    % 行動設定
-                    % AT DETECTION MODE
-                    if(detect == 1) %一時停止措置
+                    %行動設定
+                    if(detect == 1)%一時停止措置
                         stay=tic;
-                        while(toc(stay) <= 1) % 1秒待機
+                        while(toc(stay) <= 1)%1秒待機
+                            fprintf("Stop for Obstacle\n");
                             com_str = sprintf("%d,290",com_s);
                             writeline(arduino,com_str);
-                            count = 1;
                             velocity = 0;
+                            count = 1;
                         end
                     end
-
+                    
                     [phi,flag] = c_phi(x,y,theta);
 
                     % AT DWA MODE
                     if (velocity == 1)%直進時
-
                         com_s = round(538.78+phi/0.2362);%538.78
                         if(com_s > 760)%760
                             com_s = 760;
@@ -190,10 +193,9 @@ for i = 1:1
                         elseif (com_a < 580)%290
                             com_a = 580;%290
                         end
-                        com_str = sprintf("%d,%d",com_s,com_a);%発進措置
-                        writeline(arduino,com_str);
+                    com_str = sprintf("%d,%d",com_s,com_a);%発進措置
+                    writeline(arduino,com_str);
                     end
-
 
                     if (readline(arduino) == "error")
                         fprintf("error\n");
