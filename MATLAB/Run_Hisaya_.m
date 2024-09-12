@@ -58,7 +58,7 @@ while (toc < 1)
     Pos = GetPosition(gps_sub, theta);
 end
 %% Set main goals 
-length = 11;
+length = 10;
 width = 5;
 n_width = 1;
 [Points, n] = CreateMapPoints(length, width, n_width);
@@ -69,15 +69,14 @@ for i=1:n
     P(i,:) = P_i;
 end
 P13 = [-2 0];
-P14 = [-2 5.5];
-P15 = [-2 11];
-P16 = [-5 0];
-P17 = [-5 5.5];
-P18 = [-5 11];
-P19 = [-3 0];
-P20 = [-3 5.5];
-P21 = [-3 11];
-P = [P; P13; P14; P15; P16; P17; P18; P19; P20; P21];
+P14 = [-2 5];
+P15 = [-2 10];
+P16 = [-5 10];
+P17 = [-5 5];
+P18 = [-5 0];
+P19 = [0 0];
+P20 = [0 1];
+P = [P; P13; P14; P15; P16; P17; P18; P19; P20];
 
 
 %% Generate local goal

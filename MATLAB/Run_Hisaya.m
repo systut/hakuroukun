@@ -58,17 +58,19 @@ while (toc < 1)
     Pos = GetPosition(gps_sub, theta);
 end
 %% Set main goals 
-length = 11;
-width = 5;
-n_width = 1;
+length = 8;
+width = 6;
+n_width = 1.5;
 [Points, n] = CreateMapPoints(length, width, n_width);
 
-global P;P = [];
+global P;
+P = [];
 for i=1:n
     P_i = Pos + Points(i,:);
     P(i,:) = P_i;
 end
-
+P_loop = LoopRun(P, 2);
+P = [P_loop; [0 0]];
 %% Generate local goal
 
 % ロボットの初期位置
@@ -88,7 +90,7 @@ goal = GenerateGoal(start_point, plus, main_goal, robot_state);
 
 %% RUN ROBOT
 for i = 1:1
-    for ii = 1:1:(n-1)
+    for ii = 1:1:(height(P)-1)
         % Initial flag
         flag = 0;           % phi angle flag
         flag_A = 0;         % last goal flag
@@ -101,6 +103,7 @@ for i = 1:1
 
         start_point = P(ii,:);
         main_goal = P(ii+1,:)';
+        fprintf("%f, %f\n" , main_goal(1), main_goal(2));
         goal = GenerateGoal(start_point, plus, main_goal, robot_state);
 
         Tstart = tic;

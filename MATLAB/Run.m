@@ -139,7 +139,6 @@ for i = 1:1
         if(ii == 2)
             start = [P2(1) P2(2)];
             main_goal = [P3(1) P3(2)]';
-            
         end
         if(ii == 3)
             start = [P3(1) P3(2)];
@@ -165,13 +164,13 @@ for i = 1:1
                 
                 x = Pos(1);
                 y = Pos(2);
-                fprintf("IMU READED %f \n", tcp.NumBytesAvailable);
+                % fprintf("IMU READED %f \n", tcp.NumBytesAvailable);
                 if(tcp.NumBytesAvailable >= 10)
                     theta = rad2deg(angdiff(0,deg2rad(ReadTheta(tcp,theta,rz_offset))));
                     flush(tcp);
-                    fprintf("Theta : %f \n", theta);
+                    % fprintf("Theta : %f \n", theta);
                 end
-                fprintf("Current Pos %f,%f,%f\n",x,y,theta);
+                % fprintf("Current Pos %f,%f,%f\n",x,y,theta);
                 %data = [%data; ["Current Pos", ii, goal(1), goal(2), mx(1), mx(2), deg2rad(theta) ,phi ,com_ac, com_s]];
                 % Set No detection at first and first run mess
                 detect = 0;
@@ -204,8 +203,7 @@ for i = 1:1
                         end
                         n = n+1;
                     end
-                    
-                    
+
                     % Obstacle detection check LiDAR right
                     scanMsg1 = receive(right_laser_sub,10);
                     n = 1;
@@ -242,7 +240,7 @@ for i = 1:1
                     
                     [phi,flag] = c_phi(x,y,theta);
                     
-                    if(true)
+                    if(DWA_go == 1)
                         fprintf('Dynamic Window Approach start!!')
 %                         [time,Pos] = ReadPosition(id,x,y,theta);
                         [time,Pos] = ReadPosition2(port);

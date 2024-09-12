@@ -43,7 +43,7 @@ global theta;
 
 x = 0.0;
 y = 0.0;
-theta_0 = 0.0;
+theta_0 = 90.0;
 
 % Get IMU Data 0 -> Initial Theta_0
 tic

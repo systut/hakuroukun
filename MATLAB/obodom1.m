@@ -1,11 +1,10 @@
 function [obx1,oby1,R1] = obodom1(mx, scanMsg1)
-    % R1 = [scanMsg1.Ranges(1:243);  scanMsg1.Ranges(1623:1947)];
-    % angle_increament = rad2deg(0.003228769404814);
-    R1 = [scanMsg1.Ranges(1:243);  scanMsg1.Ranges(1137:1947)];
+    % angle_increament = rad2deg(0.004623388871551);
+    R1 = [scanMsg1.Ranges(1:170);  scanMsg1.Ranges(794:1360)];
     [val,idx] = min(R1);
     m1 = idx;
-    if(m1 > 243)
-        m1 = m1 + 894;
+    if(m1 > 170)
+        m1 = m1 + 624;
     end
     
     L_phi1 = CalcLphi1(m1);
@@ -18,9 +17,9 @@ end
 
 function L_phi1 = CalcLphi1(m1)
     %LiDARの角度指定1
-    if (m1 <= 243)
-        L_phi1 = m1*0.1850;
-    elseif (m1 >= 1137)
-        L_phi1 = (m1*0.1850) - 360;
+    if (m1 <= 170)
+        L_phi1 = m1*0.2649;
+    elseif (m1 >= 794)
+        L_phi1 = (m1*0.2649) - 360;
     end
 end

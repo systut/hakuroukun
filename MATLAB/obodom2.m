@@ -1,26 +1,25 @@
-function [obx2,oby2,R2] = obodom2(mx,scanMsg2)
-    %LiDARからみた障害物座標の計算2    
-    R2 = [scanMsg2.Ranges(1:810);  scanMsg2.Ranges(1704:1947)];
-    [val,idx] = min(R2);
-    m2 = idx;
-    if(m2 > 810)
-        m2 = m2 + 894;
+function [obx1,oby1,R1] = obodom1(mx, scanMsg1)
+    % angle_increament = rad2deg(0.004623388871551);
+    R1 = [scanMsg1.Ranges(1:566);  scanMsg1.Ranges(1190:1360)];
+    [val,idx] = min(R1);
+    m1 = idx;
+    if(m1 > 566)
+        m1 = m1 + 624;
     end
     
-    L_phi2 = CalcLphi2(m2);
+    L_phi1 = CalcLphi1(m1);
     
-    R2 = R2(idx);
+    R1 = R1(idx);
     
-    obx2 = R2*cos(mx(3)+deg2rad(L_phi2))+(mx(1)+0.33*cos(mx(3)+deg2rad(70)));
-    oby2 = R2*sin(mx(3)+deg2rad(L_phi2))+(mx(2)+0.33*sin(mx(3)+deg2rad(70)));
+    obx1 = R1*cos(mx(3)+deg2rad(L_phi1))+(mx(1)+0.33*cos(mx(3)+deg2rad(-70)));
+    oby1 = R1*sin(mx(3)+deg2rad(L_phi1))+(mx(2)+0.33*sin(mx(3)+deg2rad(-70)));
 end
 
-
-function L_phi2 = CalcLphi2(m2)
-    %LiDARの角度指定2
-    if (m2 <= 810)
-        L_phi2 = m2*0.185;
-    elseif (m2 >= 1704)
-        L_phi2 = (m2*0.185) - 360;
+function L_phi1 = CalcLphi1(m1)
+    %LiDARの角度指定1
+    if (m1 <= 566)
+        L_phi1 = m1*0.2649;
+    elseif (m1 >= 1190)
+        L_phi1 = (m1*0.2649) - 360;
     end
 end

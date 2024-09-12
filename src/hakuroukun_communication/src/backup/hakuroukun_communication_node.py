@@ -10,9 +10,10 @@
 import serial
 import rospy
 from geometry_msgs.msg import Twist
-from std_msgs.msg import Float64MultiArray
+from std_msgs.msg import Bool
 import math
 import numpy as np
+import rosparam
 import time
 
 
@@ -39,12 +40,10 @@ class HakuroukunCommunicationNode(object):
             "/hakuroukun_communication_node/controller_rate")
 
         self.connection = serial.Serial(port, int(baud_rate), timeout=None)
-        
-        self.cmd_controller_subscriber = rospy.Subscriber(
-            "/cmd_controller", Float64MultiArray, self._cmd_controller_callback)
 
-        self.cmd_vel_subscriber = rospy.Subscriber(
-            "/cmd_vel", Twist, self._cmd_vel_callback)
+        # Velocity subscriber
+        self.velocity_subscriber = rospy.Subscriber(
+            "/cmd_vel", Twist, self._velocity_callback)
 
         # Ros Timer
         self.timer = rospy.Timer(
@@ -53,17 +52,7 @@ class HakuroukunCommunicationNode(object):
 
         self.sequence_id = 0
 
-        self.cmd_vel_msg = Twist()
-
-        self.cmd_controller_msg = Float64MultiArray()
-
-        self.cmd_controller_msg.data = [0.0, 0.0]
-
-        self.cumulative_steering_angle = 0.0  # Initialize cumulative steering angle
-
-        self.cmd_vel_flag = False
-        
-        self.cmd_controller_flag = False
+        self.velocity_msg = Twist()
 
     def run(self) -> None:
         """! Start ros node
@@ -77,10 +66,7 @@ class HakuroukunCommunicationNode(object):
         """! Callback function for velocity timer
         @param[in] event: timer event
         """
-
         acceleration_command, steering_command = self._apply_indentification()
-
-        rospy.loginfo(f"0{self.direction}{steering_command}{acceleration_command}")
 
         command = f"0{self.direction}{steering_command}{acceleration_command}"
 
@@ -92,6 +78,8 @@ class HakuroukunCommunicationNode(object):
 
         data = self.connection.readline()
 
+        rospy.loginfo(data)
+
 
     def _generate_command(self, acceleration_command, steering_command):
         """! Generate comment for serial communication
@@ -99,82 +87,42 @@ class HakuroukunCommunicationNode(object):
         """
         pass
 
-    def _cmd_controller_callback(self, msg: Float64MultiArray) -> None:
-        """! Callback function for Controller input subscriber
-        @param[in] msg: Controller input message in Float64MultiArray form
-        """
-        self.cmd_controller_msg = msg
-
-        self.cmd_controller_flag = True
-    
-    def _cmd_vel_callback(self, msg: Twist) -> None:
+    def _velocity_callback(self, msg: Twist) -> None:
         """! Callback function for velocity subscriber
         @param[in] msg: velocity message in Twist form
         """
-        self.cmd_vel_msg = msg
-
-        self.cmd_vel_flag = True
-
-        # rospy.loginfo(f"Velocity: {self.cmd_vel_msg}")
-
+        self.velocity_msg = msg
+    
     def _apply_indentification(self):
         """! Apply system indentification so as to send the right voltage
         @param[in] msg: velocity message in Twist form
         """
+        self.direction = "0"
 
-        linear_velocity = 0.0
+        if self.velocity_msg.linear.x < 0: 
+            self.direction = "1"
 
-        steering_angle = 0.0
+        linear_velocity = abs(self.velocity_msg.linear.x)
 
-        self.direction = 0
+        angular_velocity = self.velocity_msg.angular.z
 
-        if self.cmd_vel_flag:
-
-            self.cmd_vel_flag = False
-
-            if self.cmd_vel_msg.linear.x < 0:
-
-                self.direction = 1
-
-            linear_velocity = abs(self.cmd_vel_msg.linear.x)
-
-            steering_angle_ = math.degrees(self.cmd_vel_msg.angular.z)
-
-            self.cumulative_steering_angle += steering_angle_ * 0.5
-
-            steering_angle = self.cumulative_steering_angle
-
-        elif self.cmd_controller_flag:
-
-            if self.cmd_controller_msg.data[0] < 0:
-                self.direction = 1
-
-            linear_velocity = abs(self.cmd_controller_msg.data[0])
-
-            steering_angle = math.degrees(self.cmd_controller_msg.data[1])
-
-
-        # # ==========================================================================
-        # # TODO: Add system indentification equation here
-        # # ==========================================================================
+        # ==========================================================================
+        # TODO: Add system indentification equation here
+        # ==========================================================================
 
         ## NOTE: we should avoid magical number
-        if linear_velocity == 0:
-            acceleration_command = 290
-        else:
-            acceleration_command = (linear_velocity + 1)*350
-            # acceleration_command = (linear_velocity + 1.41) / 0.002817
+        acceleration_command = (linear_velocity + 1)*290
 
+        ## NOTE: we should avoid magical number
+        steering_command = (math.degrees(np.arcsin(0.95*angular_velocity/0.27))+127.26)/0.2362
+
+        ## NOTE: we should avoid magical number
         if acceleration_command > 680:
             acceleration_command = 680
         elif acceleration_command < 290:
             acceleration_command = 290
 
         ## NOTE: we should avoid magical number
-        steering_command = round(545+steering_angle/0.2362) # 538
-        # steering_command = round(555+steering_angle/0.2362) # 538
-        
-
         if steering_command > 760:
             steering_command = 760
         elif steering_command < 370:

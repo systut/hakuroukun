@@ -19,7 +19,7 @@ flush(tcp)
 tic
 while(toc < 10)
     if(tcp.NumBytesAvailable >= 10)
-        theta = ReadTheta(tcp,theta,rz_offset);
+        theta = theta_0 + ReadTheta(tcp,theta,rz_offset);
         offset_count = offset_count+1;
     end
 end

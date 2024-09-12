@@ -33,7 +33,7 @@ MPC::MPC(ros::NodeHandle nh, ros::NodeHandle private_nh, double sampling_time)
     counter_= 1;
     optimal_solution_ = Eigen::VectorXd(nu_); 
 
-    controller_publisher = nh_.advertise<std_msgs::Float64MultiArray>("cmd_controller_input", 1000);
+    controller_publisher = nh_.advertise<std_msgs::Float64MultiArray>("cmd_controller", 1000);
     controller_msg.data = {0.0, 0.0};
 
     time_t now = time(0);

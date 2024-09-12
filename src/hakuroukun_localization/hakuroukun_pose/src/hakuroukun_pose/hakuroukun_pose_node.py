@@ -21,6 +21,8 @@ class HakuroukunPose:
 
         self.file_name = os.getcwd() + "/../catkin_ws/src/data/tut_run/" + str(time.time()) + ".csv"
 
+        # self.file_name = "/home/musashi/work/duc/robot_hakuroukun/hakuroukun_ws/src/data/30/" + str(time.time()) + ".csv"
+
         rospy.init_node("robot_localization", anonymous=True)
 
         # Wait until got first (lon, lat, alt) from gps as origin
@@ -50,15 +52,17 @@ class HakuroukunPose:
 
         self.pose_pub = rospy.Publisher("/hakuroukun_pose/pose", PoseStamped, queue_size=10)
 
+        self.front_pose_pub = rospy.Publisher("/hakuroukun_pose/front_wheel", PoseStamped, queue_size=10)
+
         self.orientation_pub = rospy.Publisher("/hakuroukun_pose/orientation", Float64, queue_size=1)
         
         rospy.sleep(1)
 
-        rospy.Timer(rospy.Duration(0.03), self._publish_pose)
+        rospy.Timer(rospy.Duration(0.01), self._publish_pose)
 
-        rospy.Timer(rospy.Duration(0.03), self._publish_orientation)
+        rospy.Timer(rospy.Duration(0.01), self._publish_orientation)
 
-        rospy.Timer(rospy.Duration(0.03), self._log_pose)
+        rospy.Timer(rospy.Duration(0.01), self._log_pose)
         
     def run(self):
         """! Start ros node
@@ -75,7 +79,9 @@ class HakuroukunPose:
         x,y = gc.ll2xy(lat, lon, self.lat0, self.lon0)
 
         # rotation_angle = math.radians(-9.5561-8.6732-1.4321)  # nonhoi
-        rotation_angle = math.radians(-90-8.6732)
+        # rotation_angle = math.radians(-90-8.6732)
+        # rotation_angle = math.radians(-8.6732)
+        rotation_angle = math.radians(-2.8648-90)
 
         current_pose_x = x*math.cos(rotation_angle) - y*math.sin(rotation_angle)
 
@@ -125,6 +131,12 @@ class HakuroukunPose:
 
         self.current_pose_x, self.current_pose_y = self._get_xy_from_lat_lon(self.current_lat, self.current_lon)
 
+        l = 0.4
+
+        self.current_front_x = self.current_pose_x + l * math.cos(self.orientation)
+
+        self.current_front_y = self.current_pose_y + l * math.sin(self.orientation)
+
         # rospy.loginfo(f"%f, %f", self.current_pose_x, self.current_pose_y)
 
     def _imu_callback(self, data):
@@ -154,9 +166,9 @@ class HakuroukunPose:
 
     def _log_pose(self, timer):
 
-        # rospy.loginfo(f"{self.current_pose_x}, {self.current_pose_y}, {(self.yaw)}")
+        # rospy.loginfo(f"{self.current_pose_x}, {self.current_pose_y}, {(self.orientation)}")
 
-        buf = f"{self.current_pose_x}, {self.current_pose_y}, {(self.yaw)}" + "\n"
+        buf = f"{self.current_pose_x}, {self.current_pose_y}, {(self.orientation)}, {(self.current_front_x)}, {(self.current_front_y)}" + "\n"
 
         with open(self.file_name, mode = "a") as f:
 
@@ -180,7 +192,18 @@ class HakuroukunPose:
         pose_msg.pose.orientation.z = self.quaternion_z
         pose_msg.pose.orientation.w = self.quaternion_w
 
+        front_pose_msg = PoseStamped()
+        front_pose_msg.header.stamp = now
+        front_pose_msg.pose.position.x = self.current_front_x
+        front_pose_msg.pose.position.y = self.current_front_y
+        front_pose_msg.pose.position.z = 0.0
+        front_pose_msg.pose.orientation.x = self.quaternion_x
+        front_pose_msg.pose.orientation.y = self.quaternion_y
+        front_pose_msg.pose.orientation.z = self.quaternion_z
+        front_pose_msg.pose.orientation.w = self.quaternion_w
+
         self.pose_pub.publish(pose_msg)
+        self.front_pose_pub.publish(front_pose_msg)
 
     def _publish_orientation(self, timer):
 

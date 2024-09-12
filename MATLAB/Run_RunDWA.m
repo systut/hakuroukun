@@ -11,12 +11,12 @@ global result; result.x = [];
 global scanMsg1;        % Right Scan Message
 global scanMsg2;        % Left Scan Message
 global obstacle;        % Obstacle
-angle_increament = rad2deg(0.003228769404814);
-scan_max = 1947;            %総データ数
-L_theta1 = 60;          %判定除外角 
+angle_increament = rad2deg(0.004623388871551);
+scan_max = 1360;            %総データ数
+L_theta1 = 30;          %判定除外角 
 L_theta2 = 45;
 distance_long = 1.5;    %閾値(長)
-distance_short = 0.5;   %閾値(短)
+distance_short = 0.75;   %閾値(短)
 %%
 DWA = 0;
 DWA_go = 0;
@@ -58,7 +58,7 @@ while (toc < 1)
     Pos = GetPosition(gps_sub, theta);
 end
 %% Set main goals 
-length = 10;
+length = 7;
 width = 4;
 n_width = 0.5;
 [Points, n] = CreateMapPoints(length, width, n_width);
