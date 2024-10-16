@@ -153,11 +153,6 @@ class HakuroukunCommunicationNode(object):
 
             steering_angle = math.degrees(self.cmd_controller_msg.data[1])
 
-
-        # # ==========================================================================
-        # # TODO: Add system indentification equation here
-        # # ==========================================================================
-
         ## NOTE: we should avoid magical number
         if linear_velocity == 0:
             acceleration_command = 290

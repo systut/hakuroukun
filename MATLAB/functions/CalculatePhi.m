@@ -2,6 +2,7 @@ function [phi,flag] = CalculatePhi(P1,P2,param,x,y,theta,distp2)
     a = param(1);
     b = param(2);
     c = param(3);
+    
     kp = 1.0;
     n = [a b];
     Pn = [x y];

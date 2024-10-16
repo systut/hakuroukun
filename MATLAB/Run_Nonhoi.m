@@ -61,7 +61,6 @@ n_width = 1;
 [Points, n] = CreateMapPoints(length, width, n_width);
 
 global P;P = [];
-
 for i=1:n
     P_i = Pos + Points(i,:);
     P(i,:) = P_i;
@@ -97,22 +96,6 @@ for i = 1:1
 
         start_point = P(ii,:);
         main_goal = P(ii+1,:)';
-        fprintf("%f,%f \n",P(ii,1),P(ii,2));
-        % % SET GOAL
-        % if(ii == 1)
-        %     start_point = [P1(1) P1(2)];
-        %     main_goal = [P2(1) P2(2)]';
-        % end
-        % if(ii == 2)
-        %     start_point = [P2(1) P2(2)];
-        %     main_goal = [P3(1) P3(2)]';
-        % end
-        % if(ii == 3)
-        %     start_point = [P3(1) P3(2)];
-        %     main_goal = [P4(1) P4(2)]';
-        %     pdis = 0.3;
-        %     distp2 = 0.3;
-        % end
 
         goal = GenerateGoal(start_point, plus, main_goal, robot_state);
 
