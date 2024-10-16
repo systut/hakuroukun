@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+##
+# @file hakuroukun_control_node
+#
+# @brief Provides a ROS node to control the Hakuroukun robot. This file is
+# to hide the extension of a python script.
+#
+# @section author_doxygen_example Author(s)
+# - Created by Dinh Ngoc Duc on 16/10/2024.
+#
+# Copyright (c) 2024 System Engineering Laboratory.  All rights reserved.
+
+# External libraries
+import rospy
+from hakuroukun_control.hakuroukun_control import HakuroukunControl
+
+# Main function
+
+try:
+    hakuroukun_control_node = HakuroukunControl()
+
+    hakuroukun_control_node.run()
+
+except rospy.ROSInterruptException:
+
+    pass
+
+finally:
+
+    rospy.loginfo("Shutting down Hakuroukun Control Node")

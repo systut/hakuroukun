@@ -2,12 +2,11 @@
 <launch>
 
     <arg name="serial_ON" default="true"/>
-    <arg name="file_name" default="uturn.csv"/> <!-- Reference file : source in /data/reference  -->
     
     <!-- Arduino Parameters -->
-    <arg name="arduino_port" default="/dev/ttyACM1"/>
+    <arg name="arduino_port" default="/dev/ttyACM0"/>
     <arg name="arduino_baud_rate" default="115200" />
-    <arg name="arduino_controller_rate" default="0.5" />
+    <arg name="arduino_controller_rate" default="1" />
 
     <!-- Communication Node-->
     <group if="$(arg serial_ON)">
@@ -17,9 +16,4 @@
             <param name="controller_rate" value="$(arg arduino_controller_rate)"/>
         </node>
     </group>
-
-    <!-- Trajectory Node -->
-    <node name="trajectory_pub" pkg="hakuroukun_control" type="trajectory_pub_node">
-        <param name="file_name" value="$(arg file_name)"/>
-    </node>
 </launch>
