@@ -1,0 +1,9 @@
+<library path="libhakuroukun_steering_controller">
+
+  <class name="hakuroukun_steering_controller/HakuroukunSteeringController" type="hakuroukun_steering_controller::HakuroukunSteeringController" base_class_type="controller_interface::ControllerBase">
+    <description>
+      The AckermannSteeringController tracks velocity commands. It expects 1 VelocityJointInterface and 1 PositionJointInterfece types of hardware interfaces.
+    </description>
+  </class>
+
+</library>

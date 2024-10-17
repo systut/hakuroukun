@@ -180,7 +180,7 @@
             <kd value="${kd}" />
         </gazebo>
 
-        <joint name="${parent_link}_to_${name}" type="continuous">
+        <joint name="${parent_link}_to_${name}" type="fixed">
             <parent link="${parent_link}"/>
             <child link="${name}"/>
             <axis xyz="0 1 0" />
