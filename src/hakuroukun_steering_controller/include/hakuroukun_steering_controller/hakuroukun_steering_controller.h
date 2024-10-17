@@ -110,6 +110,7 @@ namespace hakuroukun_steering_controller{
 
     /// Hardware handles:
     hardware_interface::JointHandle rear_wheel_joint_;
+    hardware_interface::JointHandle front_wheel_joint_;
     hardware_interface::JointHandle front_steer_joint_;
 
     /// Velocity command related:

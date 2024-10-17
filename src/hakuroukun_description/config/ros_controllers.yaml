@@ -8,9 +8,12 @@ hakuroukun_steering_controller:
   # Odometry related 
   publish_rate: 50                    # default: 1.0
   open_loop: false
+  cmd_vel_timeout: 2.0
 
   # Joints
+  use_front_wheel: true
   rear_wheel: 'rear_axis_center_to_rear_wheel'
+  front_wheel: 'front_wheel_shaft_to_front_wheel'
   front_steer: 'rear_axis_center_to_front_wheel_shaft'
 
   # Geometry
@@ -49,6 +52,9 @@ hakuroukun_steering_controller:
           max_acceleration       : 2.0    # m/s^2
   angular:
       z:
+          has_position_limits    : true
+          max_position           : 1.0    # rad
+          min_position           : -1.0   # rad
           has_velocity_limits    : true
           max_velocity           : 10.0   # rad/s
           has_acceleration_limits: true

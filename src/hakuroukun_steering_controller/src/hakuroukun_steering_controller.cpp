@@ -139,6 +139,14 @@ namespace hakuroukun_steering_controller{
     std::size_t id = complete_ns.find_last_of("/");
     name_ = complete_ns.substr(id + 1);
 
+    // -- use front wheel or rear wheel
+    bool use_front_wheel = false;
+    controller_nh.param("use_front_wheel", use_front_wheel, use_front_wheel);
+
+    // -- single front wheel joint 
+    std::string front_wheel_name = "front_wheel_joint";
+    controller_nh.param("front_wheel", front_wheel_name, front_wheel_name);
+
     //-- single rear wheel joint
     std::string rear_wheel_name = "rear_wheel_joint";
     controller_nh.param("rear_wheel", rear_wheel_name, rear_wheel_name);
@@ -146,7 +154,6 @@ namespace hakuroukun_steering_controller{
     //-- single front steer joint
     std::string front_steer_name = "front_steer_joint";
     controller_nh.param("front_steer", front_steer_name, front_steer_name);
-
 
     // Odometry related:
     double publish_rate;
@@ -244,6 +251,10 @@ namespace hakuroukun_steering_controller{
     ROS_INFO_STREAM_NAMED(name_,
                           "Adding the rear wheel with joint name: " << rear_wheel_name);
     rear_wheel_joint_ = vel_joint_if->getHandle(rear_wheel_name); // throws on failure
+    //---- handles need to be previously registerd in ackermann_steering_test.cpp
+    ROS_INFO_STREAM_NAMED(name_,
+                          "Adding the front wheel with joint name: " << front_wheel_name);
+    front_wheel_joint_ = vel_joint_if->getHandle(front_wheel_name); // throws on failure
     //-- front steer
     ROS_INFO_STREAM_NAMED(name_,
                           "Adding the front steer with joint name: " << front_steer_name);
@@ -332,7 +343,7 @@ namespace hakuroukun_steering_controller{
 
     // Set Command
     const double wheel_vel = curr_cmd.lin/wheel_radius_; // omega = linear_vel / radius
-    rear_wheel_joint_.setCommand(wheel_vel);
+    front_wheel_joint_.setCommand(wheel_vel);
     front_steer_joint_.setCommand(curr_cmd.ang);
 
   }
@@ -357,7 +368,7 @@ namespace hakuroukun_steering_controller{
     const double steer_pos = 0.0;
     const double wheel_vel = 0.0;
 
-    rear_wheel_joint_.setCommand(steer_pos);
+    front_wheel_joint_.setCommand(steer_pos);
     front_steer_joint_.setCommand(wheel_vel);
   }
 
