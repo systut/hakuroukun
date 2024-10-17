@@ -11,9 +11,9 @@ function [publisher, subscriber] = InitROS()
     % ROS Node set up
     node = ros.Node('ros_to_matlab');
 
-    % Sensor subscriber setup
-    subscriber.right_lidar = ros.Subscriber(node,"/left_scan","sensor_msgs/LaserScan");
-    subscriber.left_lidar = ros.Subscriber(node,"/right_scan","sensor_msgs/LaserScan");
-    subscriber.imu = ros.Subscriber(node, "/hakuroukun_pose/orientation","std_msgs/Float64");
-    subscriber.gps = ros.Subscriber(node, "/hakuroukun_pose/pose", "geometry_msgs/PoseStamped");
+    % % Sensor subscriber setup
+    subscriber.right_lidar = rossubscriber("/right_scan","sensor_msgs/LaserScan");
+    subscriber.left_lidar = rossubscriber("/left_scan","sensor_msgs/LaserScan");
+    subscriber.imu = rossubscriber("/hakuroukun_pose/orientation","std_msgs/Float64");
+    subscriber.gps = rossubscriber("/hakuroukun_pose/pose", "geometry_msgs/PoseStamped");
 end

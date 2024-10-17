@@ -41,6 +41,7 @@ configureTerminator(arduino,"LF");
 %% Sensors : GPS - IMU
 global Pos; Pos = [0 0];
 global theta;
+global P;
 
 x = 0.0;
 y = 0.0;
@@ -60,15 +61,7 @@ end
 %% Set main goals 
 length = 10;
 width = 5;
-n_width = 1;
-[Points, n] = CreateMapPoints(length, width, n_width);
-
-global P;P = [];
-for i=1:n
-    P_i = Pos + Points(i,:);
-    P(i,:) = P_i;
-end
-
+[P, n] = CreateMapPoints(length, width, Pos);
 %% Generate local goal
 
 % ロボットの初期位置
@@ -126,6 +119,7 @@ for i = 1:1
 
                 if (toc >= 1)
                     tic
+                    %% Obstacle Detection Mode
                     scanMsg1 = receive(right_laser_sub,10);
                     scanMsg2 = receive(left_laser_sub,10);
                     n = 1;
@@ -162,6 +156,7 @@ for i = 1:1
                     end
 
                     %行動設定
+                    %% At detection, stop the robot
                     if(detect == 1)%一時停止措置
                         stay=tic;
                         while(toc(stay) <= 1)%1秒待機
@@ -175,7 +170,7 @@ for i = 1:1
                     
                     [phi,flag] = c_phi(x,y,theta);
 
-                    % AT DWA MODE
+                    %% AT DWA MODE
                     if (velocity == 1)%直進時
                         com_s = round(538.78+phi/0.2362);%538.78
                         if(com_s > 760)%760
@@ -189,6 +184,8 @@ for i = 1:1
                         elseif (com_a < 580)%290
                             com_a = 580;%290
                         end
+
+                    %% Send new velocity to avoid obstacle
                     com_str = sprintf("%d,%d",com_s,com_a);%発進措置
                     writeline(arduino,com_str);
                     end

@@ -1,17 +1,16 @@
 clear
 clc
 
-gps_test_node = ros.Node("gps_test_node");
-gps_subscriber = ros.Subscriber(gps_test_node,"/hakuroukun_pose/pose","geometry_msgs/PoseStamped");
+[pub, sub] = InitROS();
 
 tic
 while (toc < 1)
 end
+theta0 = 0.0;
 
 while true
-    x = gps_subscriber.LatestMessage.Pose.Position.X;
-    y = gps_subscriber.LatestMessage.Pose.Position.Y;
-    Pos = [x y];
-    fprintf("Position : %f, %f \n", x, y);
+    theta = theta0 + GetTheta(sub.imu);
+    Pos = GetPosition(sub.gps, theta);
+    fprintf("Position : %f, %f \n", Pos(1), Pos(2));
 end
 

@@ -1,4 +1,0 @@
-gazebo_ros_control:
-  pid_gains:
-    rear_axis_center_to_front_wheel_shaft: {p: 100.0, i: 0.01, d: 10.0}
-

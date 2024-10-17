@@ -40,6 +40,9 @@ class HakuroukunCommunicationNode(object):
 
         self.connection = serial.Serial(port, int(baud_rate), timeout=None)
         
+        time.sleep(2)
+
+        rospy.loginfo(f"Connected to {port} at {baud_rate} baud rate")
         self.cmd_controller_subscriber = rospy.Subscriber(
             "/cmd_controller", Float64MultiArray, self._cmd_controller_callback)
 
@@ -80,9 +83,9 @@ class HakuroukunCommunicationNode(object):
 
         acceleration_command, steering_command = self._apply_indentification()
 
-        rospy.loginfo(f"0{self.direction}{steering_command}{acceleration_command}")
-
         command = f"0{self.direction}{steering_command}{acceleration_command}"
+
+        rospy.loginfo(command)
 
         self.connection.write(bytes(f"{command}\r\n", encoding='ascii'))
 
@@ -112,6 +115,8 @@ class HakuroukunCommunicationNode(object):
         @param[in] msg: velocity message in Twist form
         """
         self.cmd_vel_msg = msg
+
+        rospy.loginfo(f"Velocity: {self.cmd_vel_msg}")
 
         self.cmd_vel_flag = True
 
@@ -152,11 +157,6 @@ class HakuroukunCommunicationNode(object):
             linear_velocity = abs(self.cmd_controller_msg.data[0])
 
             steering_angle = math.degrees(self.cmd_controller_msg.data[1])
-
-
-        # # ==========================================================================
-        # # TODO: Add system indentification equation here
-        # # ==========================================================================
 
         ## NOTE: we should avoid magical number
         if linear_velocity == 0:
