@@ -5,7 +5,9 @@ basic_dep="git \
            nano \
            vim \
            python3-catkin-tools \
-           python3-pip \
+           python3-pip 
+           libserial-dev \
+           libeigen3-dev \
 	  "
 
 ros_dep="ros-noetic-gazebo-ros-pkgs \
@@ -20,7 +22,9 @@ ros_dep="ros-noetic-gazebo-ros-pkgs \
          ros-noetic-map-server \
          ros-noetic-navigation \
          ros-noetic-rosbridge-server \
-         ros-noetic-robot-localization
+         ros-noetic-robot-localization \
+         ros-noetic-nmea-navsat-driver \
+         ros-noetic-serial
           "
 
 apt-get update
