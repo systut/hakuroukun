@@ -22,6 +22,7 @@ from scipy.spatial.transform import Rotation
 
 # Internal libraries
 from hakuroukun_control.feed_forward import FeedForward
+from hakuroukun_control.pure_pursuit import PurePursuit
 
 
 class HakuroukunControl(object):
@@ -94,6 +95,10 @@ class HakuroukunControl(object):
 
         if self._controller_type == 'feed_forward':
             self._controller = FeedForward(trajectory)
+
+        elif self._controller_type == 'pure_pursuit':
+            self._controller = PurePursuit(trajectory)
+
         else:
             raise NotImplementedError
 
