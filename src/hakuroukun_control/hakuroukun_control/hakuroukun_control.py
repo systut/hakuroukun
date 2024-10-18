@@ -10,19 +10,17 @@
 # Copyright (c) 2024 System Engineering Laboratory.  All rights reserved.
 
 # Standard library
+import numpy as np
 from collections import namedtuple
 
-# external libraries
+# External libraries
 import rospy
-import numpy as np
-import math
-
-# internal libraries
 from nav_msgs.msg import Odometry, Path
-from scipy.spatial.transform import Rotation
-from geometry_msgs.msg import Twist, PoseStamped
+from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import Float64MultiArray
+from scipy.spatial.transform import Rotation
 
+# Internal libraries
 from hakuroukun_control.feed_forward import FeedForward
 
 
@@ -56,22 +54,24 @@ class HakuroukunControl(object):
         """
         rospy.spin()
 
+    # ==================================================================================================
+    # PRIVATE METHODS
+    # ==================================================================================================
     def _read_parameters(self):
         """! Read parameters
         """
-
         self._sampling_time = rospy.get_param(
             '~sampling_time', 1)
-        
+
         self._controller_type = rospy.get_param(
             '~controller_type', 'feed_forward')
-        
+
         if not rospy.has_param('~trajectory_file'):
             rospy.logerr('The trajectory is not provided')
-            
+
         self._trajectory_file = rospy.get_param(
             '~trajectory_file')
-        
+
         self._trajectory_type = rospy.get_param(
             '~trajectory_type', 'derivative')
 
@@ -112,10 +112,10 @@ class HakuroukunControl(object):
 
         self._trajectory_publisher = rospy.Publisher(
             "reference_trajectory", Path, queue_size=10)
-        
+
         self._velocity_publisher = rospy.Publisher(
             "cmd_controller", Float64MultiArray, queue_size=10)
-        
+
     def _register_timers(self):
         """! Register timers
         """
@@ -139,15 +139,15 @@ class HakuroukunControl(object):
         self._state = [msg.pose.pose.position.x,
                        msg.pose.pose.position.y,
                        heading]
-        
+
     def _timer_callback(self, event):
         """! Timer callback
         @param event<Event>: The event
         """
-        # if not self._state and self._controller_type in ["feed_forward"]:
-        #     rospy.logwarn("No current status of the vehicle")
+        if not self._state and self._controller_type in [""]:
+            rospy.logwarn("No current status of the vehicle")
 
-        #     return
+            return
 
         if not self._controller:
             rospy.logwarn("No controller is registered")
@@ -159,9 +159,7 @@ class HakuroukunControl(object):
         if not status:
             rospy.logwarn("Failed to execute controller")
 
-        msg = Float64MultiArray()
-
-        msg.data = u
+        msg = self._convert_control_input_to_msg(u)
 
         rospy.loginfo(f"Send control input {msg}")
 
@@ -169,23 +167,19 @@ class HakuroukunControl(object):
 
         self._index += 1
 
-
-    # ==================================================================================================
     def _convert_control_input_to_msg(self, u):
         """! Convert control input to message
         @param u<list>: The control input
-        @return<Twist>: The message
+        @return<Float64MultiArray>: The message
         """
-        msg = Twist()
+        msg = Float64MultiArray()
 
         if len(u) != self._nu:
             rospy.logwarn("Invalid control input")
 
             return msg
 
-        msg.linear.x = u[0]
-
-        msg.angular.z = u[1]
+        msg.data = u
 
         return msg
 
@@ -253,7 +247,8 @@ class HakuroukunControl(object):
         @return u<list>: The input
         """
         if trajectory_type == "normal":
-            u = np.transpose(np.array(data[initial_index:, 1 + nx: 1 + nx + nu]))
+            u = np.transpose(
+                np.array(data[initial_index:, 1 + nx: 1 + nx + nu]))
 
         elif trajectory_type == "derivative":
             u = np.zeros((self._nu, len(data) - initial_index))
@@ -269,18 +264,20 @@ class HakuroukunControl(object):
         elif trajectory_type == "wheel":
             u = np.zeros((self._nu, len(data) - initial_index))
 
-            u[0, :] = (np.array(data[initial_index:, 1 + nx: 1 + nx + 1]) + 
-                       np.array(data[initial_index:, 1 + nx + 1: 1 + nx + 2])).reshape(-1) / 2
+            u[0, :] = (np.array(data[initial_index:, 1 + nx: 1 + nx + 1]) +
+                       np.array(data[initial_index:, 1 + nx + 1: 1 + nx + 2])
+                       ).reshape(-1) / 2
 
-            u[1, :] = (np.array(data[initial_index:, 1 + nx: 1 + nx + 1]) - 
-                       np.array(data[initial_index:, 1 + nx + 1: 1 + nx + 2])).reshape(-1) / self._length_base
+            u[1, :] = (np.array(data[initial_index:, 1 + nx: 1 + nx + 1]) -
+                       np.array(data[initial_index:, 1 + nx + 1: 1 + nx + 2])
+                       ).reshape(-1) / self._length_base
 
         elif trajectory_type == "front_wheel":
             u = np.zeros((self._nu, len(data) - initial_index))
 
             u[0, :] = np.array(data[initial_index:, 1 + nx + nu]).reshape(-1)
 
-            u[1, :] = np.array(data[initial_index:, 1 + nx + nu + 1]).reshape(-1)
-
+            u[1, :] = np.array(
+                data[initial_index:, 1 + nx + nu + 1]).reshape(-1)
 
         return u

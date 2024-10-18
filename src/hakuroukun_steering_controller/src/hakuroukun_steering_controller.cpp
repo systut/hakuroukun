@@ -248,9 +248,9 @@ namespace hakuroukun_steering_controller{
 
     //-- rear wheel
     //---- handles need to be previously registerd in ackermann_steering_test.cpp
-    ROS_INFO_STREAM_NAMED(name_,
-                          "Adding the rear wheel with joint name: " << rear_wheel_name);
-    rear_wheel_joint_ = vel_joint_if->getHandle(rear_wheel_name); // throws on failure
+    // ROS_INFO_STREAM_NAMED(name_,
+    //                       "Adding the rear wheel with joint name: " << rear_wheel_name);
+    // rear_wheel_joint_ = vel_joint_if->getHandle(rear_wheel_name); // throws on failure
     //---- handles need to be previously registerd in ackermann_steering_test.cpp
     ROS_INFO_STREAM_NAMED(name_,
                           "Adding the front wheel with joint name: " << front_wheel_name);
@@ -277,7 +277,7 @@ namespace hakuroukun_steering_controller{
     }
     else
     {
-      double wheel_pos  = rear_wheel_joint_.getPosition();
+      double wheel_pos  = front_wheel_joint_.getPosition();
       double steer_pos = front_steer_joint_.getPosition();
 
       if (std::isnan(wheel_pos) || std::isnan(steer_pos))

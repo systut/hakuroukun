@@ -9,6 +9,8 @@
     <xacro:include filename="$(find hakuroukun_description)/urdf/properties.xacro" />
     <!-- Import wheels and actuator properties -->
     <xacro:include filename="$(find hakuroukun_description)/urdf/actuators_wheels.xacro" />
+    <!-- Import sensors -->
+    <xacro:include filename="$(find hakuroukun_description)/urdf/sensors.xacro" />
 
     <xacro:property name="robot_namespace" value="hakuroukun"/>
 
@@ -84,7 +86,7 @@
         parent_link="rear_axis_center" 
         mass="${mass_steering_unit}"
         size_x="${steering_X}"  size_y="${steering_Y}" size_z="${steering_Z}"
-        x="${rear_axis_center_to_steering_center}" y="-0.01" z="0.0"
+        x="${rear_axis_center_to_steering_center}" y="-0.01" z="-0.02"
         file_name="package://hakuroukun_description/meshes/steering.stl" />
 
 <!-- ///////////////////////////////////////// WHEELS //////////////////////////////////// -->
@@ -95,8 +97,8 @@
         radius="${radius}"
         thickness="${thickness}" 
         x="0.0" y="0.0" z="0.0" 
-        mu1="200" mu2="100" 
-        kp="50000" kd="40"
+        mu1="0.6" mu2="0.6" 
+        kp="10000000" kd="40"
         file_name="package://hakuroukun_description/meshes/front_wheel.stl" />
 
     <xacro:axis_and_wheel name="rear_wheel" 
@@ -104,10 +106,15 @@
         mass="${rear_mass_wheel}" 
         radius="${rear_radius}"
         thickness="${rear_thickness}" 
-        x="0.0" y="0.0" z="0.0" 
-        mu1="200" mu2="100" 
-        kp="50000" kd="40"
+        x="0.0" y="0.0" z="-0.02" 
+        mu1="0.6" mu2="0.6" 
+        kp="10000000" kd="40"
         file_name="package://hakuroukun_description/meshes/new_rear.stl" />
+
+    <xacro:imu_sensor parent="base_link" imu_name="imu" imu_topic="imu/data_raw" mass="${imu_mass}" sizex="0.03" sizey="0.03" sizez="0.005" ox="0.0" oy="0.0" oz="0.01" update_rate="${imu_update_rate}" noise="${imu_noise}" />
+
+    <xacro:gps_sensor parent="base_link" gps_name="gps" gps_topic="gps/fix" mass="${gps_mass}" sizex="0.03" sizey="0.03" sizez="0.005" ox="0.0" oy="0.0" oz="0.0015" update_rate="${gps_update_rate}" initial_latitude="${gps_latitude}" initial_longitude="${gps_longitude}" noise="${gps_noise}" />
+
 
 <!-- ////////////////////////////// GAZEBO ROS PLUGIN //////////////////////////////////// -->
 
