@@ -67,4 +67,61 @@
 		</plugin>
 	</gazebo>
 	</xacro:macro>
+
+  <xacro:macro name="lidar_sensor" params="parent lidar_name length radius mass ox oy oz update_rate min_angle max_angle min_range max_range range_resolution stdv" >
+    <link name="${lidar_name}">
+      <visual>
+        <geometry>
+          <cylinder length="${length}" radius="${radius}"/>
+        </geometry>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <material name="Black"/>
+      </visual>
+      <xacro:inertial_cylinder_z mass="${mass}" radius="${radius}" height="${length}" />
+    </link>
+    <gazebo reference="${lidar_name}">
+      <material>Gazebo/Black</material>
+  	</gazebo>
+    <joint name="$[parent}_to_${lidar_name}" type="fixed">
+      <parent link="${parent}"/>
+        <child link="${lidar_name}"/>
+      <origin xyz="${ox} ${oy} ${oz}"/>
+    </joint>
+
+  	<gazebo reference="${lidar_name}">
+      <sensor type="ray" name="rplidar_sensor">
+        <pose>0 0 0 0 0 0</pose>
+        <visualize>false</visualize>
+      	<update_rate>${update_rate}</update_rate>
+      	<ray>
+          <scan>
+            <horizontal>
+              <samples>400</samples>
+              <resolution>1</resolution>
+              <min_angle>${min_angle}</min_angle>
+              <max_angle>${max_angle}</max_angle>
+          	</horizontal>
+          </scan>
+          <range>
+            <min>${min_range}</min>
+            <max>${max_range}</max>
+          	<resolution>${range_resolution}</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+          	<!-- Noise parameters based on published spec for Hokuyo laser
+               	achieving "+-30mm" accuracy at range < 10m.  A mean of 0.0m and
+               	stddev of 0.01m will put 99.7% of samples within 0.03m of the true
+               	reading. -->
+          	<mean>0.0</mean>
+          	<stddev>${stdv}</stddev>
+          </noise>
+      	</ray>
+      	<plugin name="lidar_controller" filename="libgazebo_ros_laser.so">
+          <topicName>${lidar_name}/scan</topicName>
+          <frameName>${lidar_name}</frameName>
+      	</plugin>
+      </sensor>
+    </gazebo>
+  </xacro:macro>
 </robot>

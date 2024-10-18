@@ -18,6 +18,8 @@
 
     <param name="robot_description" command="$(find xacro)/xacro $(arg model)"/>
 
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
             respawn="false" output="screen" />
 
@@ -28,4 +30,6 @@
 
     <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
         args="-z 0.5 -x 0.0 -y 0.0 -unpause -urdf -model hakuroukun -param robot_description"/>
+
+    <node name="rviz" pkg="rviz" type="rviz" required="true" />
 </launch>
