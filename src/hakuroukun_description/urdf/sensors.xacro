@@ -89,7 +89,7 @@
     </joint>
 
   	<gazebo reference="${lidar_name}">
-      <sensor type="ray" name="rplidar_sensor">
+      <sensor type="ray" name="${lidar_name}">
         <pose>0 0 0 0 0 0</pose>
         <visualize>false</visualize>
       	<update_rate>${update_rate}</update_rate>
@@ -117,7 +117,7 @@
           	<stddev>${stdv}</stddev>
           </noise>
       	</ray>
-      	<plugin name="lidar_controller" filename="libgazebo_ros_laser.so">
+      	<plugin name="lidar_plugin" filename="libgazebo_ros_laser.so">
           <topicName>${lidar_name}/scan</topicName>
           <frameName>${lidar_name}</frameName>
       	</plugin>
