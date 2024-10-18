@@ -7,7 +7,7 @@
   <xacro:property name="robot_length" value="1.430" />
   <xacro:property name="robot_width" value="0.810" />
   <xacro:property name="robot_height" value="1.070" />
-  <xacro:property name="robot_mass" value="240" />
+  <xacro:property name="robot_mass" value="140" />
   <!-- ///////////////////////////////////////////////////////////// -->
 
   <!-- /////////////////// Base link to Robot frame /////////////////// -->

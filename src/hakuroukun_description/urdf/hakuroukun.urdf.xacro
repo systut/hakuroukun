@@ -96,7 +96,7 @@
         thickness="${thickness}" 
         x="0.0" y="0.0" z="0.0" 
         mu1="200" mu2="100" 
-        kp="10000000" kd="40"
+        kp="50000" kd="40"
         file_name="package://hakuroukun_description/meshes/front_wheel.stl" />
 
     <xacro:axis_and_wheel name="rear_wheel" 
@@ -106,7 +106,7 @@
         thickness="${rear_thickness}" 
         x="0.0" y="0.0" z="0.0" 
         mu1="200" mu2="100" 
-        kp="10000000" kd="40"
+        kp="50000" kd="40"
         file_name="package://hakuroukun_description/meshes/new_rear.stl" />
 
 <!-- ////////////////////////////// GAZEBO ROS PLUGIN //////////////////////////////////// -->

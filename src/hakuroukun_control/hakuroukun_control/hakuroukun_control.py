@@ -163,6 +163,8 @@ class HakuroukunControl(object):
 
         msg.data = u
 
+        rospy.loginfo(f"Send control input {msg}")
+
         self._velocity_publisher.publish(msg)
 
         self._index += 1
