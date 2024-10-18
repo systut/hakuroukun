@@ -24,7 +24,8 @@ ros_dep="ros-noetic-gazebo-ros-pkgs \
          ros-noetic-rosbridge-server \
          ros-noetic-robot-localization \
          ros-noetic-nmea-navsat-driver \
-         ros-noetic-serial
+         ros-noetic-serial \
+         ros-noetic-hector-gazebo-plugins
           "
 
 apt-get update
