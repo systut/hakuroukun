@@ -385,8 +385,8 @@ namespace hakuroukun_steering_controller{
         return;
       }
 
-      command_struct_.ang   = command.data[0];
-      command_struct_.lin   = command.data[1];
+      command_struct_.ang   = command.data[1];
+      command_struct_.lin   = command.data[0];
       command_struct_.stamp = ros::Time::now();
       command_.writeFromNonRT (command_struct_);
       ROS_DEBUG_STREAM_NAMED(name_,

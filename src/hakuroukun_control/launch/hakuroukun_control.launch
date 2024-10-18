@@ -4,6 +4,6 @@
         <param name="~sampling_time" value="1"/>
         <param name="~controller_type" value="feed_forward"/>
         <param name="~trajectory_type" value="front_wheel"/>
-        <!-- <remap from="cmd_vel" to="/hakuroukun_diff_drive_controller/cmd_vel"/> -->
+        <remap from="cmd_controller" to="/hakuroukun_steering_controller/cmd_controller"/>
     </node>
 </launch>

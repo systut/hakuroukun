@@ -27,5 +27,5 @@
             args="joint_state_controller hakuroukun_steering_controller"/>
 
     <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-        args="-z 0.1 -x 0.0 -y 0.0 -unpause -urdf -model hakuroukun -param robot_description"/>
+        args="-z 0.5 -x 0.0 -y 0.0 -unpause -urdf -model hakuroukun -param robot_description"/>
 </launch>
