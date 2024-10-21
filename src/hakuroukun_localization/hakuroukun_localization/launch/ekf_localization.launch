@@ -1,0 +1,23 @@
+<launch>
+  <!-- Pubish required transforms for revelant frames -->
+  <!-- <node name="odom_frame_pub" pkg="tf2_ros" type="static_transform_publisher" args="0 0 0 0 0 0 1 odom base_link"/>     -->
+
+  <node pkg="robot_localization" type="ekf_localization_node" name="ekf_local_node" clear_params="true">
+    <rosparam command="load" file="$(find hakuroukun_localization)/config/ekf_local_params.yaml"/>
+    <remap from="/odometry/filtered" to="/odometry/filtered/local"/>
+  </node>
+
+  <!-- Start node that publish the transfrom from /odom to /map -->
+  <node pkg="robot_localization" type="ekf_localization_node" name="ekf_global_node" clear_params="true">
+    <rosparam command="load" file="$(find hakuroukun_localization)/config/ekf_global_params.yaml"/>
+    <remap from="/odometry/filtered" to="/odometry/filtered/global"/>
+  </node>
+
+  <!-- Start node that transform GPS data into Odometry data in a frame that is consistent with robot's world frame -->
+  <node pkg="robot_localization" type="navsat_transform_node" name="navsat_transform_node" respawn="true">
+    <rosparam command="load" file="$(find hakuroukun_localization)/config/navsat_transform_params.yaml"/>
+    <!-- <remap from="/gps/fix" to="/fix"/> -->
+    <!-- <remap from="/imu/data" to="/imu/data_raw"/> -->
+    <remap from="/odometry/filtered" to="/odometry/filtered/global"/>
+  </node>
+</launch>

@@ -13,4 +13,12 @@
         <param name="range_min" value="0.30"/>
         <param name="range_max" value="50.0"/>
 	</node>
+
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find hakuroukun_launch)/maps/dummy_map.yml" />
+
+  <node name="costmap_node" pkg="costmap_2d" type="costmap_2d_node" >
+    <rosparam file="$(find hakuroukun_launch)/config/costmap.yaml" command="load" ns="costmap" />
+  </node>
+
+  <include file="$(find hakuroukun_localization)/launch/ekf_localization.launch" />
 </launch>

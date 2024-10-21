@@ -111,14 +111,18 @@ namespace hakuroukun_steering_controller
 
   void Odometry::updateOpenLoop(double linear, double angular, const ros::Time &time)
   {
+    /// Integrate odometry:
+    const double dt = (time - timestamp_).toSec();
+    timestamp_ = time;
+
+    const double angular_velocity = (angular - angular_) / dt;
+    const double linear_velocity  = linear * sin(angular);
+
     /// Save last linear and angular velocity:
     linear_ = linear;
     angular_ = angular;
 
-    /// Integrate odometry:
-    const double dt = (time - timestamp_).toSec();
-    timestamp_ = time;
-    integrate_fun_(linear * dt, angular * dt);
+    integrate_fun_(linear_velocity * dt, angular_velocity * dt);
   }
 
   void Odometry::setWheelParams(double wheel_separation_h, double wheel_radius)
