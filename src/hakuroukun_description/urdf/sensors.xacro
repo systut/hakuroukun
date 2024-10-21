@@ -124,4 +124,28 @@
       </sensor>
     </gazebo>
   </xacro:macro>
+  <xacro:macro name="ground_truth" params="parent sizex sizey sizez ox oy oz mass">
+    <link name="ground_truth">
+      <visual>
+        <geometry>
+          <box size="${sizex} ${sizey} ${sizez}"/>
+      </geometry>
+      <material name="White"/>
+      </visual>	
+      <xacro:inertial_box mass="${mass}" x="${sizex}" y="${sizey}" z="${sizez}" />
+    </link>
+    <joint name="ground_truth_to_${parent}" type="fixed">
+      <parent link="${parent}"/>
+      <child link="ground_truth"/>
+      <origin xyz="${ox} ${oy} ${oz}"/>
+    </joint>
+    <gazebo>
+      <plugin name="ground_truth" filename="libgazebo_ros_p3d.so">
+        <bodyName>ground_truth</bodyName>
+        <frameName>map</frameName>
+        <updateRate>100.0</updateRate>
+        <topicName>ground_truth/odometry</topicName>
+      </plugin>
+    </gazebo>
+  </xacro:macro>
 </robot>
