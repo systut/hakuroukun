@@ -149,7 +149,7 @@ class HakuroukunControl(object):
         """! Timer callback
         @param event<Event>: The event
         """
-        if not self._state and self._controller_type in [""]:
+        if not self._state and self._controller_type in ["pure_pursuit"]:
             rospy.logwarn("No current status of the vehicle")
 
             return

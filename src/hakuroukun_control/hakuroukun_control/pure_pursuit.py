@@ -22,11 +22,13 @@ class PurePursuit:
     autonomous driving.
     """
 
-    lookahead_distance = 0.5
+    lookahead_distance = 0.3
 
     lookahead_gain = 0.1
 
     k = 1
+
+    wheel_base = 1.1
 
     # ==================================================================================================
     # PUBLIC METHODS
@@ -47,6 +49,9 @@ class PurePursuit:
         @return<tuple>: The status and control
         """
         status = True
+
+        if self._is_goal(state, self.trajectory):
+            return False, [0, 0]
 
         index, lookahead_distance = self._search_target_index(state, input)
 
@@ -77,9 +82,11 @@ class PurePursuit:
 
         v = 0.3
 
-        w = v * 2.0 * alpha / lookahead_distance
+        delta = math.atan2(
+            2.0 * PurePursuit.wheel_base * math.sin(alpha),
+            lookahead_distance)
 
-        return status, [v, w]
+        return status, [v, delta]
 
     # ==================================================================================================
     # PRIVATE METHODS
@@ -144,6 +151,21 @@ class PurePursuit:
     # ==================================================================================================
     # STATIC METHODS
     # ==================================================================================================
+    @staticmethod
+    def _is_goal(state, trajectory):
+        """! Check if the vehicle has reached the goal
+        @param state<list>: The state of the vehicle
+        @param trajectory<instance>: The trajectory
+        @return<bool>: The flag to indicate if the vehicle has reached the goal
+        """
+        delta_x = trajectory.x[-1, 0] - state[0]
+
+        delta_y = trajectory.x[-1, 1] - state[1]
+
+        distance = np.hypot(delta_x, delta_y)
+
+        return distance < 0.1
+
     @staticmethod
     def _calculate_distance(reference_x, current_x):
         distance = current_x - reference_x
