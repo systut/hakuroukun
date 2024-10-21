@@ -104,8 +104,11 @@ class HakuroukunControl(object):
 
     def _register_subscribers(self):
         """! Register subscriber
+        @note: other options for odometry topic:
+        - /odometry/filtered/global
+        - /odometry/filtered/local
         """
-        rospy.Subscriber("ground_truth/odometry", Odometry,
+        rospy.Subscriber("odometry/filtered/global", Odometry,
                          self._odom_callback)
 
     def _register_publishers(self):

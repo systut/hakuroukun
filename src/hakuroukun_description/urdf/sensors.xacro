@@ -27,6 +27,7 @@
           <topicName>${imu_topic}</topicName>
           <bodyName>${imu_name}</bodyName>
           <updateRate>${update_rate}</updateRate>
+          <updateRateHZ>${update_rate}</updateRateHZ>
           <gaussianNoise>${noise}</gaussianNoise>
           <xyzOffset>0 0 0</xyzOffset>
           <rpyOffset>0 0 0</rpyOffset>

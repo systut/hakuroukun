@@ -1,15 +1,17 @@
-costmap:
+local_map:
   plugins: 
     - {name: obstacle_layer, type: 'costmap_2d::ObstacleLayer'}
-  global_frame: map
+  global_frame: odom
   robot_base_frame: base_link
-  # footprint: [[-0.2, -0.12], [-0.2, 0.12], [0.05, 0.12], [0.05, -0.12]]
+  footprint: [[-0.2, -0.12], [-0.2, 0.12], [0.05, 0.12], [0.05, -0.12]]
   rolling_window: true
   width: 4.0
   height: 4.0
-  resolution: 0.05
+  resolution: 0.5
   update_frequency: 2.0
   publish_frequency: 2.0
+  origin_x: 2.0
+  origin_y: 2.0
 
   obstacle_layer:
     observation_sources: laser_scan_sensor
@@ -19,3 +21,13 @@ costmap:
       data_type: LaserScan
       marking: true
       clearing: true
+
+global_map:
+  plugins: 
+    - {name: static_layer, type: 'costmap_2d::StaticLayer'}
+  global_frame: map
+  robot_base_frame: base_link
+
+  static_layer:
+    map_topic: /map
+    subscribe_to_updates: true

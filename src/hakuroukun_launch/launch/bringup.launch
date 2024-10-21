@@ -10,15 +10,13 @@
         <param name="angle_max" value="3.14"/>
         <param name="angle_increment" value="0.0058"/>
         <param name="scan_time" value="0.0333333"/>
-        <param name="range_min" value="0.30"/>
+        <param name="range_min" value="1.0"/>
         <param name="range_max" value="50.0"/>
 	</node>
 
   <node name="map_server" pkg="map_server" type="map_server" args="$(find hakuroukun_launch)/maps/dummy_map.yml" />
 
-  <node name="costmap_node" pkg="costmap_2d" type="costmap_2d_node" >
-    <rosparam file="$(find hakuroukun_launch)/config/costmap.yaml" command="load" ns="costmap" />
-  </node>
+  <include file="$(find laserscan2costmap)/launch/laserscan2costmap.launch" />
 
   <include file="$(find hakuroukun_localization)/launch/ekf_localization.launch" />
 </launch>
