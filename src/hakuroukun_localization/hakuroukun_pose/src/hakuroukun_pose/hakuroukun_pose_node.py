@@ -92,7 +92,7 @@ class HakuroukunPose:
         """
         current_folder = os.path.dirname(os.path.abspath(__file__))
 
-        new_folder = os.path.join(current_folder, '..', '..', '..', 'log_data')
+        new_folder = os.path.join(current_folder, '..', '..', 'log_data')
 
         new_folder = os.path.normpath(new_folder)
 

@@ -1,0 +1,1 @@
+This folder is for hakuroukun_pose data
