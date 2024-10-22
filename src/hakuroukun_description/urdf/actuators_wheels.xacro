@@ -242,7 +242,7 @@
             <origin xyz="${x} ${y} ${z}" />
         </joint>
 
-        <transmission name="${name}_transmission">
+        <!-- <transmission name="${name}_transmission">
             <type>transmission_interface/SimpleTransmission</type>
 
             <joint name="${parent_link}_to_${name}">
@@ -254,7 +254,7 @@
                 <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
             </actuator>
 
-        </transmission> 
+        </transmission>  -->
 
         <gazebo reference="${name}">
             <material>Gazebo/Grey</material>

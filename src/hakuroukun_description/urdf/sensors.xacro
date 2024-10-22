@@ -1,0 +1,152 @@
+<?xml version="1.0"?>
+<robot name="hakuroukun" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="imu_sensor" params="parent imu_name imu_topic mass sizex sizey sizez ox oy oz update_rate noise" >
+    <link name="${imu_name}">
+      <visual>
+        <geometry>
+          <box size="${sizex} ${sizey} ${sizez}"/>
+        </geometry>
+        <material name="White"/>
+      </visual>
+      <xacro:inertial_box mass="${mass}" x="${sizex}" y="${sizey}" z="${sizez}" />
+    </link>
+    <joint name="${parent}_to_${imu_name}" type="fixed">
+      <parent link="${parent}"/>
+      <child link="${imu_name}"/>
+      <origin xyz="${ox} ${oy} ${oz}"/>
+    </joint>
+    <gazebo reference="${imu_name}">
+      <material>Gazebo/White</material>
+      <gravity>true</gravity>
+      <sensor name="${imu_name}_sensor" type="imu">
+        <always_on>true</always_on>
+        <update_rate>${update_rate}</update_rate>
+        <visualize>true</visualize>
+        <topic>${imu_topic}</topic>
+        <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+          <topicName>${imu_topic}</topicName>
+          <bodyName>${imu_name}</bodyName>
+          <updateRate>${update_rate}</updateRate>
+          <updateRateHZ>${update_rate}</updateRateHZ>
+          <gaussianNoise>${noise}</gaussianNoise>
+          <xyzOffset>0 0 0</xyzOffset>
+          <rpyOffset>0 0 0</rpyOffset>
+          <frameName>${imu_name}</frameName>
+        </plugin>
+        <pose>0 0 0 0 0 0</pose>
+      </sensor>
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:macro name="gps_sensor" params="parent gps_name gps_topic mass sizex sizey sizez ox oy oz update_rate initial_latitude initial_longitude noise">
+	<link name="${gps_name}">
+	  <visual>
+	    <geometry>
+	      <box size="${sizex} ${sizey} ${sizez}"/>
+		</geometry>
+		<material name="White"/>
+	  </visual>	
+	  <xacro:inertial_box mass="${mass}" x="${sizex}" y="${sizey}" z="${sizez}" />
+	</link>
+	<joint name="${parent}_to_${gps_name}" type="fixed">
+	  <parent link="${parent}"/>
+	  <child link="${gps_name}"/>
+	  <origin xyz="${ox} ${oy} ${oz}"/>
+	</joint>
+	<gazebo>
+		<plugin filename="libhector_gazebo_ros_gps.so" name="gps_plugin">
+			<updateRate>${update_rate}</updateRate>
+			<bodyName>${gps_name}</bodyName>
+			<frameId>${gps_name}</frameId>
+			<topicName>${gps_topic}</topicName>
+			<velocityTopicName>navsat/vel</velocityTopicName>
+			<referenceLatitude>${initial_latitude}</referenceLatitude>
+			<referenceLongitude>${initial_longitude}</referenceLongitude>
+			<referenceHeading>0</referenceHeading>
+			<referenceAltitude>0</referenceAltitude>
+			<gaussianNoise>${noise}</gaussianNoise>
+		</plugin>
+	</gazebo>
+	</xacro:macro>
+
+  <xacro:macro name="lidar_sensor" params="parent lidar_name length radius mass ox oy oz update_rate min_angle max_angle min_range max_range range_resolution stdv" >
+    <link name="${lidar_name}">
+      <visual>
+        <geometry>
+          <cylinder length="${length}" radius="${radius}"/>
+        </geometry>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <material name="Black"/>
+      </visual>
+      <xacro:inertial_cylinder_z mass="${mass}" radius="${radius}" height="${length}" />
+    </link>
+    <gazebo reference="${lidar_name}">
+      <material>Gazebo/Black</material>
+  	</gazebo>
+    <joint name="$[parent}_to_${lidar_name}" type="fixed">
+      <parent link="${parent}"/>
+        <child link="${lidar_name}"/>
+      <origin xyz="${ox} ${oy} ${oz}"/>
+    </joint>
+
+  	<gazebo reference="${lidar_name}">
+      <sensor type="ray" name="${lidar_name}">
+        <pose>0 0 0 0 0 0</pose>
+        <visualize>false</visualize>
+      	<update_rate>${update_rate}</update_rate>
+      	<ray>
+          <scan>
+            <horizontal>
+              <samples>400</samples>
+              <resolution>1</resolution>
+              <min_angle>${min_angle}</min_angle>
+              <max_angle>${max_angle}</max_angle>
+          	</horizontal>
+          </scan>
+          <range>
+            <min>${min_range}</min>
+            <max>${max_range}</max>
+          	<resolution>${range_resolution}</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+          	<!-- Noise parameters based on published spec for Hokuyo laser
+               	achieving "+-30mm" accuracy at range < 10m.  A mean of 0.0m and
+               	stddev of 0.01m will put 99.7% of samples within 0.03m of the true
+               	reading. -->
+          	<mean>0.0</mean>
+          	<stddev>${stdv}</stddev>
+          </noise>
+      	</ray>
+      	<plugin name="lidar_plugin" filename="libgazebo_ros_laser.so">
+          <topicName>${lidar_name}/scan</topicName>
+          <frameName>${lidar_name}</frameName>
+      	</plugin>
+      </sensor>
+    </gazebo>
+  </xacro:macro>
+  <xacro:macro name="ground_truth" params="parent sizex sizey sizez ox oy oz mass">
+    <link name="ground_truth">
+      <visual>
+        <geometry>
+          <box size="${sizex} ${sizey} ${sizez}"/>
+      </geometry>
+      <material name="White"/>
+      </visual>	
+      <xacro:inertial_box mass="${mass}" x="${sizex}" y="${sizey}" z="${sizez}" />
+    </link>
+    <joint name="ground_truth_to_${parent}" type="fixed">
+      <parent link="${parent}"/>
+      <child link="ground_truth"/>
+      <origin xyz="${ox} ${oy} ${oz}"/>
+    </joint>
+    <gazebo>
+      <plugin name="ground_truth" filename="libgazebo_ros_p3d.so">
+        <bodyName>ground_truth</bodyName>
+        <frameName>map</frameName>
+        <updateRate>100.0</updateRate>
+        <topicName>ground_truth/odometry</topicName>
+      </plugin>
+    </gazebo>
+  </xacro:macro>
+</robot>
