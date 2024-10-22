@@ -15,6 +15,11 @@ xhost +
 ```
 Make a X authentication file with proper permissions for the container to use.
 
+```bash
+# If not working, try to run "sudo rm -rf /tmp/.docker.xauth" first
+cd ./src/hakuroukun_dockerfiles/
+chmod +x ./install/xauth.sh && ./install/xauth.sh
+```
 
 ### With pure pursuit controller 
 To run gazebo with ekf localization 
