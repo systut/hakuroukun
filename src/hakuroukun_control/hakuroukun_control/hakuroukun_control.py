@@ -23,6 +23,7 @@ from scipy.spatial.transform import Rotation
 # Internal libraries
 from hakuroukun_control.feed_forward import FeedForward
 from hakuroukun_control.pure_pursuit import PurePursuit
+from hakuroukun_control.dynamic_window_approach import DynamicWindowApproach
 
 
 class HakuroukunControl(object):
@@ -86,6 +87,8 @@ class HakuroukunControl(object):
 
         self._length_base = 1.0
 
+        self._previous_u = [0, 0]
+
     def _register_controller(self):
         """! Register controller
         """
@@ -98,6 +101,9 @@ class HakuroukunControl(object):
 
         elif self._controller_type == 'pure_pursuit':
             self._controller = PurePursuit(trajectory)
+
+        elif self._controller_type == 'dynamic_window_approach':
+            self._controller = DynamicWindowApproach(trajectory)
 
         else:
             raise NotImplementedError
@@ -152,7 +158,7 @@ class HakuroukunControl(object):
         """! Timer callback
         @param event<Event>: The event
         """
-        if not self._state and self._controller_type in ["pure_pursuit"]:
+        if not self._state and self._controller_type in ["pure_pursuit", "dynamic_window_approach"]:
             rospy.logwarn("No current status of the vehicle")
 
             return
@@ -162,7 +168,10 @@ class HakuroukunControl(object):
 
             return
 
-        status, u = self._controller.execute(self._state, None, self._index)
+        status, u = self._controller.execute(
+            self._state, self._previous_u, self._index)
+        
+        self._previous_u = u
 
         if not status:
             rospy.logwarn("Failed to execute controller")
