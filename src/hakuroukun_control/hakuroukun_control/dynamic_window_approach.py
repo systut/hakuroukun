@@ -17,23 +17,22 @@ import numpy as np
 
 class DynamicWindowApproach:
     """! Dynamic Window Approach controller
-
     The class provides implementation of dynamic window approach controller for
     autonomous driving.
     """
-
     # ==================================================================================================
     # PUBLIC METHODS
     # ==================================================================================================
+
     def __init__(self, trajectory):
         """! Constructor
         @param trajectory<instance>: The trajectory
         """
         self.trajectory = trajectory
 
-        self._register_model_specification()
+        self._register_model_parameters()
 
-        self._register_DWA_specification()
+        self._register_dwa_parameters()
 
     def execute(self, state, input, index):
         """! Execute the controller
@@ -56,9 +55,8 @@ class DynamicWindowApproach:
     # ==================================================================================================
     # PRIVATE METHODS
     # ==================================================================================================
-    def _register_model_specification(self):
-        """! Register the model specification
-        @note The method is used to register the model specification.
+    def _register_model_parameters(self):
+        """! Register the model parameters
         """
         self._min_speed = 0.0
 
@@ -76,9 +74,8 @@ class DynamicWindowApproach:
 
         self._delta_resolution = math.radians(1.0)
 
-    def _register_DWA_specification(self):
+    def _register_dwa_parameters(self):
         """! Register the DWA specification
-        @note The method is used to register the DWA specification.
         """
         self._dt = self.trajectory.sampling_time
 
@@ -96,8 +93,9 @@ class DynamicWindowApproach:
 
     def _find_nearest_index(self, state):
         """! Get the nearest waypoint from the current position
+        @param state<list>: The state of the vehicle
+        @return<list>: The index of the nearest waypoint
         """
-
         dx = [state[0] - ref_x for ref_x in self.trajectory.x[:, 0]]
 
         dy = [state[1] - ref_y for ref_y in self.trajectory.x[:, 1]]
@@ -112,6 +110,8 @@ class DynamicWindowApproach:
 
     def _search_target_index(self, state):
         """! Get the tracking target index from the current position
+        @param state<list>: The state of the vehicle
+        @return<list>: The index of the tracking target
         """
         self.idx = self._find_nearest_index(state)
 
@@ -155,25 +155,19 @@ class DynamicWindowApproach:
         return [v, delta]
 
     def _calculate_dynamic_window(self, input):
-
-        print("input: ", input)
-
+        """! Calculate the dynamic window
+        @note The dynamic window is the range of the vehicle's velocity
+        and steering angle
+        @param input<list>: The input of the vehicle
+        @return<list>: The dynamic window of the vehicle
+        """
         vs = [self._min_speed, self._max_speed,
               self._delta_min, self._delta_max]
-
-        print("vs: ", vs) 
 
         vd = [input[0] - self._max_acceleration * self._dt,
               input[0] + self._max_acceleration * self._dt,
               input[1] - self._max_delta_dot * self._dt,
               input[1] + self._max_delta_dot * self._dt]
-
-        print("vd: ", vd)
-
-        # dynamic_window = [0,
-        #                   min(vs[1], vd[1]),
-        #                   max(vs[2], vd[2]),
-        #                   min(vs[3], vd[3])]
 
         dynamic_window = [max(vs[0], vd[0]),
                           min(vs[1], vd[1]),
@@ -185,51 +179,41 @@ class DynamicWindowApproach:
     def _calculate_control(self, state, input, dw, goal):
         """! Calculate the best control input
         The best control of all sample is the one that minimize the cost
+        @note Cost = to_goal_cost + speed_cost
+        @note to_goal_cost = distance to goal
+        @note speed_cost = difference between current speed and max speed
+        
+        @param state<list>: The state of the vehicle
+        @param input<list>: The input of the vehicle
+        @param dw<list>: The dynamic window
+        @param goal<list>: The goal of the vehicle
+        @return<list>: The best control input to reach the goal
         """
-
         min_cost = float("inf")
 
-        best_v = 0.0
-        best_delta = 0.0
-
-        print("dw: ", dw)
+        best_v, best_delta = 0.0, 0.0
 
         for v in np.arange(dw[0], dw[1], self._v_resolution):
-
             for delta in np.arange(dw[2], dw[3], self._delta_resolution):
 
                 lookahead_trajectory = self._predict_trajectory(
                     state, [v, delta])
-                
+
                 to_goal_cost = self._to_goal_cost_gain * \
                     self._calculate_to_goal_cost(lookahead_trajectory, goal)
-                
+
                 speed_cost = self._speed_cost_gain * \
                     self._calculate_speed_cost([v, delta])
-                
-                # tracking_cost = self._calculate_tracking_error_cost(
-                #     lookahead_trajectory, [v, delta], goal)
-                # cost = to_goal_cost + speed_cost + tracking_cost
 
                 final_cost = to_goal_cost + speed_cost
 
                 if min_cost >= final_cost:
 
                     min_cost = final_cost
-                    
+
                     best_v = v
-                    
+
                     best_delta = delta
-
-        print("cost: ", min_cost)
-
-        print(f"state: {state}")
-
-        print(f"goal: {goal}")
-
-        print(f"Solution: {best_v:.3f}, {best_delta:.3f}")
-
-        print("---------------------------------")
 
         return [best_v, best_delta]
 
@@ -256,6 +240,7 @@ class DynamicWindowApproach:
         """! Calculate the cost to the goal
         @param trajectory<list>: The trajectory
         @param goal<list>: The goal
+        @return<float>: The cost to the goal
         """
         dx = goal[0] - predict_trajectory[-1, 0]
 
@@ -272,24 +257,6 @@ class DynamicWindowApproach:
         speed_cost = (self._max_speed - input[0])
 
         return speed_cost
-
-    def _calculate_tracking_error_cost(self, lookhead_trajectory, input, goal):
-        """! Calculate the cost of the tracking error
-        @param trajectory<list>: The trajectory
-        @param input<list>: The input of the vehicle
-        @param goal<list>: The goal
-        """
-        dx = goal[0] - lookhead_trajectory[-1, 0]
-        dy = goal[1] - lookhead_trajectory[-1, 1]
-        dtheta = math.atan2(dy, dx) - lookhead_trajectory[-1, 2]
-        tracking_cost = \
-            self._tracking_cost_gain[0] * (dx ** 2) + \
-            self._tracking_cost_gain[1] * (dy ** 2) + \
-            self._tracking_cost_gain[2] * (dtheta ** 2) + \
-            self._tracking_cost_gain[3] * \
-            (input[0] - self.trajectory.u[self.idx, 0] ** 2)
-
-        return tracking_cost
 
     # ==================================================================================================
     # STATIC METHODS
@@ -311,6 +278,12 @@ class DynamicWindowApproach:
 
     @staticmethod
     def _calculate_distance(current_x, reference_x):
+        """! Calculate the distance function
+        @param current_x<list>: The current position
+        @param reference_x<list>: The reference position
+        @return<list>: The distance between the current position
+        and the reference position
+        """
         distance = current_x - reference_x
 
         x = distance[:, 0] if distance.ndim == 2 else distance[0]
@@ -318,7 +291,7 @@ class DynamicWindowApproach:
         y = distance[:, 1] if distance.ndim == 2 else distance[1]
 
         return np.hypot(x, y)
-    
+
     @staticmethod
     def _update_state(state, input, dt):
         """! Compute the next state
