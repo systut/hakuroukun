@@ -2,7 +2,7 @@
 ##
 # @file beavor_control_node.py
 #
-# @brief Provide implementation of beaverbot control node.
+# @brief Provide implementation of Hakuroukun control node.
 #
 # @section author_doxygen_example Author(s)
 # - Created by Dinh Ngoc Duc on 16/10/2024.
@@ -28,7 +28,6 @@ from hakuroukun_control.dynamic_window_approach import DynamicWindowApproach
 
 class HakuroukunControl(object):
     """! HakuroukunControlNode class
-
     The class provides implementation of Hakuroukun control node.
     """
     # ==================================================================================================
@@ -114,8 +113,11 @@ class HakuroukunControl(object):
         - /odometry/filtered/global
         - /odometry/filtered/local
         """
-        rospy.Subscriber("odometry/filtered/global", Odometry,
-                         self._odom_callback)
+        # rospy.Subscriber("odometry/filtered/global", Odometry,
+        #                  self._odom_callback)
+        
+        rospy.Subscriber("hakuroukun_pose/rear_wheel_odometry", Odometry,
+                         self._hakuroukun_odom_callback)
 
     def _register_publishers(self):
         """! Register publisher
@@ -137,6 +139,24 @@ class HakuroukunControl(object):
                                   self._timer_callback)
 
     def _odom_callback(self, msg):
+        """! Odometry callback
+        @param msg<Odometry>: The odometry message
+        """
+        quaternion = (
+            msg.pose.pose.orientation.x,
+            msg.pose.pose.orientation.y,
+            msg.pose.pose.orientation.z,
+            msg.pose.pose.orientation.w,
+        )
+
+        heading = Rotation.from_quat(quaternion).as_euler(
+            "zyx", degrees=False)[0]
+
+        self._state = [msg.pose.pose.position.x,
+                       msg.pose.pose.position.y,
+                       heading]
+        
+    def _hakuroukun_odom_callback(self, msg):
         """! Odometry callback
         @param msg<Odometry>: The odometry message
         """
