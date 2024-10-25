@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import rospy
-from hakuroukun_pose.hakuroukun_pose_node import HakuroukunPose
+from hakuroukun_pose.hakuroukun_pose import HakuroukunPose
 
 try:
     hakuroukun_pose_node = HakuroukunPose()
