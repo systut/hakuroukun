@@ -68,22 +68,23 @@ class HakuroukunPose:
     def _register_parameters(self):
         """! Register ROS parameters method
         """
-        self._log = rospy.get_param("~log", True)
+        self._log = rospy.get_param(
+            "~log", True)
 
-        self._publish_rate = rospy.get_param("~publish_rate", 0.1)
+        self._publish_rate = rospy.get_param(
+            "~publish_rate", 0.1)
 
-        self._gps_to_rear_axis = rospy.get_param("~gps_to_rear_axis", 0.6)
+        self._gps_to_rear_axis = rospy.get_param(
+            "~gps_to_rear_axis", 0.6)
 
-        self._imu_offset = rospy.get_param("~imu_offset", 0.2526352784505572)
-
-        self._angular_rate_offset = rospy.get_param(
-            "~angular_rate_offset", 0.36)
+        self._imu_offset = rospy.get_param(
+            "~imu_offset", -0.18981711362095213)
 
     def _register_subscribers(self):
         """! Register ROS subscribers method
         """
         self._gps_sub = rospy.Subscriber(
-            "gps/fix", NavSatFix, self._gps_callback)
+            "/fix", NavSatFix, self._gps_callback)
 
         self._imu_sub = rospy.Subscriber(
             "/imu/data_raw", Imu, self._imu_callback)
@@ -127,7 +128,7 @@ class HakuroukunPose:
         the robot start moving
         """
         first_gps_mess = rospy.wait_for_message(
-            'gps/fix', NavSatFix, timeout=10)
+            '/fix', NavSatFix, timeout=10)
 
         rospy.loginfo("GPS Data Received")
 
@@ -143,13 +144,7 @@ class HakuroukunPose:
         THis method will guarantee that data from IMU is received before
         the robot start moving
         """
-        first_imu_msg = rospy.wait_for_message(
-            '/imu/data_raw', Imu, timeout=10)
-
-        self._yaw = tf.euler_from_quaternion([first_imu_msg.orientation.x,
-                                              first_imu_msg.orientation.y,
-                                              first_imu_msg.orientation.z,
-                                              first_imu_msg.orientation.w])[2]
+        rospy.wait_for_message('/imu/data_raw', Imu, timeout=10)
 
         rospy.loginfo("IMU Data Received")
 
@@ -171,8 +166,6 @@ class HakuroukunPose:
 
         self._y_rear = self._y_gps - self._gps_to_rear_axis * \
             math.sin(self._yaw)
-
-        rospy.loginfo(f"X: {self._x_rear}, Y: {self._y_rear}")
 
     def _imu_callback(self, data: Imu):
         """! IMU callback method
@@ -198,9 +191,7 @@ class HakuroukunPose:
                                                self.quaternion_z,
                                                self.quaternion_w])
 
-        # self._yaw = self.euler[2] + self._imu_offset
-
-        self._yaw = self.euler[2]
+        self._yaw = self.euler[2] - self._imu_offset
 
     def _publish_rear_wheel_odometry(self, timer):
         """! Publish rear wheel pose method
@@ -234,17 +225,6 @@ class HakuroukunPose:
 
             f.write(pose + "\n")
 
-    def _integrate_yaw(self, current_orientation, angular_rate, dt):
-        """! This function calculate the orientation of the robot using the
-            angular rate from the IMU
-        @param current_orientation: The current orientation of the robot
-        @param angular_rate: The angular rate from the IMU
-        @param dt: The time step
-        """
-        current_orientation += (angular_rate + self._angular_rate_offset) * dt
-
-        return current_orientation
-
     def _get_xy_from_latlon(self, lat, long, _initial_lat, _initial_lon):
         """! Get x, y from latitude and longitude method
         @param latitude: Latitude of the robot
@@ -256,7 +236,6 @@ class HakuroukunPose:
         @ x_gps_local: x position of the gps in the local frame
         @ y_gps_local: y position of the gps in the local frame
         """
-
         rotation_angle = math.radians(rospy.get_param("~rotation_angle", 0.0))
 
         x_gps, y_gps = gc.ll2xy(lat, long, _initial_lat, _initial_lon)
