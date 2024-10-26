@@ -1,0 +1,9 @@
+<launch>
+    <node name="hakuroukun_control_node" pkg="hakuroukun_control" type="hakuroukun_control_node" output="screen">
+        <param name="~trajectory_file" value="$(find hakuroukun_control)/trajectories/bicycle_l_shape_ep0.4_1s.csv"/>
+        <param name="~sampling_time" value="1"/>
+        <param name="~controller_type" value="dynamic_window_approach"/>
+        <param name="~trajectory_type" value="normal"/>
+        <remap from="cmd_controller" to="/hakuroukun_steering_controller/cmd_controller"/>
+    </node>
+</launch>

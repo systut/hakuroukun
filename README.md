@@ -33,3 +33,29 @@ On another terminal, run pure pursuit controller
 docker exec -it hakuroukun-robot bash 
 roslaunch hakuroukun_control hakuroukun_control.launch
 ```
+
+### Experiment : To run robot with any controller:
+
+0. Check ```cat /dev/ttyACM*``` for GPS, Arduino, IMU
+
+1. Sensor bringup :
+    - need to calculate and update : ``` <param name="~rotation_angle" value="-90"/> ```
+    ```
+    docker exec -it hakuroukun-robot bash 
+    roslaunch hakuroukun_launch sensor_bringup.launch
+    ```
+
+2. Arduino firmware :
+    - Upload `${hakuroukun_communication}/firmware/motor_control/motor_control.ino` to Arduino with Arduino IDE.
+
+3. Communication bringup :
+    ```
+    docker exec -it hakuroukun-robot bash
+    roslaunch hakuroukun_launch communication_bringup.launch
+    ```
+
+4. Controller execution : 
+    ```
+    docker exec -it hakuroukun-robot bash
+    roslaunch hakuroukun_launch controller.launch
+    ```
