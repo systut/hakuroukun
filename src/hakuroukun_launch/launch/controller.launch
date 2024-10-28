@@ -5,6 +5,5 @@
         <param name="~controller_type" value="dynamic_window_approach"/>
         <param name="~trajectory_type" value="normal"/>
         <remap from="cmd_controller" to="/hakuroukun_steering_controller/cmd_controller"/>
-        <!-- <remap from="odometry/filtered/global" to ="ground_truth/odometry"/> -->
     </node>
 </launch>
