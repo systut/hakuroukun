@@ -33,6 +33,7 @@ class HakuroukunControl(object):
     # ==================================================================================================
     # PUBLIC METHODS
     # ==================================================================================================
+
     def __init__(self):
         """! Constructor
         """
@@ -115,7 +116,7 @@ class HakuroukunControl(object):
         """
         # rospy.Subscriber("odometry/filtered/global", Odometry,
         #                  self._odom_callback)
-        
+
         rospy.Subscriber("hakuroukun_pose/rear_wheel_odometry", Odometry,
                          self._hakuroukun_odom_callback)
 
@@ -155,7 +156,7 @@ class HakuroukunControl(object):
         self._state = [msg.pose.pose.position.x,
                        msg.pose.pose.position.y,
                        heading]
-        
+
     def _hakuroukun_odom_callback(self, msg):
         """! Odometry callback
         @param msg<Odometry>: The odometry message
@@ -178,7 +179,8 @@ class HakuroukunControl(object):
         """! Timer callback
         @param event<Event>: The event
         """
-        if not self._state and self._controller_type in ["pure_pursuit", "dynamic_window_approach"]:
+        if not self._state and self._controller_type in [
+                "pure_pursuit", "dynamic_window_approach"]:
             rospy.logwarn("No current status of the vehicle")
 
             return
@@ -190,7 +192,7 @@ class HakuroukunControl(object):
 
         status, u = self._controller.execute(
             self._state, self._previous_u, self._index)
-        
+
         self._previous_u = u
 
         if not status:
