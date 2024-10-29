@@ -1,10 +1,11 @@
+<!-- This file is for experiment only -->
 <?xml version="1.0"?>
 <launch>
 
     <arg name="serial_ON" default="true"/>
     
     <!-- Arduino Parameters -->
-    <arg name="arduino_port" default="/dev/ttyACM0"/>
+    <arg name="arduino_port" default="/dev/ttyACM1"/>
     <arg name="arduino_baud_rate" default="115200" />
     <arg name="arduino_controller_rate" default="1" />
 
