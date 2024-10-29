@@ -28,7 +28,7 @@
           <bodyName>${imu_name}</bodyName>
           <updateRate>${update_rate}</updateRate>
           <updateRateHZ>${update_rate}</updateRateHZ>
-          <gaussianNoise>${noise}</gaussianNoise>
+          <gaussianNoise>${noise} ${noise} ${noise}</gaussianNoise>
           <xyzOffset>0 0 0</xyzOffset>
           <rpyOffset>0 0 0</rpyOffset>
           <frameName>${imu_name}</frameName>
@@ -64,7 +64,7 @@
 			<referenceLongitude>${initial_longitude}</referenceLongitude>
 			<referenceHeading>0</referenceHeading>
 			<referenceAltitude>0</referenceAltitude>
-			<gaussianNoise>${noise}</gaussianNoise>
+			<gaussianNoise>${noise} ${noise} ${noise}</gaussianNoise>
 		</plugin>
 	</gazebo>
 	</xacro:macro>
