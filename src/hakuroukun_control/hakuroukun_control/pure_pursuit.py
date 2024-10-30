@@ -22,13 +22,13 @@ class PurePursuit:
     autonomous driving.
     """
 
-    lookahead_distance = 0.5
+    lookahead_distance = 1.5
 
     lookahead_gain = 0.1
 
     k = 1
 
-    wheel_base = 1.1
+    wheel_base = 1.0
 
     # ==================================================================================================
     # PUBLIC METHODS
@@ -184,7 +184,7 @@ class PurePursuit:
 
         distance = np.hypot(delta_x, delta_y)
 
-        return distance < 0.1
+        return distance < 0.3
 
     @staticmethod
     def _calculate_distance(reference_x, current_x):

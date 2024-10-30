@@ -1,28 +1,12 @@
 <?xml version="1.0"?>
 <launch>
-    <node pkg="tsnd151_imu" type="tsnd151_imu_node.py" name="tsnd151_imu_node" required="true">
-        <param name="serial_port" value="/dev/ttyACM0"/>
-        <param name="publish_rate" value="100"/>
-    </node>
-
-    <node pkg="f9p_ichimill" type="f9p_driver.py" name="f9p_driver" args="" >
-        <param name="port" value="/dev/ttyACM2"/>
-        <param name="baud" value="115200"/>
-        <param name="debug" value="True"/>
-    </node>
-
-    <!-- sentence to fix -->
-    <node pkg="nmea_navsat_driver" type="nmea_topic_driver" name="nmea_topic_driver" />
-    
-    <!-- hakuroukun position publisher -->
     <node name="hakuroukun_pose" pkg="hakuroukun_pose" type="hakuroukun_pose_node" output="screen">
-        <param name="~log" value="false"/>
+        <param name="~log" value="true"/>
         <param name="~log_folder" value="$(find hakuroukun_pose)/log_data"/>
         <param name="~publish_rate" value="0.1"/>
         <param name="~rotation_angle" value="-90"/>
         <param name="~gps_to_rear_axis" value="0.6"/>
-        <param name="~imu_offset" value="-0.18981711362095213"/>
+        <param name="~imu_offset" value="0.0"/>
         <remap from="fix" to="gps/fix"/>
     </node>
-    
 </launch>
