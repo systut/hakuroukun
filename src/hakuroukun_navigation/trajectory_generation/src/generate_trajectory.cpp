@@ -57,13 +57,15 @@ int main(int argc, char **argv)
     std::cout << "The global trajectory was successfully generated.\n";
     std::cout << "Elapsed time: " << 1000*elapsed_time.count() << " [msec].\n" << std::endl;
 
-    ros::Rate loop_rate(1);
+    ros::Rate loop_rate(0.2);
 
     while (ros::ok())
     {
-        ros::spinOnce();
         GlobalTraj.publishPathAndTrajectory();
+        std::cout << "Publishing the global trajectory...\n";
+        ros::spinOnce();    
         loop_rate.sleep();
+        std::cout << "The global trajectory was successfully published.\n";
     }
 
     return 0;

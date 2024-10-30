@@ -15,6 +15,7 @@ from collections import namedtuple
 
 # External libraries
 import rospy
+from sdv_msgs.msg import Trajectory
 from nav_msgs.msg import Odometry, Path
 from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import Float64MultiArray
@@ -119,6 +120,9 @@ class HakuroukunControl(object):
 
         rospy.Subscriber("hakuroukun_pose/rear_wheel_odometry", Odometry,
                          self._hakuroukun_odom_callback)
+        
+        rospy.Subscriber("/offline_trajectory_node/trajectory", Trajectory,
+                         self._global_trajectory_callback)
 
     def _register_publishers(self):
         """! Register publisher
@@ -132,6 +136,9 @@ class HakuroukunControl(object):
 
         self._velocity_publisher = rospy.Publisher(
             "cmd_controller", Float64MultiArray, queue_size=10)
+        
+        self._lookahead_point_publisher = rospy.Publisher(
+            "lookahead_point", PoseStamped, queue_size=10)
 
     def _register_timers(self):
         """! Register timers
@@ -156,6 +163,16 @@ class HakuroukunControl(object):
         self._state = [msg.pose.pose.position.x,
                        msg.pose.pose.position.y,
                        heading]
+
+    def _global_trajectory_callback(self, msg):
+        """! Global trajectory callback
+        @param msg<Trajectory>: The trajectory message
+        """
+        rospy.loginfo("Received global trajectory")
+
+        trajectory = self._convert_msg_to_trajectory(msg)
+
+        self._controller.update_trajectory(trajectory)
 
     def _hakuroukun_odom_callback(self, msg):
         """! Odometry callback
@@ -206,6 +223,37 @@ class HakuroukunControl(object):
 
         self._index += 1
 
+    def _convert_msg_to_trajectory(self, msg):
+        """! Convert message to trajectory
+        @param msg<Trajectory>: The message
+        @return<instance>: The trajectory
+        """
+        trajectory = {
+            "x": [],
+            "t": [],
+            "u": [],
+        }
+
+        for index, point in enumerate(msg.points):
+            trajectory["x"].append([point.x, point.y, point.heading])
+
+            trajectory["t"].append(index * self._sampling_time)
+
+            trajectory["u"].append([point.x_dot, point.heading_rate_radps])
+
+        print(trajectory["x"])
+
+        trajectory["x"] = np.array(trajectory["x"])
+
+        trajectory["t"] = np.array(trajectory["t"])
+
+        trajectory["u"] = np.array(trajectory["u"])
+
+        trajectory_instance = namedtuple("Trajectory", trajectory.keys())(
+            *trajectory.values())
+
+        return trajectory_instance
+
     def _convert_control_input_to_msg(self, u):
         """! Convert control input to message
         @param u<list>: The control input
@@ -254,31 +302,7 @@ class HakuroukunControl(object):
         trajectory_instance = namedtuple("Trajectory", trajectory.keys())(
             *trajectory.values())
 
-        # self._visualize_trajectory(trajectory_instance)
-
         return trajectory_instance
-
-    def _visualize_trajectory(self, trajectory):
-        """! Visualize the trajectory
-        @param trajectory<list>: The trajectory
-        """
-        path = Path()
-
-        path.header.frame_id = "map"
-
-        for index in range(len(trajectory.x)):
-            pose = PoseStamped()
-
-            pose.header.frame_id = "map"
-
-            pose.pose.position.x = trajectory.x[index, 0]
-
-            pose.pose.position.y = trajectory.x[index, 1]
-
-            path.poses.append(pose)
-
-        for _ in range(10):
-            self._trajectory_publisher.publish(path)
 
     def _retrieve_u(self, initial_index, data, nx, nu, trajectory_type):
         """! Retrieve the input at time t.

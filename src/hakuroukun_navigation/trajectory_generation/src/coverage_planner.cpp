@@ -10,8 +10,8 @@ bool CoveragePlanner::generate(double length, double width, Eigen::MatrixXd &cov
     std::vector<std::vector<double>> p_lower, p_middle, p_upper;
 
     for (int i = 0; i <= n + 1; ++i) {
-        p_lower.push_back({init_position[0] - i * n_width, init_position[1]});
-        p_upper.push_back({init_position[0] - i * n_width, init_position[1] + length});
+        p_lower.push_back({init_position[0] + i * n_width, init_position[1]});
+        p_upper.push_back({init_position[0] + i * n_width, init_position[1] + length});
     }
 
     int n_upper_turn = static_cast<int>(std::ceil(w_turning_min / n_width));
@@ -20,10 +20,10 @@ bool CoveragePlanner::generate(double length, double width, Eigen::MatrixXd &cov
     coverage_path.resize((n_turn+1) * 4, 2);
     
     for (int k = 0; k <= n_turn; ++k) {
-        coverage_path.row(k * 4) = Eigen::RowVector2d(p_lower[k][0], p_lower[k][1]);
-        coverage_path.row(k * 4 + 1) = Eigen::RowVector2d(p_upper[k][0], p_upper[k][1]);
-        coverage_path.row(k * 4 + 2) = Eigen::RowVector2d(p_upper[k+n_upper_turn][0], p_upper[k][1]);
-        coverage_path.row(k * 4 + 3) = Eigen::RowVector2d(p_lower[k+n_upper_turn][0], p_lower[k][1]);
+        coverage_path.row(k * 4) = Eigen::RowVector2d(p_lower[k][1], p_lower[k][0]);
+        coverage_path.row(k * 4 + 1) = Eigen::RowVector2d(p_upper[k][1], p_upper[k][0]);
+        coverage_path.row(k * 4 + 2) = Eigen::RowVector2d(p_upper[k][1], p_upper[k+n_upper_turn][0]);
+        coverage_path.row(k * 4 + 3) = Eigen::RowVector2d(p_lower[k][1], p_lower[k+n_upper_turn][0]);
     }
 
     return true;

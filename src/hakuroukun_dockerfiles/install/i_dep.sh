@@ -39,3 +39,4 @@ update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1
 python --version
 python -m pip install pyserial
 python -m pip install scipy
+python -m pip install pytz

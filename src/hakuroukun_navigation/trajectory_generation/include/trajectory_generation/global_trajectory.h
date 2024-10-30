@@ -33,6 +33,7 @@ public:
 
     Eigen::VectorXd point_to_point_motion_single_line_jlap_solver(Eigen::RowVector2d& pos_start, double& path_vel_start, double& path_acc_start, Eigen::RowVector2d& pos_end, double& path_vel_end, double& path_acc_end);
     void point_to_point_single_line_trajectory_interpolator();
+    void convertToFrontWheel(double x_dot, double y_dot, double phi_dot, double &v_front, double &delta);
 
     void trajectory_interpolator();
     void export_global_trajectory();

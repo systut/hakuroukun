@@ -1558,6 +1558,25 @@ void Global_traj_class::generateTrajectory()
     rpm_convert();
 }
 
+// wheel velocities are in rad/s
+void Global_traj_class::convertToFrontWheel(double x_dot, double y_dot, double phi_dot, double &v_front, double &delta)
+{
+    double v = sqrt(pow(x_dot, 2) + pow(y_dot, 2));
+
+    double w = phi_dot;
+
+    if (v != 0)
+    {
+        delta = atan2(w * RobotConstants::AXLE_LENGTH, v);
+    }
+    else
+    {
+        delta = 0;
+    }
+
+    v_front = v / cos(delta);
+}
+
 void Global_traj_class::publishPathAndTrajectory()
 {
     // generate trajectory
@@ -1565,17 +1584,20 @@ void Global_traj_class::publishPathAndTrajectory()
 
     trajectory_msg_.points.resize(Ns);
     adapted_path_msg_.poses.resize(Ns);
-    adapted_path_msg_.header.frame_id = "/odom";
+    adapted_path_msg_.header.frame_id = "/map";
 
     for (unsigned int i = 0; i < Ns; i++)
     {
+        double v_front, delta;
+        convertToFrontWheel(vel(i, 0), vel(i, 1), dphi(i), v_front, delta);
+
         // trajectory msg
         trajectory_msg_.points[i].x = pos(i, 0);
         trajectory_msg_.points[i].y = pos(i, 1);
         trajectory_msg_.points[i].heading = phi(i);
-        trajectory_msg_.points[i].x_dot = vel(i,0);
-        trajectory_msg_.points[i].y_dot = vel(i,1);
-        trajectory_msg_.points[i].heading_rate_radps = dphi(i);
+        trajectory_msg_.points[i].x_dot = v_front;
+        trajectory_msg_.points[i].y_dot = 0;
+        trajectory_msg_.points[i].heading_rate_radps = delta;
         trajectory_msg_.points[i].velocity_mps = path_vel(i);
         trajectory_msg_.points[i].acceleration_mps2 = path_acc(i);
         trajectory_msg_.points[i].heading_acc_radps2 = ddphi(i);
