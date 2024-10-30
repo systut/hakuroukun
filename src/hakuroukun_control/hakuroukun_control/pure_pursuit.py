@@ -22,7 +22,7 @@ class PurePursuit:
     autonomous driving.
     """
 
-    lookahead_distance = 1.5
+    lookahead_distance = 1.0
 
     lookahead_gain = 0.1
 
@@ -42,6 +42,8 @@ class PurePursuit:
         self.old_nearest_point_index = None
 
         self.lookahead_point = [0.0, 0.0]
+
+        self.previous_index = 0
 
     def update_trajectory(self, trajectory):
         """! Update the trajectory
@@ -141,7 +143,7 @@ class PurePursuit:
 
                 this_distance = next_distance
 
-            self.old_nearest_point_index = index
+        self.old_nearest_point_index = index
 
         lookahead_distance = PurePursuit.lookahead_distance
 
