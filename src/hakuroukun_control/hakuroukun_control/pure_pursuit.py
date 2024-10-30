@@ -41,6 +41,14 @@ class PurePursuit:
 
         self.old_nearest_point_index = None
 
+        self.lookahead_point = [0.0, 0.0]
+
+    def update_trajectory(self, trajectory):
+        """! Update the trajectory
+        @param trajectory<instance>: The trajectory
+        """
+        self.trajectory = trajectory
+
     def execute(self, state, input, previous_index):
         """! Execute the controller
         @param state<list>: The state of the vehicle
@@ -85,6 +93,8 @@ class PurePursuit:
         delta = math.atan2(
             2.0 * PurePursuit.wheel_base * math.sin(alpha),
             lookahead_distance)
+
+        self.lookahead_point = [trajectory_x, trajectory_y]
 
         return status, [v, delta]
 
