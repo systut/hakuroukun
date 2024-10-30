@@ -174,6 +174,7 @@ class HakuroukunControl(object):
 
         self._controller.update_trajectory(trajectory)
 
+
     def _hakuroukun_odom_callback(self, msg):
         """! Odometry callback
         @param msg<Odometry>: The odometry message
@@ -210,14 +211,19 @@ class HakuroukunControl(object):
         status, u = self._controller.execute(
             self._state, self._previous_u, self._index)
 
+        if self._index < 10:
+            u[1] = 0.0
+
+            print(u)
+
         self._previous_u = u
+
+        rospy.loginfo(f"Control input {u}")
 
         if not status:
             rospy.logwarn("Failed to execute controller")
 
         msg = self._convert_control_input_to_msg(u)
-
-        rospy.loginfo(f"Send control input {msg}")
 
         self._velocity_publisher.publish(msg)
 

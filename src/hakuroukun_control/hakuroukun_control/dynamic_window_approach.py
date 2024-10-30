@@ -44,6 +44,8 @@ class DynamicWindowApproach:
         status = True
 
         if self._is_goal(state, self.trajectory):
+            print("Goal reached")
+
             return False, [0, 0]
 
         goal = self._search_target_index(state)
@@ -79,15 +81,13 @@ class DynamicWindowApproach:
         """
         self._dt = self.trajectory.sampling_time
 
-        self._lookahead_steps = 2
+        self._lookahead_steps = 5
 
         self._lookahead_time = self._lookahead_steps * self._dt
 
         self._to_goal_cost_gain = 1.0
 
         self._speed_cost_gain = 1.0
-
-        self._tracking_cost_gain = [50.0, 50.0, 1.0, 20.0]
 
         self._goal_tolerance = 0.3
 
@@ -274,7 +274,7 @@ class DynamicWindowApproach:
 
         distance = np.hypot(delta_x, delta_y)
 
-        return distance < 0.1
+        return distance < 0.3
 
     @staticmethod
     def _calculate_distance(current_x, reference_x):
