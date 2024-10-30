@@ -171,7 +171,7 @@ class HakuroukunCommunicationNode(object):
             acceleration_command = 290
 
         # NOTE: we should avoid magical number
-        steering_command = round(510+steering_angle/0.2362)  # 538
+        steering_command = round(520+steering_angle/0.2362)  # 538
         # steering_command = round(555+steering_angle/0.2362) # 538
 
         if steering_command > 760:
