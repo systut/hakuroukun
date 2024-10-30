@@ -49,8 +49,7 @@ class PurePursuit:
         """! Update the trajectory
         @param trajectory<instance>: The trajectory
         """
-        if trajectory != self.trajectory:
-            self.trajectory = trajectory
+        self.trajectory = trajectory
 
     def execute(self, state, input, previous_index):
         """! Execute the controller
@@ -122,7 +121,13 @@ class PurePursuit:
         return a
 
     def _search_target_index(self, state, input):
-        if self._old_nearest_point_index is None:
+        """! Search the target index
+        @param state<list>: The state of the vehicle
+        @param input<list>: The input of the vehicle
+        @return<int>: The index
+        @return<float>: The lookahead distance
+        """
+        if not self._old_nearest_point_index:            
             all_distance = self._calculate_distance(self.trajectory.x, state)
 
             index = np.argmin(all_distance)
@@ -146,7 +151,7 @@ class PurePursuit:
 
                 this_distance = next_distance
 
-            self._old_nearest_point_index = index
+        self._old_nearest_point_index = index
 
         lookahead_distance = PurePursuit.lookahead_distance
 
