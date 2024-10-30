@@ -18,7 +18,7 @@ function [P, point_num] = CreateMapPoints(length, width, init_position)
     % Generate all trajectory points on the map base on area
     for i = 0:n+1
         p_lower(i+1,:) = p_0 + [-i*n_width 0];
-        p_middle(i+1,:) = p_0 + [-i*n_width length/2];  
+        p_middle(i+1,:) = p_0 + [-i*n_width length/2];          
         p_upper(i+1,:) = p_0 + [-i*n_width length];
     end
 

@@ -3,9 +3,9 @@ clc
 % close all
 
 % Input
-length = 4;
-width = 7.5;
-Pos = [0 5-1];
+length = 13;
+width = 13;
+Pos = [0 0];
 % Output
 [P1, n] = CreateMapPoints(length, width, Pos);
 Points  = P1;
