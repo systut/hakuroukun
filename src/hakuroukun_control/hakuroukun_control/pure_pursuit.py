@@ -22,7 +22,7 @@ class PurePursuit:
     autonomous driving.
     """
 
-    lookahead_distance = 0.3
+    lookahead_distance = 0.5
 
     lookahead_gain = 0.1
 
@@ -39,15 +39,18 @@ class PurePursuit:
         """
         self.trajectory = trajectory
 
-        self.old_nearest_point_index = None
-
         self.lookahead_point = [0.0, 0.0]
+
+        self._old_nearest_point_index = None
+
+        self._previous_index = 0
 
     def update_trajectory(self, trajectory):
         """! Update the trajectory
         @param trajectory<instance>: The trajectory
         """
-        self.trajectory = trajectory
+        if trajectory != self.trajectory:
+            self.trajectory = trajectory
 
     def execute(self, state, input, previous_index):
         """! Execute the controller
@@ -63,8 +66,8 @@ class PurePursuit:
 
         index, lookahead_distance = self._search_target_index(state, input)
 
-        if previous_index >= index:
-            index = previous_index
+        if self._previous_index >= index:
+            index = self._previous_index
 
         if index < len(self.trajectory.x):
             trajectory_x = self.trajectory.x[index, 0]
@@ -77,6 +80,8 @@ class PurePursuit:
             trajectory_y = self.trajectory.x[-1, 1]
 
             index = len(self.trajectory.x) - 1
+
+        self._previous_index = index
 
         alpha = (
             math.atan2(
@@ -117,13 +122,13 @@ class PurePursuit:
         return a
 
     def _search_target_index(self, state, input):
-        if self.old_nearest_point_index is None:
+        if self._old_nearest_point_index is None:
             all_distance = self._calculate_distance(self.trajectory.x, state)
 
             index = np.argmin(all_distance)
 
         else:
-            index = self.old_nearest_point_index
+            index = self._old_nearest_point_index
 
             this_distance = self._calculate_distance(
                 self.trajectory.x[index], state)
@@ -141,7 +146,7 @@ class PurePursuit:
 
                 this_distance = next_distance
 
-            self.old_nearest_point_index = index
+            self._old_nearest_point_index = index
 
         lookahead_distance = PurePursuit.lookahead_distance
 
