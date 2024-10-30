@@ -12,6 +12,7 @@
 # Standard Libraries
 import os
 import math
+import time
 from datetime import datetime
 
 # External Libraries
@@ -114,6 +115,8 @@ class HakuroukunPose:
     def _register_log_data(self):
         """! Register log localization data method
         """
+        self._log_start_time = None
+
         log_folder = rospy.get_param("~log_folder", None)
 
         current_time = datetime.now(pytz.timezone('Asia/Tokyo')).strftime(
@@ -121,6 +124,12 @@ class HakuroukunPose:
 
         self._file_name = os.path.join(
             log_folder, current_time + ".csv")
+
+        with open(self._file_name, mode="a") as f:
+
+            title = "Time (s), x_rear(m), y_rear(m), yaw(deg)\n"
+
+            f.write(title)
 
     def _get_initial_pose(self):
         """! Get initial pose method
@@ -216,10 +225,15 @@ class HakuroukunPose:
         """! Log pose method
         @param timer: Timer (unused)
         """
-        pose = f"{self._x_rear}, {self._y_rear}, {math.degrees(self._yaw)}"
-        
+        if self._log_start_time is None:
+            self._log_start_time = time.time()
+
+        elapsed_time = (time.time() - self._log_start_time)
+
+        pose = f"{elapsed_time}, {self._x_rear}, {self._y_rear}, {math.degrees(self._yaw)}"
+
         rospy.loginfo(f"Pose: {pose}")
-        
+
         with open(self._file_name, mode="a") as f:
 
             f.write(pose + "\n")
