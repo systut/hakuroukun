@@ -16,12 +16,12 @@ import time
 from datetime import datetime
 
 # External Libraries
+import tf
 import rospy
 import pytz
-from tf import transformations as tf
-from sensor_msgs.msg import Imu, NavSatFix
 from std_msgs.msg import Float64
 from nav_msgs.msg import Odometry
+from sensor_msgs.msg import Imu, NavSatFix
 
 # Internal Libraries
 import geonav_transform.geonav_conversions as gc
@@ -98,6 +98,8 @@ class HakuroukunPose:
 
         self._orientation_pub = rospy.Publisher(
             "/hakuroukun_pose/orientation", Float64, queue_size=1)
+
+        self._tf_broadcaster = tf.TransformBroadcaster()
 
     def _register_timers(self):
         """! Register timers method
@@ -192,10 +194,11 @@ class HakuroukunPose:
         self.linear_acceleration_y = data.linear_acceleration.y
         self.linear_acceleration_z = data.linear_acceleration.z
 
-        self.euler = tf.euler_from_quaternion([self.quaternion_x,
-                                               self.quaternion_y,
-                                               self.quaternion_z,
-                                               self.quaternion_w])
+        self.euler = tf.transformations.euler_from_quaternion(
+            [self.quaternion_x,
+             self.quaternion_y,
+             self.quaternion_z,
+             self.quaternion_w])
 
         self._yaw = self.euler[2] - self._imu_offset
 
@@ -205,7 +208,7 @@ class HakuroukunPose:
         """
         rear_odom_msg = Odometry()
         rear_odom_msg.header.stamp = rospy.get_rostime()
-        rear_odom_msg.header.frame_id = "odom"
+        rear_odom_msg.header.frame_id = "base_link"
 
         rear_odom_msg.pose.pose.position.x = self._x_rear
         rear_odom_msg.pose.pose.position.y = self._y_rear
@@ -220,6 +223,15 @@ class HakuroukunPose:
         rear_odom_msg.twist.twist.angular.z = self.angular_velocity_z
 
         self._rear_odom_pub.publish(rear_odom_msg)
+
+        self._tf_broadcaster.sendTransform(
+            (self._x_rear, self._y_rear, 0),
+            (self.quaternion_x, self.quaternion_y,
+             self.quaternion_z, self.quaternion_w),
+            rospy.Time.now(),
+            "base_link",
+            "map"
+        )
 
     def _log_pose(self, timer):
         """! Log pose method

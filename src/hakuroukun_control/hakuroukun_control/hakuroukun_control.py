@@ -15,9 +15,11 @@ from collections import namedtuple
 
 # External libraries
 import rospy
+from std_msgs.msg import Bool
 from sdv_msgs.msg import Trajectory
+from geometry_msgs.msg import Point
 from nav_msgs.msg import Odometry, Path
-from geometry_msgs.msg import PoseStamped
+from visualization_msgs.msg import Marker
 from std_msgs.msg import Float64MultiArray
 from scipy.spatial.transform import Rotation
 
@@ -90,6 +92,8 @@ class HakuroukunControl(object):
 
         self._previous_u = [0, 0]
 
+        self._emergency_stop_flag = False
+
     def _register_controller(self):
         """! Register controller
         """
@@ -118,11 +122,14 @@ class HakuroukunControl(object):
         # rospy.Subscriber("odometry/filtered/global", Odometry,
         #                  self._odom_callback)
 
-        rospy.Subscriber("hakuroukun_pose/rear_wheel_odometry", Odometry,
+        rospy.Subscriber("ground_truth/odometry", Odometry,
                          self._hakuroukun_odom_callback)
-        
-        rospy.Subscriber("/offline_trajectory_node/trajectory", Trajectory,
+
+        rospy.Subscriber("generate_trajectory_node/trajectory", Trajectory,
                          self._global_trajectory_callback)
+
+        rospy.Subscriber("emergency_stop", Bool,
+                         self._emergency_stop_callback)
 
     def _register_publishers(self):
         """! Register publisher
@@ -136,9 +143,9 @@ class HakuroukunControl(object):
 
         self._velocity_publisher = rospy.Publisher(
             "cmd_controller", Float64MultiArray, queue_size=10)
-        
+
         self._lookahead_point_publisher = rospy.Publisher(
-            "lookahead_point", PoseStamped, queue_size=10)
+            "lookahead_point", Marker, queue_size=10)
 
     def _register_timers(self):
         """! Register timers
@@ -164,12 +171,16 @@ class HakuroukunControl(object):
                        msg.pose.pose.position.y,
                        heading]
 
+    def _emergency_stop_callback(self, msg):
+        """! Emergency stop callback
+        @param msg<Bool>: The message
+        """
+        self._emergency_stop_flag = msg.data
+
     def _global_trajectory_callback(self, msg):
         """! Global trajectory callback
         @param msg<Trajectory>: The trajectory message
         """
-        rospy.loginfo("Received global trajectory")
-
         trajectory = self._convert_msg_to_trajectory(msg)
 
         self._controller.update_trajectory(trajectory)
@@ -197,37 +208,86 @@ class HakuroukunControl(object):
         """! Timer callback
         @param event<Event>: The event
         """
-        if not self._state and self._controller_type in [
-                "pure_pursuit", "dynamic_window_approach"]:
-            rospy.logwarn("No current status of the vehicle")
+        try:
+            if not self._state and self._controller_type in [
+                    "pure_pursuit", "dynamic_window_approach"]:
+                raise Exception("No current state is available")
 
-            return
+            if not self._controller:
+                raise Exception("No controller is registered")
 
-        if not self._controller:
-            rospy.logwarn("No controller is registered")
+            if self._emergency_stop_flag:
+                raise Exception("Emergency stop is activated")
 
-            return
+            status, u = self._controller.execute(
+                self._state, self._previous_u, self._index)
 
-        status, u = self._controller.execute(
-            self._state, self._previous_u, self._index)
+            if self._controller_type == "pure_pursuit":
+                self._publish_lookahead_point()
 
-        if self._index < 10:
-            u[1] = 0.0
+            if self._index < 10:
+                u[1] = 0.0
 
-            print(u)
+                print(u)
 
-        self._previous_u = u
+            self._previous_u = u
 
-        rospy.loginfo(f"Control input {u}")
+            if not status:
+                raise Exception("Failed to execute controller")
 
-        if not status:
-            rospy.logwarn("Failed to execute controller")
+            self._index += 1
 
-        msg = self._convert_control_input_to_msg(u)
+        except Exception as exception:
+            rospy.logwarn(f"Failed to execute controller: {exception}")
 
-        self._velocity_publisher.publish(msg)
+            u = [0, 0]
 
-        self._index += 1
+        finally:
+
+            msg = self._convert_control_input_to_msg(u)
+
+            rospy.loginfo(f"Send control input {msg}")
+
+            self._velocity_publisher.publish(msg)
+
+    def _publish_lookahead_point(self):
+        """! Publish lookahead point
+        """
+        lookahead_point = self._controller.lookahead_point
+
+        marker = Marker()
+
+        marker.header.frame_id = "map"
+
+        marker.header.stamp = rospy.Time.now()
+
+        marker.ns = "lookahead_point"
+
+        marker.id = 0
+
+        marker.type = Marker.ARROW
+
+        marker.action = Marker.ADD
+
+        marker.points.append(Point(x=self._state[0], y=self._state[1]))
+
+        marker.points.append(Point(x=lookahead_point[0], y=lookahead_point[1]))
+
+        marker.scale.x = 0.1
+
+        marker.scale.y = 0.2
+
+        marker.scale.z = 0.2
+
+        marker.color.a = 1.0
+
+        marker.color.r = 1.0
+
+        marker.color.g = 0.0
+
+        marker.color.b = 0.0
+
+        self._lookahead_point_publisher.publish(marker)
 
     def _convert_msg_to_trajectory(self, msg):
         """! Convert message to trajectory
@@ -246,8 +306,6 @@ class HakuroukunControl(object):
             trajectory["t"].append(index * self._sampling_time)
 
             trajectory["u"].append([point.x_dot, point.heading_rate_radps])
-
-        print(trajectory["x"])
 
         trajectory["x"] = np.array(trajectory["x"])
 
