@@ -2,3 +2,4 @@ data/
 src/QuadProgpp/
 __pycache__/
 eagleeye/
+log_data/
