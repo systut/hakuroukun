@@ -1,0 +1,6 @@
+right_laser_filter:
+- name: right_laser_angle
+  type: laser_filters/LaserScanAngularBoundsFilter
+  params:
+    lower_angle: -1.5707
+    upper_angle: 1.5707

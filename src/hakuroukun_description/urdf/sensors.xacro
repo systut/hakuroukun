@@ -86,12 +86,12 @@
     <joint name="$[parent}_to_${lidar_name}" type="fixed">
       <parent link="${parent}"/>
       <child link="${lidar_name}"/>
-      <origin xyz="${ox} ${oy} ${oz}"/>
+      <origin xyz="${ox} ${oy} ${oz}" rpy="${roll} ${pitch} ${yaw}"/>
     </joint>
 
   	<gazebo reference="${lidar_name}">
       <sensor type="ray" name="${lidar_name}">
-        <pose>0 0 0 0 0 0</pose>
+        <pose>0 0 0 0 0 ${yaw}</pose>
         <visualize>false</visualize>
       	<update_rate>${update_rate}</update_rate>
       	<ray>
