@@ -42,7 +42,7 @@
   
   <xacro:property name="gps_update_rate" value="10.0" />	
   <xacro:property name="gps_mass" value="0.05" />
-  <xacro:property name="gps_noise" value="0.05" />
+  <xacro:property name="gps_noise" value="0.01" />
   <xacro:property name="gps_latitude" value="34.70242845166667" />
   <xacro:property name="gps_longitude" value="137.408935105" />
 
