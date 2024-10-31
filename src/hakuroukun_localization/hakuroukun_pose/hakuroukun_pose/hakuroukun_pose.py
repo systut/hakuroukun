@@ -54,7 +54,7 @@ class HakuroukunPose:
 
         self._register_log_data()
 
-        # rospy.sleep(1)
+        rospy.sleep(1)
 
         self._register_timers()
 
@@ -201,6 +201,8 @@ class HakuroukunPose:
              self.quaternion_w])
 
         self._yaw = self.euler[2] - self._imu_offset
+
+        self._yaw = math.atan2(math.sin(self._yaw), math.cos(self._yaw))
 
     def _publish_rear_wheel_odometry(self, timer):
         """! Publish rear wheel pose method
