@@ -1,34 +1,58 @@
 <launch>
-    <include file="$(find hakuroukun_launch)/launch/gazebo.launch" />
+  <arg name="simulation" default="true" />
+  <arg name="model" default="$(find hakuroukun_description)/urdf/hakuroukun.urdf.xacro"/>
 
-	<node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger" output="screen">
-        <param name="destination_frame" value="left_lidar"/>
-        <param name="cloud_destination_topic" value="/merged_cloud"/>
-        <param name="scan_destination_topic" value="/scan_multi"/>
-        <param name="laserscan_topics" value ="/left_lidar/scan /right_lidar/scan" /> 
-        <param name="angle_min" value="-3.14"/>
-        <param name="angle_max" value="3.14"/>
-        <param name="angle_increment" value="0.0058"/>
-        <param name="scan_time" value="0.0333333"/>
-        <param name="range_min" value="1.0"/>
-        <param name="range_max" value="50.0"/>
-	</node>
+  <param name="robot_description" command="$(find xacro)/xacro $(arg model)"/>
+
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+          respawn="false" output="screen" />
+
+  <group if = "$(arg simulation)">
+    <include file="$(find hakuroukun_launch)/launch/gazebo.launch" />
+    
+    <node name="hakuroukun_pose" pkg="hakuroukun_pose" type="hakuroukun_pose_node" output="screen">
+        <param name="~log" value="false"/>
+        <param name="~log_folder" value="$(find hakuroukun_pose)/log_data"/>
+        <param name="~publish_rate" value="0.1"/>
+        <param name="~rotation_angle" value="-90"/>
+        <param name="~gps_to_rear_axis" value="0.6"/>
+        <param name="~imu_offset" value="-0.18981711362095213"/>
+    </node>
+  </group>
+
+  <group unless = "$(arg simulation)">
+    <include file="$(find hakuroukun_launch)/launch/communication_bringup.launch" />
+  
+    <include file="$(find hakuroukun_launch)/launch/sensor_bringup.launch" />
+
+    <node name="hakuroukun_pose" pkg="hakuroukun_pose" type="hakuroukun_pose_node" output="screen">
+      <param name="~log" value="true"/>
+      <param name="~log_folder" value="$(find hakuroukun_pose)/log_data"/>
+      <param name="~publish_rate" value="0.1"/>
+      <param name="~rotation_angle" value="-7.969437553467237"/>
+      <param name="~gps_to_rear_axis" value="0.6"/>
+      <param name="~imu_offset" value="-0.18981711362095213"/>
+    </node>
+  </group>
+
+  <node name="generate_trajectory_node" pkg="trajectory_generation" type="generate_trajectory"/>
+
+  <node name="obstacle_detection_node" pkg="obstacle_detection" type="obstacle_detection_node"/>
 
   <node name="map_server" pkg="map_server" type="map_server" args="$(find hakuroukun_launch)/maps/dummy_map.yml" />
 
-  <include file="$(find laserscan2costmap)/launch/laserscan2costmap.launch" />
-
-  <!-- <include file="$(find hakuroukun_localization)/launch/ekf_localization.launch" /> -->
-
-  <!-- hakuroukun position publisher -->
-  <node name="hakuroukun_pose" pkg="hakuroukun_pose" type="hakuroukun_pose_node" output="screen">
-      <param name="~log" value="false"/>
-      <param name="~log_folder" value="$(find hakuroukun_pose)/log_data"/>
-      <param name="~publish_rate" value="0.1"/>
-      <param name="~rotation_angle" value="-90"/>
-      <param name="~gps_to_rear_axis" value="0.6"/>
-      <param name="~imu_offset" value="-0.18981711362095213"/>
-  </node>
-
-  <node name="generate_trajectory_node" pkg="trajectory_generation" type="generate_trajectory" output="screen"/>
+	<node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger" output="screen">
+    <param name="destination_frame" value="left_lidar"/>
+    <param name="cloud_destination_topic" value="/merged_cloud"/>
+    <param name="scan_destination_topic" value="/scan_multi"/>
+    <param name="laserscan_topics" value ="/left_lidar/scan /right_lidar/scan" /> 
+    <param name="angle_min" value="-3.14"/>
+    <param name="angle_max" value="3.14"/>
+    <param name="angle_increment" value="0.0058"/>
+    <param name="scan_time" value="0.0333333"/>
+    <param name="range_min" value="1.0"/>
+    <param name="range_max" value="50.0"/>
+	</node>
 </launch>

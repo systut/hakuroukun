@@ -15,7 +15,7 @@
         <param name="inverted"            type="bool"   value="false"/>
         <param name="angle_compensate"    type="bool"   value="true"/>
         <param name="scan_mode"           type="string" value="Stability"/>
-        <remap from="/scan" to="/left_scan"/>
+        <remap from="/scan" to="/left_lidar/scan"/>
     </node>
 
     <node name="right_lidar"          pkg="rplidar_ros"  type="rplidarNode" output="screen">
@@ -25,7 +25,7 @@
         <param name="inverted"            type="bool"   value="false"/>
         <param name="angle_compensate"    type="bool"   value="true"/>
         <param name="scan_mode"           type="string" value="Stability"/>
-        <remap from="/scan" to="/right_scan"/>
+        <remap from="/scan" to="/right_lidar/scan"/>
     </node>
 
 </launch>
