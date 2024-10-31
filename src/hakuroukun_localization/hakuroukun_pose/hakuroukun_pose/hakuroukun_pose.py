@@ -204,6 +204,10 @@ class HakuroukunPose:
 
         self._yaw = math.atan2(math.sin(self._yaw), math.cos(self._yaw))
 
+        (self.quaternion_x, self.quaternion_y,
+         self.quaternion_z, self.quaternion_w) = tf.transformations. \
+            quaternion_from_euler(0, 0, self._yaw)
+
     def _publish_rear_wheel_odometry(self, timer):
         """! Publish rear wheel pose method
         @param timer: Timer (unused)
@@ -244,7 +248,8 @@ class HakuroukunPose:
 
         elapsed_time = (time.time() - self._log_start_time)
 
-        pose = f"{elapsed_time}, {self._x_rear}, {self._y_rear}, {math.degrees(self._yaw)}"
+        pose = f"{elapsed_time}, {self._x_rear}, "
+        f"{self._y_rear}, {math.degrees(self._yaw)}"
 
         rospy.loginfo(f"Pose: {pose}")
 
