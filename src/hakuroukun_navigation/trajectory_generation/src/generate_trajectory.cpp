@@ -27,14 +27,19 @@ int main(int argc, char **argv)
     ros::NodeHandle private_nh("~");
 
     CoveragePlanner coverage_planner;
+    
+    int iteration;
+    ros::param::param<int>("~iteration", iteration, 2);
 
-    double length = 13.0;
+    double length;
+    ros::param::param<double>("~length", length, 13.0);
 
-    double width = 13.0;
+    double width;
+    ros::param::param<double>("~width", width, 13.0);
 
     Eigen::MatrixXd coverage_path;
 
-    coverage_planner.generate(length, width, coverage_path);
+    coverage_planner.generate(length, width, iteration, coverage_path);
 
     std::cout << "Coverage path:\n" << coverage_path << std::endl;
 
@@ -46,9 +51,8 @@ int main(int argc, char **argv)
 
     GlobalTraj.get_robot_current_state(robot_current_position, robot_current_path_velocity);
 
-    std::cout << "Generating the global trajectory...\n";
-    GlobalTraj.generateTrajectory();
-    GlobalTraj.export_global_trajectory();
+    // std::cout << "Generating the global trajectory...\n";
+    // GlobalTraj.export_global_trajectory();
     // GlobalTraj.rpm_convert();
 
     auto end_time = std::chrono::system_clock::now();
@@ -60,7 +64,8 @@ int main(int argc, char **argv)
     ros::Rate loop_rate(0.2);
 
     while (ros::ok())
-    {
+    {            
+        GlobalTraj.generateTrajectory();
         GlobalTraj.publishPathAndTrajectory();
         std::cout << "Publishing the global trajectory...\n";
         ros::spinOnce();    

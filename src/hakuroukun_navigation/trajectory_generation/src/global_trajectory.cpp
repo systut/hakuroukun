@@ -6,6 +6,8 @@ Global_traj_class::Global_traj_class(ros::NodeHandle nh, ros::NodeHandle private
     nh_ = nh;
     traj_pub_ = private_nh_.advertise<sdv_msgs::Trajectory>("trajectory", 1);
     path_pub_ = private_nh_.advertise<nav_msgs::Path>("adapted_path", 1);
+    map_sub_ = nh_.subscribe("/map", 1, &Global_traj_class::costMapCallback, this);
+    odom_sub_ = nh_.subscribe("/odom", 1, &Global_traj_class::odomCallback, this);
 
 ////////////////////////////////////////////////////////////SET WAYPOINTS ON RVIZ////////////////////////////////
     boost::shared_ptr<geometry_msgs::PoseStamped const> shared_goal;
@@ -61,6 +63,16 @@ Global_traj_class::Global_traj_class(ros::NodeHandle nh, ros::NodeHandle private
 }
 
 Global_traj_class::~Global_traj_class(){}
+
+void Global_traj_class::costMapCallback(const nav_msgs::OccupancyGrid::ConstPtr &msg)
+{
+    map_ = *msg;
+}
+
+void Global_traj_class::odomCallback(const nav_msgs::Odometry::ConstPtr &msg)
+{
+    odom_ = *msg;
+}
 
 bool Global_traj_class::isSame(double lhs, double rhs)
 {
@@ -1552,10 +1564,10 @@ void Global_traj_class::generateTrajectory()
         point_to_point_single_line_trajectory_interpolator();
     }
 
-    export_global_trajectory();
+    // export_global_trajectory();
 
     // TEMP calculate v_l v_r in rpm
-    rpm_convert();
+    // rpm_convert();
 }
 
 // wheel velocities are in rad/s

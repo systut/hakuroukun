@@ -1,7 +1,11 @@
 <launch>
   <arg name="simulation" default="true" />
-
   <arg name="model" default="$(find hakuroukun_description)/urdf/hakuroukun.urdf.xacro"/>
+  <arg name="left_laser_filter_file" default="left_laser_filter.yaml"/>
+  <arg name="right_laser_filter_file" default="right_laser_filter.yaml"/>
+  <arg name="coverage_length" default="4"/>
+  <arg name="coverage_width" default="10"/>
+  <arg name="coverage_iteration" default="2"/>
 
   <param name="robot_description" command="$(find xacro)/xacro $(arg model)"/>
 
@@ -38,17 +42,33 @@
     </node>
   </group>
 
-  <node name="generate_trajectory_node" pkg="trajectory_generation" type="generate_trajectory" required="true" />
+  <node name="generate_trajectory_node" pkg="trajectory_generation" type="generate_trajectory" required="true" output="screen">
+    <param name="~iteration" value="${arg coverage_iteration}"/>
+    <param name="~length" value="${arg coverage_length}"/>
+    <param name="~width" value="${arg coverage_width}"/>
+  </node>
 
   <node name="obstacle_detection_node" pkg="obstacle_detection" type="obstacle_detection_node" required="true"/>
 
   <node name="map_server" pkg="map_server" type="map_server" args="$(find hakuroukun_launch)/maps/dummy_map.yml" />
 
+  <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="left_laser_filter">
+    <rosparam command="load" file="$(find hakuroukun_launch)/config/$(arg left_laser_filter_file)" />
+    <remap from="scan" to="/left_lidar/scan" />
+    <remap from="scan_filtered" to="/left_lidar/scan_filtered" />
+  </node>
+
+  <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="right_laser_filter">
+    <rosparam command="load" file="$(find hakuroukun_launch)/config/$(arg right_laser_filter_file)" />
+    <remap from="scan" to="/right_lidar/scan" />
+    <remap from="scan_filtered" to="/right_lidar/scan_filtered" />
+  </node>
+
 	<node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger" output="screen" required="true" >
     <param name="destination_frame" value="left_lidar"/>
     <param name="cloud_destination_topic" value="/merged_cloud"/>
     <param name="scan_destination_topic" value="/scan_multi"/>
-    <param name="laserscan_topics" value ="/left_lidar/scan /right_lidar/scan" /> 
+    <param name="laserscan_topics" value ="/left_lidar/scan_filtered /right_lidar/scan_filtered" /> 
     <param name="angle_min" value="-3.14"/>
     <param name="angle_max" value="3.14"/>
     <param name="angle_increment" value="0.0058"/>
