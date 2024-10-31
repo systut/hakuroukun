@@ -127,7 +127,7 @@ class PurePursuit:
         @return<int>: The index
         @return<float>: The lookahead distance
         """
-        if not self._old_nearest_point_index:            
+        if not self._old_nearest_point_index:
             all_distance = self._calculate_distance(self.trajectory.x, state)
 
             index = np.argmin(all_distance)

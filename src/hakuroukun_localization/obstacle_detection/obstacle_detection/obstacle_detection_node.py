@@ -19,14 +19,14 @@ class ObstacleDetectionNode(object):
 
         # Subscribe to lidar data
         self.lidar_sub = rospy.Subscriber(
-            "/scan", LaserScan, self._lidar_callback)
+            "/scan_multi", LaserScan, self._lidar_callback)
 
         # Publish Emergency Signal
         self.emergency_stop_pub = rospy.Publisher(
-            "/emergency_stop", Bool, queue_size=10)
+            "emergency_stop", Bool, queue_size=10)
 
         # Set the obstacle detection threshold
-        self.obstacle_threshold = 0.3  #diameter (m)
+        self.obstacle_threshold = 2.0  #diameter (m)
 
         # Initialize the emergency stop flag
         self.emergency_stop_signal = Bool()
@@ -34,6 +34,10 @@ class ObstacleDetectionNode(object):
 
     def _lidar_callback(self, lidar_data) -> None:
         # Process the data to detect obstacle
+        rospy.loginfo("Lidar data received")
+
+        self.emergency_stop_signal.data = False
+
         for i, distance in enumerate(lidar_data.ranges):
 
             if distance <= self.obstacle_threshold:
@@ -41,8 +45,9 @@ class ObstacleDetectionNode(object):
                 rospy.loginfo(f'Obstacle detecte at angle {i}: {distance} m away')
 
                 self.emergency_stop_signal.data = True
-                break
-
+                
+                return
+        
     def run(self):
         # Main loop
         while not rospy.is_shutdown():
