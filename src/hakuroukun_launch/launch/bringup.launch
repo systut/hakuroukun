@@ -1,5 +1,6 @@
 <launch>
   <arg name="simulation" default="true" />
+
   <arg name="model" default="$(find hakuroukun_description)/urdf/hakuroukun.urdf.xacro"/>
 
   <param name="robot_description" command="$(find xacro)/xacro $(arg model)"/>
@@ -18,7 +19,7 @@
         <param name="~publish_rate" value="0.1"/>
         <param name="~rotation_angle" value="-90"/>
         <param name="~gps_to_rear_axis" value="0.6"/>
-        <param name="~imu_offset" value="-0.18981711362095213"/>
+        <!-- <param name="~imu_offset" value="-0.18981711362095213"/> -->
     </node>
   </group>
 
@@ -55,4 +56,6 @@
     <param name="range_min" value="1.0"/>
     <param name="range_max" value="50.0"/>
 	</node>
+
+  <node name="rviz" pkg="rviz" type="rviz" required="true" />
 </launch>
