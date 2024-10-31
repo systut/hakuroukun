@@ -69,13 +69,13 @@
 	</gazebo>
 	</xacro:macro>
 
-  <xacro:macro name="lidar_sensor" params="parent lidar_name length radius mass ox oy oz update_rate min_angle max_angle min_range max_range range_resolution stdv" >
+  <xacro:macro name="lidar_sensor" params="parent lidar_name length radius mass ox oy oz roll pitch yaw update_rate min_angle max_angle min_range max_range range_resolution stdv" >
     <link name="${lidar_name}">
       <visual>
         <geometry>
           <cylinder length="${length}" radius="${radius}"/>
         </geometry>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <origin rpy="${roll} ${pitch} ${yaw}" xyz="0 0 0"/>
         <material name="Black"/>
       </visual>
       <xacro:inertial_cylinder_z mass="${mass}" radius="${radius}" height="${length}" />
@@ -85,7 +85,7 @@
   	</gazebo>
     <joint name="$[parent}_to_${lidar_name}" type="fixed">
       <parent link="${parent}"/>
-        <child link="${lidar_name}"/>
+      <child link="${lidar_name}"/>
       <origin xyz="${ox} ${oy} ${oz}"/>
     </joint>
 
