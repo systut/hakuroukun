@@ -122,7 +122,10 @@ class HakuroukunControl(object):
         # rospy.Subscriber("odometry/filtered/global", Odometry,
         #                  self._odom_callback)
 
-        rospy.Subscriber("ground_truth/odometry", Odometry,
+        # rospy.Subscriber("ground_truth/odometry", Odometry,
+        #                  self._hakuroukun_odom_callback)
+
+        rospy.Subscriber("/hakuroukun_pose/rear_wheel_odometry", Odometry,
                          self._hakuroukun_odom_callback)
 
         rospy.Subscriber("generate_trajectory_node/trajectory", Trajectory,
