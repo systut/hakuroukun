@@ -38,7 +38,11 @@
     </node>
   </group>
 
-  <node name="generate_trajectory_node" pkg="trajectory_generation" type="generate_trajectory" required="true" />
+  <node name="generate_trajectory_node" pkg="trajectory_generation" type="generate_trajectory" required="true" output="screen">
+    <param name="~iteration" value="2"/>
+    <param name="~length" value="4"/>
+    <param name="~width" value="10"/>
+  </node>
 
   <node name="obstacle_detection_node" pkg="obstacle_detection" type="obstacle_detection_node" required="true"/>
 

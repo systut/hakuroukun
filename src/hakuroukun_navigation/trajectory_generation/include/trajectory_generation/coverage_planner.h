@@ -19,7 +19,7 @@ public:
 
     bool generate(double length, double width, nav_msgs::Path &coverage_path);
 
-    bool generate(double length, double width, Eigen::MatrixXd &coverage_path);
+    bool generate(double length, double width, int iteration, Eigen::MatrixXd &coverage_path);
 
 private:
     double length_;
