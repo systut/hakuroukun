@@ -4,9 +4,7 @@
     <arg name="gui" default="true"/>
     <arg name="headless" default="false"/>
     <arg name="debug" default="false"/>
-    <arg name="robot_namespace" default="/"/>
     <arg name="world_name" default="worlds/empty.world"/>
-    <arg name="model" default="$(find hakuroukun_description)/urdf/hakuroukun.urdf.xacro"/>
 
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="debug" value="$(arg debug)" />
@@ -16,13 +14,6 @@
         <arg name="headless" value="$(arg headless)"/>
     </include>
 
-    <param name="robot_description" command="$(find xacro)/xacro $(arg model)"/>
-
-    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
-
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
-            respawn="false" output="screen" />
-
     <rosparam command="load" file="$(find hakuroukun_description)/config/ros_controllers.yaml" />
 
     <node name="gazebo_controller_spawner" pkg="controller_manager" type="spawner"
@@ -30,6 +21,4 @@
 
     <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
         args="-z 0.5 -x 0.0 -y 0.0 -unpause -urdf -model hakuroukun -param robot_description"/>
-
-    <node name="rviz" pkg="rviz" type="rviz" required="true" />
 </launch>

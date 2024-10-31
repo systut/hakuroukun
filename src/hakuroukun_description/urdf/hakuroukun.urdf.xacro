@@ -115,9 +115,9 @@
 
     <xacro:gps_sensor parent="rear_axis_center" gps_name="gps" gps_topic="fix" mass="${gps_mass}" sizex="0.03" sizey="0.03" sizez="0.005" ox="0.6" oy="0.0" oz="1.365" update_rate="${gps_update_rate}" initial_latitude="${gps_latitude}" initial_longitude="${gps_longitude}" noise="${gps_noise}" />
 
-    <xacro:lidar_sensor parent="rear_axis_center" lidar_name="right_lidar" length="${lidar_length}" radius="${lidar_radius}" mass="${lidar_mass}" ox="1.05" oy="-0.33" oz="0.3" update_rate="${lidar_update_rate}" min_angle="${lidar_min_angle}" max_angle="${lidar_max_angle}" min_range="${lidar_min_range}" max_range="${lidar_max_range}" range_resolution="${lidar_range_resolution}" stdv="${lidar_stdv}" />
+    <xacro:lidar_sensor parent="rear_axis_center" lidar_name="right_lidar" length="${lidar_length}" radius="${lidar_radius}" mass="${lidar_mass}" ox="1.05" oy="-0.33" oz="0.3" roll="0" pitch="0" yaw="${pi}" update_rate="${lidar_update_rate}" min_angle="${lidar_min_angle}" max_angle="${lidar_max_angle}" min_range="${lidar_min_range}" max_range="${lidar_max_range}" range_resolution="${lidar_range_resolution}" stdv="${lidar_stdv}" />
 
-    <xacro:lidar_sensor parent="rear_axis_center" lidar_name="left_lidar" length="${lidar_length}" radius="${lidar_radius}" mass="${lidar_mass}" ox="1.05" oy="0.33" oz="0.3" update_rate="${lidar_update_rate}" min_angle="${lidar_min_angle}" max_angle="${lidar_max_angle}" min_range="${lidar_min_range}" max_range="${lidar_max_range}" range_resolution="${lidar_range_resolution}" stdv="${lidar_stdv}" />
+    <xacro:lidar_sensor parent="rear_axis_center" lidar_name="left_lidar" length="${lidar_length}" radius="${lidar_radius}" mass="${lidar_mass}" ox="1.05" oy="0.33" oz="0.3" roll="0" pitch="0" yaw="${pi}" update_rate="${lidar_update_rate}" min_angle="${lidar_min_angle}" max_angle="${lidar_max_angle}" min_range="${lidar_min_range}" max_range="${lidar_max_range}" range_resolution="${lidar_range_resolution}" stdv="${lidar_stdv}" />
 
     <xacro:ground_truth parent="base_link" sizex="0.01" sizey="0.01" sizez="0.01" ox="0.0" oy="0.0" oz="0.01" mass="1"/>
 <!-- ////////////////////////////// GAZEBO ROS PLUGIN //////////////////////////////////// -->
