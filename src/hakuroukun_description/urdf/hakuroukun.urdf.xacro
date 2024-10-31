@@ -111,7 +111,7 @@
         kp="10000000" kd="40"
         file_name="package://hakuroukun_description/meshes/new_rear.stl" />
 
-    <xacro:imu_sensor parent="rear_axis_center" imu_name="imu" imu_topic="imu/data_raw" mass="${imu_mass}" sizex="0.03" sizey="0.03" sizez="0.005" ox="0.62" oy="0.25" oz="1.00" update_rate="${imu_update_rate}" noise="${imu_noise}" />
+    <xacro:imu_sensor parent="rear_axis_center" imu_name="imu" imu_topic="imu/data_raw" mass="${imu_mass}" sizex="0.03" sizey="0.03" sizez="0.005" ox="0.62" oy="-0.25" oz="1.00" update_rate="${imu_update_rate}" noise="${imu_noise}" />
 
     <xacro:gps_sensor parent="rear_axis_center" gps_name="gps" gps_topic="fix" mass="${gps_mass}" sizex="0.03" sizey="0.03" sizez="0.005" ox="0.6" oy="0.0" oz="1.365" update_rate="${gps_update_rate}" initial_latitude="${gps_latitude}" initial_longitude="${gps_longitude}" noise="${gps_noise}" />
 

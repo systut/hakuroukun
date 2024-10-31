@@ -24,11 +24,12 @@ class HakuroukunCommunicationNode(object):
     # ==========================================================================
     # PUBLICH FUNCTION
     # ==========================================================================
+
     def __init__(self) -> None:
         """! Class constructor
         """
         rospy.init_node("hakuroukun_communication_node", anonymous=True)
-        
+
         # Get parametes
         port = rospy.get_param("/hakuroukun_communication_node/port")
 
@@ -39,19 +40,19 @@ class HakuroukunCommunicationNode(object):
             "/hakuroukun_communication_node/controller_rate")
 
         self.connection = serial.Serial(port, int(baud_rate), timeout=None)
-        
+
         time.sleep(2)
 
         rospy.loginfo(f"Connected to {port} at {baud_rate} baud rate")
         self.cmd_controller_subscriber = rospy.Subscriber(
             "/cmd_controller", Float64MultiArray, self._cmd_controller_callback)
 
-        self.cmd_vel_subscriber = rospy.Subscriber(
-            "/cmd_vel", Twist, self._cmd_vel_callback)
+        # self.cmd_vel_subscriber = rospy.Subscriber(
+        #     "/cmd_vel", Twist, self._cmd_vel_callback)
 
         # Ros Timer
         self.timer = rospy.Timer(
-            rospy.Duration(1/float(controller_rate)), 
+            rospy.Duration(1/float(controller_rate)),
             self._timer_callback)
 
         self.sequence_id = 0
@@ -65,7 +66,7 @@ class HakuroukunCommunicationNode(object):
         self.cumulative_steering_angle = 0.0  # Initialize cumulative steering angle
 
         self.cmd_vel_flag = False
-        
+
         self.cmd_controller_flag = False
 
     def run(self) -> None:
@@ -95,7 +96,6 @@ class HakuroukunCommunicationNode(object):
 
         data = self.connection.readline()
 
-
     def _generate_command(self, acceleration_command, steering_command):
         """! Generate comment for serial communication
         @param[in] msg: velocity message in Twist form
@@ -109,7 +109,7 @@ class HakuroukunCommunicationNode(object):
         self.cmd_controller_msg = msg
 
         self.cmd_controller_flag = True
-    
+
     def _cmd_vel_callback(self, msg: Twist) -> None:
         """! Callback function for velocity subscriber
         @param[in] msg: velocity message in Twist form
@@ -158,11 +158,11 @@ class HakuroukunCommunicationNode(object):
 
             steering_angle = math.degrees(self.cmd_controller_msg.data[1])
 
-        ## NOTE: we should avoid magical number
+        # NOTE: we should avoid magical number
         if linear_velocity == 0:
             acceleration_command = 290
         else:
-            acceleration_command = (linear_velocity + 1)*350
+            acceleration_command = (linear_velocity + 1)*500
             # acceleration_command = (linear_velocity + 1.41) / 0.002817
 
         if acceleration_command > 680:
@@ -170,10 +170,9 @@ class HakuroukunCommunicationNode(object):
         elif acceleration_command < 290:
             acceleration_command = 290
 
-        ## NOTE: we should avoid magical number
-        steering_command = round(545+steering_angle/0.2362) # 538
+        # NOTE: we should avoid magical number
+        steering_command = round(510+steering_angle/0.2362)  # 538
         # steering_command = round(555+steering_angle/0.2362) # 538
-        
 
         if steering_command > 760:
             steering_command = 760

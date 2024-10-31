@@ -185,6 +185,7 @@ class HakuroukunControl(object):
 
         self._controller.update_trajectory(trajectory)
 
+
     def _hakuroukun_odom_callback(self, msg):
         """! Odometry callback
         @param msg<Odometry>: The odometry message
@@ -223,6 +224,11 @@ class HakuroukunControl(object):
 
             if self._controller_type == "pure_pursuit":
                 self._publish_lookahead_point()
+
+            if self._index < 10:
+                u[1] = 0.0
+
+                print(u)
 
             self._previous_u = u
 
