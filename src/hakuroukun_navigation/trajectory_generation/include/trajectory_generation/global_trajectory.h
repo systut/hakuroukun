@@ -12,6 +12,8 @@
 #include "trajectory_generation/utilities.h"
 #include <ros/ros.h>
 #include <nav_msgs/Path.h>
+#include <nav_msgs/OccupancyGrid.h>
+#include <nav_msgs/Odometry.h>
 #include <tf/LinearMath/Quaternion.h>
 #include <geometry_msgs/Quaternion.h>
 #include <tf/tf.h>
@@ -34,6 +36,8 @@ public:
     Eigen::VectorXd point_to_point_motion_single_line_jlap_solver(Eigen::RowVector2d& pos_start, double& path_vel_start, double& path_acc_start, Eigen::RowVector2d& pos_end, double& path_vel_end, double& path_acc_end);
     void point_to_point_single_line_trajectory_interpolator();
     void convertToFrontWheel(double x_dot, double y_dot, double phi_dot, double &v_front, double &delta);
+    void odomCallback(const nav_msgs::Odometry::ConstPtr &msg);
+    void costMapCallback(const nav_msgs::OccupancyGrid::ConstPtr &msg);
 
     void trajectory_interpolator();
     void export_global_trajectory();
@@ -56,6 +60,12 @@ private:
     ros::NodeHandle nh_;
     ros::Publisher traj_pub_;
     ros::Publisher path_pub_;
+    ros::Publisher emergency_stop_pub_;
+    ros::Subscriber odom_sub_;
+    ros::Subscriber map_sub_;
+
+    nav_msgs::OccupancyGrid map_;
+    nav_msgs::Odometry odom_;
 
     std::vector<Eigen::Vector3d> astar_path_;
 
