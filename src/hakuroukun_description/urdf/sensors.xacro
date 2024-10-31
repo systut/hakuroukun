@@ -75,7 +75,7 @@
         <geometry>
           <cylinder length="${length}" radius="${radius}"/>
         </geometry>
-        <origin rpy="${roll} ${pitch} ${yaw}" xyz="0 0 0"/>
+        <origin xyz="0 0 0"/>
         <material name="Black"/>
       </visual>
       <xacro:inertial_cylinder_z mass="${mass}" radius="${radius}" height="${length}" />
@@ -91,7 +91,7 @@
 
   	<gazebo reference="${lidar_name}">
       <sensor type="ray" name="${lidar_name}">
-        <pose>0 0 0 0 0 ${yaw}</pose>
+        <pose>0 0 0 0 0 0</pose>
         <visualize>false</visualize>
       	<update_rate>${update_rate}</update_rate>
       	<ray>
