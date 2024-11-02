@@ -261,11 +261,9 @@ class HakuroukunPose:
         else:
             self._yaw = self._integrate_yaw(self._yaw, self.angular_velocity_z, 0.01)
 
-        rospy.loginfo(math.degrees(self._yaw))
-
-        (self.quaternion_x, self.quaternion_y,
-         self.quaternion_z, self.quaternion_w) = tf.transformations. \
-            quaternion_from_euler(0, 0, self._yaw)
+        # (self.quaternion_x, self.quaternion_y,
+        #  self.quaternion_z, self.quaternion_w) = tf.transformations. \
+        #     quaternion_from_euler(0, 0, self._yaw)
 
     def _publish_rear_wheel_odometry(self, timer):
         """! Publish rear wheel pose method

@@ -29,13 +29,13 @@ int main(int argc, char **argv)
     CoveragePlanner coverage_planner;
     
     int iteration;
-    ros::param::param<int>("~iteration", iteration, 2);
+    ros::param::param<int>("~iteration", iteration, 3);
 
     double length;
-    ros::param::param<double>("~length", length, 13.0);
+    ros::param::param<double>("~length", length, 6.0);
 
     double width;
-    ros::param::param<double>("~width", width, 13.0);
+    ros::param::param<double>("~width", width, 8);
 
     Eigen::MatrixXd coverage_path;
 

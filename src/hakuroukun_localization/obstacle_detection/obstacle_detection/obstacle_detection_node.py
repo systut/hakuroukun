@@ -26,7 +26,7 @@ class ObstacleDetectionNode(object):
             "emergency_stop", Bool, queue_size=10)
 
         # Set the obstacle detection threshold
-        self.obstacle_threshold = 2.0  #diameter (m)
+        self.obstacle_threshold = 2.5  #diameter (m)
 
         # Initialize the emergency stop flag
         self.emergency_stop_signal = Bool()

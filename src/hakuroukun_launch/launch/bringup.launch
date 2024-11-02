@@ -1,10 +1,10 @@
 <launch>
-    <arg name="simulation" default="true" />
+    <arg name="simulation" default="false" />
     <arg name="model" default="$(find hakuroukun_description)/urdf/hakuroukun.urdf.xacro"/>
     <arg name="left_laser_filter_file" default="left_laser_filter.yaml"/>
     <arg name="right_laser_filter_file" default="right_laser_filter.yaml"/>
-    <arg name="coverage_length" default="4"/>
-    <arg name="coverage_width" default="10"/>
+    <arg name="coverage_length" default="6"/>
+    <arg name="coverage_width" default="8.5"/>
     <arg name="coverage_iteration" default="2"/>
 
     <param name="robot_description" command="$(find xacro)/xacro $(arg model)"/>
@@ -24,8 +24,8 @@
             <param name="~rotation_angle" value="-90"/>
             <param name="~gps_to_rear_axis" value="0.6"/>
             <param name="~imu_mode" value="quaternion"/>
-            <param name="~imu_epsilon" value="0.0001"/>
-            <param name="~imu_calibration_threshold" value="400"/>
+            <param name="~imu_epsilon" value="0.05"/>
+            <param name="~imu_calibration_threshold" value="5"/>
         </node>
     </group>
 
@@ -34,14 +34,17 @@
 
         <include file="$(find hakuroukun_launch)/launch/sensor_bringup.launch" />
 
+        <include file="$(find hakuroukun_launch)/launch/lidar.launch" />
+
         <node name="hakuroukun_pose" pkg="hakuroukun_pose" type="hakuroukun_pose_node" output="screen" required="true" >
             <param name="~log" value="true"/>
             <param name="~log_folder" value="$(find hakuroukun_pose)/log_data"/>
             <param name="~publish_rate" value="0.1"/>
-            <param name="~rotation_angle" value="-7.969437553467237"/>
+            <!-- <param name="~rotation_angle" value="96.4379083454036"/> -->
+            <param name="~rotation_angle" value="45.67562284610588"/>
             <param name="~gps_to_rear_axis" value="0.6"/>
             <param name="~imu_mode" value="quaternion"/>
-            <param name="~imu_epsilon" value="0.0001"/>
+            <param name="~imu_epsilon" value="0.001"/>
             <param name="~imu_calibration_threshold" value="400"/>
         </node>
     </group>
@@ -77,7 +80,7 @@
         <param name="angle_max" value="3.14"/>
         <param name="angle_increment" value="0.0058"/>
         <param name="scan_time" value="0.0333333"/>
-        <param name="range_min" value="0.5"/>
+        <param name="range_min" value="0.1"/>
         <param name="range_max" value="50.0"/>
     </node>
 
