@@ -120,6 +120,8 @@
     <xacro:lidar_sensor parent="rear_axis_center" lidar_name="left_lidar" length="${lidar_length}" radius="${lidar_radius}" mass="${lidar_mass}" ox="1.05" oy="0.33" oz="0.3" roll="0" pitch="0" yaw="${pi}" update_rate="${lidar_update_rate}" min_angle="${lidar_min_angle}" max_angle="${lidar_max_angle}" min_range="${lidar_min_range}" max_range="${lidar_max_range}" range_resolution="${lidar_range_resolution}" stdv="${lidar_stdv}" />
 
     <xacro:ground_truth parent="base_link" sizex="0.01" sizey="0.01" sizez="0.01" ox="0.0" oy="0.0" oz="0.01" mass="1"/>
+
+    <xacro:camera_sensor parent="rear_axis_center" camera_name="camera" mass="0.1" sizex="0.03" sizey="0.1" sizez="0.03" ox="1.2" oy="0.0" oz="0.8"/>
 <!-- ////////////////////////////// GAZEBO ROS PLUGIN //////////////////////////////////// -->
 
     <gazebo>

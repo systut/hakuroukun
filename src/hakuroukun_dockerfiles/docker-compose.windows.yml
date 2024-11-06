@@ -18,6 +18,8 @@ services:
     container_name: hakuroukun-robot
     volumes:
       - "../:/root/catkin_ws/src/"
+    environment:
+      - "GAZEBO_MODEL_PATH=/root/catkin_ws/src/hakuroukun_launch/models/:$GAZEBO_MODEL_PATH"
     privileged: True
     network_mode: host
     tty: True
