@@ -27,6 +27,7 @@ services:
       - "DISPLAY=$DISPLAY"
       - "XAUTHORITY=/tmp/.docker.xauth"
       - "QT_X11_NO_MITSHM=1"
+      - "GAZEBO_MODEL_PATH=/root/catkin_ws/src/hakuroukun_launch/models/:$GAZEBO_MODEL_PATH"
     privileged: True
     network_mode: host
     entrypoint:

@@ -149,4 +149,46 @@
       </plugin>
     </gazebo>
   </xacro:macro>
+  <xacro:macro name="camera_sensor" params="parent camera_name mass ox oy oz sizex sizey sizez">
+    <link name="${camera_name}">
+      <visual>
+        <geometry>
+          <box size="${sizex} ${sizey} ${sizez}"/>
+        </geometry>
+        <material name="White"/>
+      </visual>
+      <xacro:inertial_box mass="${mass}" x="${sizex}" y="${sizey}" z="${sizez}" />
+    </link>
+    <joint name="${parent}_to_${camera_name}" type="fixed">
+      <parent link="${parent}"/>
+      <child link="${camera_name}"/>
+      <origin xyz="${ox} ${oy} ${oz}"/>
+    </joint>
+    <gazebo reference="${camera_name}">
+       <sensor type="camera" name="${camera_name}_camera">
+        <always_on>true</always_on>
+        <update_rate>30.0</update_rate>
+        <visualize>true</visualize>
+        <camera name="${camera_name}_camera">
+          <horizontal_fov>1.3962634</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+        </camera>
+        <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+          <updateRate>30.0</updateRate>
+          <cameraName>${camera_name}_camera</cameraName>
+          <imageTopicName>${camera_name}/image_raw</imageTopicName>
+          <cameraInfoTopicName>${camera_name}/camera_info</cameraInfoTopicName>
+          <frameName>${camera_name}</frameName>
+        </plugin>
+      </sensor>
+    </gazebo>
+  </xacro:macro>
 </robot>
