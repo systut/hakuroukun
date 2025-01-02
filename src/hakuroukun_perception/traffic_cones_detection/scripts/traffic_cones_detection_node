@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+##
+# @file traffic_cones_detection_node
+#
+# @brief Provides a ROS node to detect traffic cones. This file is
+# to hide the extension of a python script.
+#
+# @section author_doxygen_example Author(s)
+# - Created by Tran Viet Thanh on 02/01/2025.
+#
+# Copyright (c) 2024 System Engineering Laboratory.  All rights reserved.
+
+# External libraries
+import rospy
+from traffic_cones_detection.traffic_cones_detection import \
+    TrafficConesDetection
+
+# Main function
+
+try:
+    traffic_cones_detection = TrafficConesDetection()
+
+    traffic_cones_detection.run()
+
+except rospy.ROSInterruptException:
+
+    pass
+
+finally:
+
+    rospy.loginfo("Shutting down Traffic Cones Detection Node")

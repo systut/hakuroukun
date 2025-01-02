@@ -21,6 +21,13 @@ services:
     environment:
       - "GAZEBO_MODEL_PATH=/root/catkin_ws/src/hakuroukun_launch/models/:$GAZEBO_MODEL_PATH"
     privileged: True
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     network_mode: host
     tty: True
     stdin_open: True
