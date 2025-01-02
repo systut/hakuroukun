@@ -4,7 +4,7 @@
     <arg name="serial_ON" default="true"/>
     
     <!-- Arduino Parameters -->
-    <arg name="arduino_port" default="/dev/arduino"/>
+    <arg name="arduino_port" default="/dev/ttyACM1"/>
     <arg name="arduino_baud_rate" default="115200" />
     <arg name="arduino_controller_rate" default="1" />
 
