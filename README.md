@@ -21,7 +21,11 @@ cd ./src/hakuroukun_dockerfiles/
 chmod +x ./install/xauth.sh && ./install/xauth.sh
 ```
 
-### With pure pursuit controller 
+### Simulation : pure pursuit controller 
+Change mode in hakuroukun_launch/launch/bringup.launch
+```
+    <arg name="simulation" default="true" />
+```
 To run gazebo with ekf localization 
 ```
 docker exec -it hakuroukun-robot bash 
@@ -35,27 +39,32 @@ roslaunch hakuroukun_control hakuroukun_control.launch
 ```
 
 ### Experiment : To run robot with any controller:
-
 0. Check ```cat /dev/ttyACM*``` for GPS, Arduino, IMU
 
-1. Sensor bringup :
+1. Change mode in hakuroukun_launch/launch/bringup.launch
+```
+    <arg name="simulation" default="false" />
+```
+2. GPS Rotation angle _ calibration :
     - need to calculate and update : ``` <param name="~rotation_angle" value="-90"/> ```
-    ```
-    docker exec -it hakuroukun-robot bash 
-    roslaunch hakuroukun_launch sensor_bringup.launch
-    ```
+    - how measure : 
+        - The robot in default position is heading in y axis
+        - Run the robot and get coordinate from GPS by manual mode
+        - Calculate the rotation angle by coordinate
 
-2. Arduino firmware :
+3. Arduino firmware :
     - Upload `${hakuroukun_communication}/firmware/motor_control/motor_control.ino` to Arduino with Arduino IDE.
 
-3. Communication bringup :
+4. Bringup execution :
+In the 1st terminal
     ```
     docker exec -it hakuroukun-robot bash
-    roslaunch hakuroukun_launch communication_bringup.launch
+    roslaunch hakuroukun_launch bringup.launch
     ```
 
 4. Controller execution : 
+In the 2nd terminal
     ```
     docker exec -it hakuroukun-robot bash
-    roslaunch hakuroukun_launch controller.launch
+    roslaunch hakuroukun_launch experiment_controller.launch
     ```
