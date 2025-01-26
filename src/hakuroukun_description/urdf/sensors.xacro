@@ -6,7 +6,7 @@
         <geometry>
           <box size="${sizex} ${sizey} ${sizez}"/>
         </geometry>
-        <material name="White"/>
+        <material name="Grey"/>
       </visual>
       <xacro:inertial_box mass="${mass}" x="${sizex}" y="${sizey}" z="${sizez}" />
     </link>
@@ -16,7 +16,7 @@
       <origin xyz="${ox} ${oy} ${oz}"/>
     </joint>
     <gazebo reference="${imu_name}">
-      <material>Gazebo/White</material>
+      <material>Gazebo/Grey</material>
       <gravity>true</gravity>
       <sensor name="${imu_name}_sensor" type="imu">
         <always_on>true</always_on>
@@ -44,10 +44,13 @@
 	    <geometry>
 	      <box size="${sizex} ${sizey} ${sizez}"/>
 		</geometry>
-		<material name="White"/>
+		<material name="Grey"/>
 	  </visual>	
 	  <xacro:inertial_box mass="${mass}" x="${sizex}" y="${sizey}" z="${sizez}" />
 	</link>
+  <gazebo reference="${gps_name}">
+    <material>Gazebo/Grey</material>
+  </gazebo>
 	<joint name="${parent}_to_${gps_name}" type="fixed">
 	  <parent link="${parent}"/>
 	  <child link="${gps_name}"/>
@@ -75,13 +78,13 @@
         <geometry>
           <cylinder length="${length}" radius="${radius}"/>
         </geometry>
-        <origin xyz="0 0 0"/>
-        <material name="Black"/>
+        <origin xyz="0 0 0.05"/>
+        <material name="DarkGrey"/>
       </visual>
       <xacro:inertial_cylinder_z mass="${mass}" radius="${radius}" height="${length}" />
     </link>
     <gazebo reference="${lidar_name}">
-      <material>Gazebo/Black</material>
+      <material>Gazebo/DarkGrey</material>
   	</gazebo>
     <joint name="$[parent}_to_${lidar_name}" type="fixed">
       <parent link="${parent}"/>
@@ -97,7 +100,7 @@
       	<ray>
           <scan>
             <horizontal>
-              <samples>400</samples>
+              <samples>360</samples>
               <resolution>1</resolution>
               <min_angle>${min_angle}</min_angle>
               <max_angle>${max_angle}</max_angle>
@@ -149,46 +152,45 @@
       </plugin>
     </gazebo>
   </xacro:macro>
-  <xacro:macro name="camera_sensor" params="parent camera_name mass ox oy oz sizex sizey sizez">
+
+  <xacro:macro name="zed2_camera" params="camera_name parent mass ox oy oz roll pitch yaw">
+    <!-- Define the camera link -->
     <link name="${camera_name}">
-      <visual>
-        <geometry>
-          <box size="${sizex} ${sizey} ${sizez}"/>
-        </geometry>
-        <material name="White"/>
-      </visual>
-      <xacro:inertial_box mass="${mass}" x="${sizex}" y="${sizey}" z="${sizez}" />
+        <!-- Visual representation -->
+        <visual>
+            <geometry>
+                <mesh filename="package://hakuroukun_description/meshes/ZED2.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 ${-pi/2}"/>
+            <material name="DarkGrey"/>
+        </visual>
+
+        <!-- Collision representation -->
+        <collision>
+            <geometry>
+                <mesh filename="package://hakuroukun_description/meshes/ZED2.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 ${-pi/2}"/>
+        </collision>
+
+        <!-- Inertial properties -->
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="${mass}"/>
+            <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+        </inertial>
     </link>
+
+    <!-- Joint connecting the camera to the parent link -->
     <joint name="${parent}_to_${camera_name}" type="fixed">
-      <parent link="${parent}"/>
-      <child link="${camera_name}"/>
-      <origin xyz="${ox} ${oy} ${oz}"/>
+        <parent link="${parent}"/>
+        <child link="${camera_name}"/>
+        <origin xyz="${ox} ${oy} ${oz}" rpy="${roll} ${pitch} ${yaw}"/>
     </joint>
+
     <gazebo reference="${camera_name}">
-       <sensor type="camera" name="${camera_name}_camera">
-        <always_on>true</always_on>
-        <update_rate>30.0</update_rate>
-        <visualize>true</visualize>
-        <camera name="${camera_name}_camera">
-          <horizontal_fov>1.3962634</horizontal_fov>
-          <image>
-            <width>640</width>
-            <height>480</height>
-            <format>R8G8B8</format>
-          </image>
-          <clip>
-            <near>0.1</near>
-            <far>100</far>
-          </clip>
-        </camera>
-        <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
-          <updateRate>30.0</updateRate>
-          <cameraName>${camera_name}_camera</cameraName>
-          <imageTopicName>${camera_name}/image_raw</imageTopicName>
-          <cameraInfoTopicName>${camera_name}/camera_info</cameraInfoTopicName>
-          <frameName>${camera_name}</frameName>
-        </plugin>
-      </sensor>
+        <material>Gazebo/DarkGrey</material>
     </gazebo>
   </xacro:macro>
+
 </robot>

@@ -81,6 +81,24 @@
         <origin xyz="${base_link_to_robot_frame_X} ${base_link_to_robot_frame_Y} ${base_link_to_robot_frame_Z}" />
     </joint>
 
+    <!-- lidar center-->
+    <link name="lidar_center">
+        <visual>
+        <geometry>
+            <box size="0.01 0.01 0.01"/>
+        </geometry>
+        <material name="Red"/>
+        </visual>
+    </link>
+    <gazebo reference="lidar_center">
+        <material>Gazebo/Red</material>
+    </gazebo>
+    <joint name="rear_axis_center_to_lidar_center" type="fixed">
+        <parent link="rear_axis_center" />
+        <child link="lidar_center" />
+        <origin xyz="1.03 0.0 ${0.365-rear_radius}" />
+    </joint>
+
 <!-- ///////////////////////////////////////// STEERING //////////////////////////////////// -->
     <xacro:steering_continuous name="front_wheel_shaft" 
         parent_link="rear_axis_center" 
@@ -97,7 +115,7 @@
         radius="${radius}"
         thickness="${thickness}" 
         x="0.0" y="0.0" z="0.0" 
-        mu1="0.6" mu2="0.6" 
+        mu1="0.7" mu2="0.7" 
         kp="10000000" kd="40"
         file_name="package://hakuroukun_description/meshes/front_wheel.stl" />
 
@@ -107,27 +125,27 @@
         radius="${rear_radius}"
         thickness="${rear_thickness}" 
         x="0.0" y="0.0" z="-0.02" 
-        mu1="0.6" mu2="0.6" 
+        mu1="0.7" mu2="0.7" 
         kp="10000000" kd="40"
         file_name="package://hakuroukun_description/meshes/new_rear.stl" />
 
-    <xacro:imu_sensor parent="rear_axis_center" imu_name="imu" imu_topic="imu/data_raw" mass="${imu_mass}" sizex="0.03" sizey="0.03" sizez="0.005" ox="0.62" oy="-0.25" oz="1.00" update_rate="${imu_update_rate}" noise="${imu_noise}" />
+    <xacro:imu_sensor parent="rear_axis_center" imu_name="imu" imu_topic="imu/data_raw" mass="${imu_mass}" sizex="0.03" sizey="0.03" sizez="0.005" ox="0.62" oy="-0.25" oz="${1.00-rear_radius}" update_rate="${imu_update_rate}" noise="${imu_noise}" />
 
-    <xacro:gps_sensor parent="rear_axis_center" gps_name="gps" gps_topic="fix" mass="${gps_mass}" sizex="0.03" sizey="0.03" sizez="0.005" ox="0.6" oy="0.0" oz="1.365" update_rate="${gps_update_rate}" initial_latitude="${gps_latitude}" initial_longitude="${gps_longitude}" noise="${gps_noise}" />
+    <xacro:gps_sensor parent="rear_axis_center" gps_name="gps" gps_topic="fix" mass="${gps_mass}" sizex="0.03" sizey="0.03" sizez="0.005" ox="0.6" oy="0.0" oz="${1.365-rear_radius}" update_rate="${gps_update_rate}" initial_latitude="${gps_latitude}" initial_longitude="${gps_longitude}" noise="${gps_noise}" />
 
-    <xacro:lidar_sensor parent="rear_axis_center" lidar_name="right_lidar" length="${lidar_length}" radius="${lidar_radius}" mass="${lidar_mass}" ox="1.05" oy="-0.33" oz="0.3" roll="0" pitch="0" yaw="${pi}" update_rate="${lidar_update_rate}" min_angle="${lidar_min_angle}" max_angle="${lidar_max_angle}" min_range="${lidar_min_range}" max_range="${lidar_max_range}" range_resolution="${lidar_range_resolution}" stdv="${lidar_stdv}" />
+    <xacro:lidar_sensor parent="rear_axis_center" lidar_name="right_lidar" length="${lidar_length}" radius="${lidar_radius}" mass="${lidar_mass}" ox="1.03" oy="-0.31" oz="${0.365-rear_radius}" roll="0" pitch="0" yaw="${pi}" update_rate="${lidar_update_rate}" min_angle="${lidar_min_angle}" max_angle="${lidar_max_angle}" min_range="${lidar_min_range}" max_range="${lidar_max_range}" range_resolution="${lidar_range_resolution}" stdv="${lidar_stdv}" />
 
-    <xacro:lidar_sensor parent="rear_axis_center" lidar_name="left_lidar" length="${lidar_length}" radius="${lidar_radius}" mass="${lidar_mass}" ox="1.05" oy="0.33" oz="0.3" roll="0" pitch="0" yaw="${pi}" update_rate="${lidar_update_rate}" min_angle="${lidar_min_angle}" max_angle="${lidar_max_angle}" min_range="${lidar_min_range}" max_range="${lidar_max_range}" range_resolution="${lidar_range_resolution}" stdv="${lidar_stdv}" />
+    <xacro:lidar_sensor parent="rear_axis_center" lidar_name="left_lidar" length="${lidar_length}" radius="${lidar_radius}" mass="${lidar_mass}" ox="1.03" oy="0.31" oz="${0.365-rear_radius}" roll="0" pitch="0" yaw="${pi}" update_rate="${lidar_update_rate}" min_angle="${lidar_min_angle}" max_angle="${lidar_max_angle}" min_range="${lidar_min_range}" max_range="${lidar_max_range}" range_resolution="${lidar_range_resolution}" stdv="${lidar_stdv}" />
 
     <xacro:ground_truth parent="base_link" sizex="0.01" sizey="0.01" sizez="0.01" ox="0.0" oy="0.0" oz="0.01" mass="1"/>
 
-    <xacro:camera_sensor parent="rear_axis_center" camera_name="camera" mass="0.1" sizex="0.03" sizey="0.1" sizez="0.03" ox="1.2" oy="0.0" oz="0.8"/>
-<!-- ////////////////////////////// GAZEBO ROS PLUGIN //////////////////////////////////// -->
+    <xacro:zed2_camera camera_name="camera_link" parent="rear_axis_center" mass="0.06" ox="1.01" oy="0.0" oz="${1.195-rear_radius}" roll="0" pitch="0" yaw="0" />
+
+    <!-- ////////////////////////////// GAZEBO ROS PLUGIN //////////////////////////////////// -->
 
     <gazebo>
         <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-            <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
-            <legacyModeNS>false</legacyModeNS>
+            <robotNamespace>/</robotNamespace>
         </plugin>
     </gazebo>
 

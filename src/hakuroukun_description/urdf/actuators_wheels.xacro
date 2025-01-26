@@ -106,7 +106,7 @@
                     <mesh filename="${file_name}" scale="0.001 0.001 0.001"/>
                 </geometry>
                 <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-                <material name="White"/>
+                <material name="DarkGrey"/>
             </visual>
 
             <collision>
@@ -148,7 +148,7 @@
         </transmission> 
 
         <gazebo reference="${name}">
-            <material>Gazebo/Grey</material>
+            <material>Gazebo/DarkGrey</material>
         </gazebo>
 
     </xacro:macro>
@@ -160,7 +160,7 @@
                     <mesh filename="${file_name}" scale="0.001 0.001 0.001"/>
                 </geometry>
                 <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-                <material name="White"/>
+                <material name="DarkGrey"/>
             </visual>
 
             <collision>
@@ -203,7 +203,7 @@
         </transmission> 
 
         <gazebo reference="${name}">
-            <material>Gazebo/Grey</material>
+            <material>Gazebo/DarkGrey</material>
         </gazebo>
 
     </xacro:macro>
@@ -215,7 +215,7 @@
                     <mesh filename="${file_name}" scale="0.001 0.001 0.001"/>
                 </geometry>
                 <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-                <material name="White"/>
+                <material name="DarkGrey"/>
             </visual>
 
             <collision>
@@ -257,7 +257,7 @@
         </transmission>  -->
 
         <gazebo reference="${name}">
-            <material>Gazebo/Grey</material>
+            <material>Gazebo/DarkGrey</material>
         </gazebo>
 
     </xacro:macro>
