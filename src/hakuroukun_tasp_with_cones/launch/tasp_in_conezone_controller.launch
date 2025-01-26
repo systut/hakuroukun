@@ -1,0 +1,38 @@
+<launch>
+    <!-- Arguments -->
+    <arg name="open_rviz" default="true"/>
+    <arg name="simulation" default="true"/>
+
+    <!-- Load parameters from YAML -->
+    <rosparam file="$(find hakuroukun_tasp_with_cones)/config/tasp_config.yaml" command="load" />
+    <rosparam file="$(find hakuroukun_tasp_with_cones)/config/path_follower_config.yaml" command="load" />
+
+    <!-- TASP with cones -->
+    <node pkg="hakuroukun_tasp_with_cones" type="main.py" name="tasp_with_cones" output="screen">
+    </node>
+
+    <!-- Motion control -->
+    <node pkg="hakuroukun_tasp_with_cones" type="path_follower.py" name="path_follower" output="screen">
+        <remap from="cmd_controller" to="/hakuroukun_steering_controller/cmd_controller"/>
+    </node>
+
+    <!-- Cones detector simulation -->
+    <group if="$(arg simulation)"> 
+        <node pkg="hakuroukun_tasp_with_cones" type="cones_detector_simulation.py" name="cones_detector_simulation" output="screen"/>
+    </group>
+
+    <!-- Start costmap_2d node with your parameter files -->
+    <node pkg="costmap_2d" type="costmap_2d_node" name="my_costmap_node" output="screen">
+        <rosparam file="$(find hakuroukun_tasp_with_cones)/config/my_costmap_params.yaml" command="load" ns="costmap" />
+    </node>
+
+    <!-- Cone zone creator -->
+    <node pkg="hakuroukun_tasp_with_cones" type="cone_zone_creator.py" name="cone_zone_creator" output="screen">
+    </node>
+
+    <!-- rviz -->
+    <group if="$(arg open_rviz)"> 
+        <node pkg="rviz" type="rviz" name="rviz" required="true"
+              args="-d $(find hakuroukun_tasp_with_cones)/rviz/tasp_with_cones.rviz"/>
+    </group>
+</launch>

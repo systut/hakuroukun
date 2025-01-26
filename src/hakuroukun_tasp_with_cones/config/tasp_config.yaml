@@ -1,0 +1,16 @@
+start_pose: [0, 0, 0]  # [x, y, theta]
+camera_fov: 90           # Degrees
+camera_range: 5          # Meters
+map_resolution: 0.05     # Meters per cell
+map_width: 1000          # Number of cells
+map_height: 1000         # Number of cells
+map_origin: [-25, -25]   # [x, y]
+tasp_cell_size: 1        # Size of TASP planning cells
+inflated_tasp_cell: 3    # inflate TASP cell x times
+tasp_goal_tolerance: 1.5 # Meters
+wait_duration: 3.0       # Seconds to allow for map updates
+rate_hz: 2               # Main loop rate
+
+# Parameters for TASPPathPlanner
+remove_btp_threshold_distance: 0.1 # Threshold for removing points near the chosen goal from BTP
+sampling_resolution: 0.1     # Sampling resolution for checking area occupancy
