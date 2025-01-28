@@ -42,11 +42,15 @@ class HakuroukunPose:
 
         rospy.init_node("robot_localization", anonymous=True)
 
+        self._yaw = 0.0  # Initialize yaw to a default value (e.g., 0.0 radians)
+        
         self._register_parameters()
 
         self._get_initial_orientation()
 
         self._get_initial_pose()
+
+        rospy.sleep(3)
 
         self._register_publishers()
 
@@ -54,9 +58,9 @@ class HakuroukunPose:
 
         self._register_log_data()
 
-        rospy.sleep(1)
-
         self._register_timers()
+
+        self.previous_yaw = self._imu_offset
 
     def run(self):
         """! Start ros node
@@ -101,9 +105,6 @@ class HakuroukunPose:
         """
         self._rear_odom_pub = rospy.Publisher(
             "/hakuroukun_pose/rear_wheel_odometry", Odometry, queue_size=10)
-
-        self._orientation_pub = rospy.Publisher(
-            "/hakuroukun_pose/orientation", Float64, queue_size=1)
 
         self._tf_broadcaster = tf.TransformBroadcaster()
 
@@ -170,7 +171,7 @@ class HakuroukunPose:
             while not rospy.is_shutdown() and (time.time() - start_time < 30):
                 try:
                     data = rospy.wait_for_message(
-                        "/imu/data_raw", Imu, timeout=1.0)
+                        "/imu/data_raw", Imu, timeout=3.0)
 
                     euler = tf.transformations.euler_from_quaternion(
                         [data.orientation.x,
@@ -189,10 +190,10 @@ class HakuroukunPose:
                             subtracted_values.pop(0)
 
                         if len(subtracted_values) == self._imu_calibration_threshold and all(val < self._imu_epsilon for val in subtracted_values):
-                            rospy.loginfo(
-                                "Breaking out: last 200 differences are zero.")
+                            rospy.loginfo(f"Breaking out: last {self._imu_calibration_threshold} differences are zero.")
 
                             self._imu_offset = euler[2]
+                            print('_imu_offset',self._imu_offset)
 
                             break
 
@@ -250,28 +251,50 @@ class HakuroukunPose:
 
             self.euler = tf.transformations.euler_from_quaternion(
                 [self.quaternion_x,
-                 self.quaternion_y,
-                 self.quaternion_z,
-                 self.quaternion_w])
+                self.quaternion_y,
+                self.quaternion_z,
+                self.quaternion_w])
 
-            self._yaw = self.euler[2] - self._imu_offset
-
-            self._yaw = math.atan2(math.sin(self._yaw), math.cos(self._yaw))
+            new_yaw = self.euler[2] - self._imu_offset
+            new_yaw = math.atan2(math.sin(new_yaw), math.cos(new_yaw))  # Normalize yaw
 
         else:
-            self._yaw = self._integrate_yaw(self._yaw, self.angular_velocity_z, 0.01)
+            new_yaw = self._integrate_yaw(self._yaw, self.angular_velocity_z, 0.01)
 
-        # (self.quaternion_x, self.quaternion_y,
-        #  self.quaternion_z, self.quaternion_w) = tf.transformations. \
-        #     quaternion_from_euler(0, 0, self._yaw)
+        # Filter noise using a threshold
+        threshold = 0.1  # Adjust this value based on your noise tolerance
+
+        if hasattr(self, 'previous_yaw'):  # Check if previous_yaw exists
+            yaw_change = abs(new_yaw - self.previous_yaw)
+            if yaw_change > math.pi:  # Handle wrap-around
+                yaw_change = abs(yaw_change - 2 * math.pi)
+
+            if yaw_change < threshold:  # Only update yaw if change is below threshold
+                self._yaw = new_yaw
+            else:
+                # Ignore the update if the change is too large (noise detected)
+                pass
+        else:
+            # Initialize previous_yaw for the first callback
+            self._yaw = new_yaw
+
+        # Update previous_yaw
+        self.previous_yaw = self._yaw
+
+        (self.quaternion_x, self.quaternion_y,
+        self.quaternion_z, self.quaternion_w) = tf.transformations.quaternion_from_euler(0, 0, self._yaw)
 
     def _publish_rear_wheel_odometry(self, timer):
         """! Publish rear wheel pose method
         @param timer: Timer (unused)
         """
+        if not hasattr(self, '_x_rear') or not hasattr(self, '_y_rear'):
+            rospy.logwarn("GPS data not yet received; skipping odometry publish.")
+            return
         rear_odom_msg = Odometry()
         rear_odom_msg.header.stamp = rospy.get_rostime()
-        rear_odom_msg.header.frame_id = "base_link"
+        rear_odom_msg.header.frame_id = "odom"
+        rear_odom_msg.child_frame_id = "base_link"
 
         rear_odom_msg.pose.pose.position.x = self._x_rear
         rear_odom_msg.pose.pose.position.y = self._y_rear
@@ -288,12 +311,11 @@ class HakuroukunPose:
         self._rear_odom_pub.publish(rear_odom_msg)
 
         self._tf_broadcaster.sendTransform(
-            (self._x_rear, self._y_rear, 0),
-            (self.quaternion_x, self.quaternion_y,
-             self.quaternion_z, self.quaternion_w),
-            rospy.Time.now(),
-            "base_link",
-            "map"
+            (self._x_rear, self._y_rear, 0.0),  # Translation
+            (self.quaternion_x, self.quaternion_y, self.quaternion_z, self.quaternion_w),  # Rotation (quaternion)
+            rospy.Time.now(),  # Timestamp
+            "base_link",  # Child frame
+            "odom"         # Parent frame
         )
 
     def _log_pose(self, timer):

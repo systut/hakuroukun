@@ -107,7 +107,7 @@ if __name__ == "__main__":
     rospy.init_node("tasp_with_cones")
 
     # Load parameters from the parameter server
-    start_pose = rospy.get_param("start_pose", [0, 0, 0.0])
+    start_pose = rospy.get_param("start_pose", [0, 0, 0])
     camera_fov = math.radians(rospy.get_param("camera_fov", 70))
     camera_range = rospy.get_param("camera_range", 4) / math.cos(camera_fov / 2)
     map_resolution = rospy.get_param("map_resolution", 0.05)

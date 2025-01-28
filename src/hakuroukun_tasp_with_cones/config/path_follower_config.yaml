@@ -1,9 +1,6 @@
 pure_pursuit_hakuroukun:
-  max_speed: 0.5            # Maximum speed [m/s]
-  min_speed: 0.3            # Miximum speed [m/s]
-  max_accel: 2.0            # Maximum acceleration [m/s^2]
-  max_steering: 0.78        # Maximum steering angle [rad] 45 40 degree 0.698132
-  min_steering: -0.78       # Minimum steering angle [rad] -45 -40 degree -0.698132
+  max_speed: 0.6            # Maximum speed [m/s]
+  min_speed: 0.4            # Miximum speed [m/s]
   lookahead_distance: 1.2   # Lookahead distance [m]
   wheelbase: 1.2            # Wheelbase [m]
   control_rate: 2           # Control loop rate [Hz]

@@ -23,6 +23,7 @@ class TASPPathPlanner:
         # TASP trajectory (a list of [x, y] waypoints)
         self.TASPtrajectory = []
         self.goto_closest_BTP = False
+        self.is_initial_position = True
         self.max_allowed_distance = rospy.get_param("range_max", 6)
         self.tasp_cell_size = rospy.get_param("tasp_cell_size", 1.0)
         self.inflated_tasp_cell = rospy.get_param("inflated_tasp_cell", 3.0)
@@ -212,6 +213,9 @@ class TASPPathPlanner:
         Append free cells to BTP if they aren’t already there.
         """
         for cell in free_cells:
+            if self.is_initial_position and cell == [-1, 0]: # Avoid cell behind robot to be BTP
+                self.is_initial_position = False
+                continue
             if not self.list_has_row(self.BTP, cell):
                 self.BTP.append(cell)
 

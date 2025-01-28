@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import heapq
+import rospy
 
 class SimpleOccupancyGrid:
     """
@@ -92,15 +93,15 @@ def astar_plan(ogrid, wx_start, wy_start, wx_goal, wy_goal, connectivity=8):
     start_g = world_to_grid(ogrid, wx_start, wy_start)
     goal_g  = world_to_grid(ogrid, wx_goal, wy_goal)
     if not start_g or not goal_g:
-        print("[A*] Start or goal out of map bounds.")
+        rospy.logwarn("[A*] Start or goal out of map bounds.")
         return []
 
     if is_occupied(ogrid, start_g[0], start_g[1]):
-        print("[A*] Start cell is occupied!")
+        rospy.logwarn("[A*] Start cell is occupied!")
         return []
 
     if is_occupied(ogrid, goal_g[0], goal_g[1]):
-        print("[A*] Goal cell is occupied!")
+        rospy.logwarn("[A*] Goal cell is occupied!")
         return []
 
     # 2. Setup open/closed sets

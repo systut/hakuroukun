@@ -45,9 +45,8 @@ obstacle_layer:
     clearing: false  # Do not clear cone line obstacles automatically
     obstacle_range: 100
 
-
 # Inflation Layer
 inflation_layer:
   enabled: true
   cost_scaling_factor: 0
-  inflation_radius: 1.2    # meters
+  inflation_radius: 1.3    # meters

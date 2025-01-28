@@ -18,9 +18,9 @@ class PurePursuitNode:
         # ---------------------------
         self.MAX_SPEED = rospy.get_param("pure_pursuit_hakuroukun/max_speed", 0.6)
         self.MIN_SPEED = rospy.get_param("pure_pursuit_hakuroukun/min_speed", 0.4)
-        self.MAX_ACCEL = rospy.get_param("pure_pursuit_hakuroukun/max_accel", 2.5)
-        self.MAX_STEERING = rospy.get_param("pure_pursuit_hakuroukun/max_steering", 0.78)
-        self.MIN_STEERING = rospy.get_param("pure_pursuit_hakuroukun/min_steering", -0.78)
+        self.MAX_ACCEL = rospy.get_param("/hakuroukun_steering_controller/linear/x/max_acceleration", 2.5)
+        self.MAX_STEERING = rospy.get_param("/hakuroukun_steering_controller/angular/z/max_position", 0.78)
+        self.MIN_STEERING = rospy.get_param("/hakuroukun_steering_controller/angular/z/min_position", -0.78)
         self.lookahead_distance = rospy.get_param("pure_pursuit_hakuroukun/lookahead_distance", 0.8)
         self.wheelbase = rospy.get_param("pure_pursuit_hakuroukun/wheelbase", 1.1)
         self.control_rate = rospy.get_param("pure_pursuit_hakuroukun/control_rate", 1)
@@ -85,7 +85,7 @@ class PurePursuitNode:
 
     def stop_robot(self):
         """Stop the robot by publishing zero velocity while keeping the last steering command."""
-        rospy.loginfo("Shutting down: Stopping the robot.")
+        rospy.loginfo("Try to stop the robot.")
         cmd_msg = Float64MultiArray()
         cmd_msg.data = [0.0, self.steering_cmd]  # Zero velocity, maintain steering
         self.cmd_pub.publish(cmd_msg)
@@ -95,7 +95,7 @@ class PurePursuitNode:
         lookahead_point = self.get_lookahead_point(x, y)
 
         if lookahead_point is None:
-            print('stop because lookahead_point is None')
+            print('Lookahead_point is None')
             return (0.0, 0.0)
 
         Ld_x, Ld_y = lookahead_point
@@ -104,8 +104,14 @@ class PurePursuitNode:
         alpha = math.atan2(dy, dx) - yaw
         alpha = math.atan2(math.sin(alpha), math.cos(alpha))
 
-        steering = math.atan2(2.0 * self.wheelbase * math.sin(alpha),
-                              self.lookahead_distance)
+        if abs(alpha) > math.radians(90):
+            # Apply maximum steering
+            steering = math.copysign(self.MAX_STEERING, alpha)
+        else:
+            # Normal steering logic
+            steering = math.atan2(2.0 * self.wheelbase * math.sin(alpha), self.lookahead_distance)
+
+        # Saturate steering to physical limits
         steering = max(min(steering, self.MAX_STEERING), self.MIN_STEERING)
 
         desired_speed = (self.MAX_SPEED - self.MIN_SPEED)* (1.0 - abs(steering) / self.MAX_STEERING) + self.MIN_SPEED

@@ -124,8 +124,8 @@ def simulate_cone_detection(odom_msg):
                 marker.pose.orientation.y = 0.0
                 marker.pose.orientation.z = 0.0
                 marker.pose.orientation.w = 1.0  # Identity quaternion
-                marker.scale.x = 0.2
-                marker.scale.y = 0.2
+                marker.scale.x = 0.3
+                marker.scale.y = 0.3
                 marker.scale.z = 0.2
                 marker.color.r = 1.0  # Full red
                 marker.color.g = 0.2  # Reduced green for reddish-orange

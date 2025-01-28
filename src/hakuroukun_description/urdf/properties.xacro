@@ -7,7 +7,7 @@
   <xacro:property name="robot_length" value="1.430" />
   <xacro:property name="robot_width" value="0.810" />
   <xacro:property name="robot_height" value="1.070" />
-  <xacro:property name="robot_mass" value="270" />
+  <xacro:property name="robot_mass" value="304" />
   <!-- ///////////////////////////////////////////////////////////// -->
 
   <!-- /////////////////// Base link to Robot frame /////////////////// -->
@@ -38,11 +38,11 @@
   <!-- ///////////////////////////////////////////////////////////// -->
   <xacro:property name="imu_update_rate" value="40.0" />
   <xacro:property name="imu_mass" value="0.05" />
-  <xacro:property name="imu_noise" value="0.0" />
+  <xacro:property name="imu_noise" value="0.01" />
   
   <xacro:property name="gps_update_rate" value="40.0" />	
   <xacro:property name="gps_mass" value="0.05" />
-  <xacro:property name="gps_noise" value="0.0" />
+  <xacro:property name="gps_noise" value="0.01" />
   <xacro:property name="gps_latitude" value="34.70242845166667" />
   <xacro:property name="gps_longitude" value="137.408935105" />
 

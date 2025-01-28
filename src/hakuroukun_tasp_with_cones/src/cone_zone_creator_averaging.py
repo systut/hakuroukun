@@ -17,18 +17,13 @@ batch = rospy.get_param("batch", 5)
 # Global Variables
 cone_lines = []  # List of cone lines (each line is a list of connected cone positions)
 detected_cones = {}  # Dictionary to store cones with their IDs and positions
-cone_positions_by_id = {}  # Store last n positions for each cone ID
+cone_positions_by_id = {}  # Store cone positions grouped by ID for averaging
 new_position_count_by_id = {}  # Track the count of new positions added per cone
-cone_weights_by_id = {}  # Store weights for each position
 
 # Publisher for cone lines as markers
 line_publisher = rospy.Publisher('/cone_lines_markers', MarkerArray, queue_size=10, latch=True)
 # Publisher for cone lines as obstacles
 obstacle_publisher = rospy.Publisher('/cone_lines_obstacles', PointCloud2, queue_size=10, latch=True)
-# Publisher for filtered_cones as markers
-marker_publisher = rospy.Publisher('filtered_cones', MarkerArray, queue_size=10)
-# Publisher for raw_cones point cloud
-raw_cones_publisher = rospy.Publisher('/raw_cones', PointCloud2, queue_size=10)
 
 def is_duplicate_cone(cone, cone_list):
     for existing_cone in cone_list:
@@ -117,35 +112,6 @@ def greedy_nearest_neighbor(detected_cones):
 
     return new_cone_lines
 
-def publish_filtered_cone_markers(detected_cones):
-    marker_array = MarkerArray()
-    for cone_id, position in detected_cones.items():
-        marker = Marker()
-        marker.header.stamp = rospy.Time.now()
-        marker.header.frame_id = "map"
-        marker.ns = "detected_cones"
-        marker.id = cone_id
-        marker.type = Marker.SPHERE
-        marker.action = Marker.ADD
-        marker.pose.position.x = position[0]
-        marker.pose.position.y = position[1]
-        marker.pose.position.z = position[2]
-        marker.pose.orientation.x = 0.0
-        marker.pose.orientation.y = 0.0
-        marker.pose.orientation.z = 0.0
-        marker.pose.orientation.w = 1.0
-        marker.scale.x = 0.3  # Sphere size
-        marker.scale.y = 0.3
-        marker.scale.z = 0.3
-        marker.color.r = 1.0  # Red color for detected cones
-        marker.color.g = 0.0
-        marker.color.b = 0.0
-        marker.color.a = 0.5  # Fully opaque
-        marker_array.markers.append(marker)
-
-    # Publish the MarkerArray
-    marker_publisher.publish(marker_array)
-
 def create_marker_array(cone_lines):
     marker_array = MarkerArray()
     marker_id = 0
@@ -176,21 +142,6 @@ def create_marker_array(cone_lines):
         marker_id += 1
     return marker_array
 
-def publish_raw_cones_point_cloud(cone_id, sliding_window_positions):
-    """
-    Publish the sliding window positions of a specific cone as a PointCloud2 message.
-    """
-    header = rospy.Header()
-    header.frame_id = "map"  # Use the appropriate frame
-    header.stamp = rospy.Time.now()
-
-    # Convert sliding window positions to PointCloud2 format
-    points = [[p[0], p[1], p[2]] for p in sliding_window_positions]
-    point_cloud_msg = pc2.create_cloud_xyz32(header, points)
-
-    # Publish the point cloud
-    raw_cones_publisher.publish(point_cloud_msg)
-
 def detected_cones_callback(msg):
     global detected_cones, cone_lines, cone_positions_by_id
     try:
@@ -200,84 +151,50 @@ def detected_cones_callback(msg):
             cone_camera = [marker.pose.position.x, marker.pose.position.y, marker.pose.position.z]
             cone_world = transform_cone_to_world(cone_camera, transform)
 
-            # Update the cone's estimated position using the Weighted Position Estimation
-            estimated_position = update_position_with_weights(cone_id, cone_world)
+            # Maintain sliding window of last 10 positions
+            if cone_id not in cone_positions_by_id:
+                cone_positions_by_id[cone_id] = []  # Initialize list for this ID
+                new_position_count_by_id[cone_id] = 0  # Initialize count for this ID
 
-            # Skip if there are not enough new positions
-            if estimated_position is None:
-                continue
+            cone_positions_by_id[cone_id].append(cone_world)
+            new_position_count_by_id[cone_id] += 1
 
-            # Check for duplicates or update the cone position
-            if cone_id in detected_cones:
-                detected_cones[cone_id] = estimated_position  # Update position
-            else:
-                # Check for duplicates by position
+            # Keep only the last 10 positions
+            if len(cone_positions_by_id[cone_id]) > 10:
+                cone_positions_by_id[cone_id].pop(0)
+
+            # Calculate the average of the last 10 positions when 5 new positions are added
+            if new_position_count_by_id[cone_id] >= 5:
+                avg_position = np.mean(cone_positions_by_id[cone_id], axis=0)
+                new_position_count_by_id[cone_id] = 0  # Reset the counter
+
+                # Check for duplicates
                 duplicate_found = False
-                for existing_id, existing_position in detected_cones.items():
-                    if is_duplicate_cone(estimated_position, [existing_position]):
-                        detected_cones[existing_id] = estimated_position
-                        duplicate_found = True
-                        break
-                if not duplicate_found:
-                    detected_cones[cone_id] = estimated_position
+                # Check if the cone ID already exists in detected_cones
+                if cone_id in detected_cones:
+                    detected_cones[cone_id] = avg_position  # Replace the position if the ID already exists
+                    duplicate_found = True
+                else:
+                    # Check if it's a duplicate cone by position
+                    for existing_id, existing_position in detected_cones.items():
+                        if is_duplicate_cone(avg_position, [existing_position]):  # Check against existing positions
+                            detected_cones[existing_id] = avg_position  # Replace the position of the duplicate
+                            duplicate_found = True
+                            break
 
-        # Publish all detected cones as markers
-        publish_filtered_cone_markers(detected_cones)
+                # Add a new cone if no duplicate was found
+                if not duplicate_found:
+                    detected_cones[cone_id] = avg_position
+
         # Generate lines and markers
         cone_lines = greedy_nearest_neighbor(list(detected_cones.values()))
         line_markers = create_marker_array(cone_lines)
         publish_obstacles(cone_lines, resolution=0.05)  # Assuming 0.05 meters per cell
         line_publisher.publish(line_markers)
-
     except tf2_ros.LookupException:
         rospy.logwarn("Transform from camera_frame to map not available yet")
     except tf2_ros.ExtrapolationException:
         rospy.logwarn("Extrapolation error while looking up transform")
-
-
-def update_position_with_weights(cone_id, new_position):
-    global cone_positions_by_id, cone_weights_by_id, new_position_count_by_id
-    
-    # Initialize storage if not already present
-    if cone_id not in cone_positions_by_id:
-        cone_positions_by_id[cone_id] = []  # List of positions
-        cone_weights_by_id[cone_id] = []  # Corresponding weights
-        new_position_count_by_id[cone_id] = 0  # Initialize new position count
-
-    # Append the new position with an initial weight
-    cone_positions_by_id[cone_id].append(new_position)
-    cone_weights_by_id[cone_id].append(1.0)  # Start with weight 1.0
-    new_position_count_by_id[cone_id] += 1  # Increment new position count
-
-    # Limit to the last sliding_window positions
-    if len(cone_positions_by_id[cone_id]) > sliding_window:
-        cone_positions_by_id[cone_id].pop(0)
-        cone_weights_by_id[cone_id].pop(0)
-
-    # Publish sliding window positions as a point cloud
-    publish_raw_cones_point_cloud(cone_id, cone_positions_by_id[cone_id])
-
-    # Only update position if batch number of new positions have been added
-    if new_position_count_by_id[cone_id] < batch:
-        return None  # Not enough new positions, skip update
-
-    # Reset the count since we are updating
-    new_position_count_by_id[cone_id] = 0
-
-    # Compute the weighted average
-    positions = np.array(cone_positions_by_id[cone_id])
-    weights = np.array(cone_weights_by_id[cone_id])
-    weights /= np.sum(weights)  # Normalize weights
-
-    # Weighted average position
-    estimated_position = np.average(positions, axis=0, weights=weights)
-
-    # Update weights based on proximity to the estimated position
-    for i, pos in enumerate(positions):
-        distance = np.linalg.norm(pos - estimated_position)
-        cone_weights_by_id[cone_id][i] = np.exp(-distance)  # Gaussian weight
-
-    return estimated_position
 
 def bresenham(start, end, resolution):
     """Generate grid cells along a line using Bresenham's algorithm."""
