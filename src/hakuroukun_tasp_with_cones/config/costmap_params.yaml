@@ -1,0 +1,55 @@
+# Global Frame and Robot Base Frame
+global_frame: "map"                # The global frame, matching gmapping's output
+robot_base_frame: "base_link"      # The robot's base frame (adjust if different)
+
+# Update and Publishing Frequencies
+update_frequency: 5              # Update costmap every 5 Hz
+publish_frequency: 2             # Publish costmap every 2 Hz
+transform_tolerance: 0.3           # Tolerance for TF lookups
+
+# Robot and Costmap Dimensions
+robot_radius: 0.3                  # Radius of the robot in meters
+resolution: 0.05                   # Grid resolution in meters/cell
+width: 200.0                        # Width of the costmap in meters (50 x 50 grid at 0.05 resolution)
+height: 200.0                       # Height of the costmap in meters
+origin_x: -100.0                    # Origin x-coordinate in meters (matches gmapping map origin)
+origin_y: -100.0                    # Origin y-coordinate in meters
+
+always_send_full_costmap: true     # Send the entire costmap at each update
+
+# Plugins (layers)
+plugins:
+  - {name: static_layer,    type: "costmap_2d::StaticLayer"}
+  - {name: obstacle_layer,  type: "costmap_2d::ObstacleLayer"}
+  - {name: inflation_layer, type: "costmap_2d::InflationLayer"}
+
+# Static Layer Configuration
+static_layer:
+  enabled: true
+  map_topic: "/map"                # Topic from gmapping
+  subscribe_to_updates: true       # Allow dynamic updates from gmapping
+
+# Obstacle Layer Configuration
+obstacle_layer:
+  enabled: true
+  observation_sources: laser_scan cone_lines_scan
+
+  laser_scan:
+    data_type: LaserScan
+    topic: "/scan_multi"                 # Replace with the topic of your LIDAR or laser scanner
+    marking: true                  # Mark obstacles detected by the laser
+    clearing: true                 # Clear obstacles when they are no longer detected
+    obstacle_range: 10.0           # Maximum distance to detect obstacles
+    raytrace_range: 12.0           # Maximum distance for clearing obstacles
+  cone_lines_scan:
+    data_type: PointCloud2
+    topic: "/cone_lines_obstacles" # Topic for cone line obstacles
+    marking: true                  # Mark obstacles detected by cone lines
+    clearing: false                # Do not clear cone line obstacles automatically
+    obstacle_range: 100
+
+# Inflation Layer
+inflation_layer:
+  enabled: true
+  cost_scaling_factor: 0.1
+  inflation_radius: 1.3    # meters

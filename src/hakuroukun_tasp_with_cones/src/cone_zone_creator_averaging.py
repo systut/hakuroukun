@@ -119,7 +119,7 @@ def create_marker_array(cone_lines):
         if len(line) < 2:
             continue
         line_marker = Marker()
-        line_marker.header.frame_id = "map"
+        line_marker.header.frame_id = "odom"
         line_marker.header.stamp = rospy.Time.now()
         line_marker.ns = "cone_lines"
         line_marker.id = marker_id
@@ -145,7 +145,7 @@ def create_marker_array(cone_lines):
 def detected_cones_callback(msg):
     global detected_cones, cone_lines, cone_positions_by_id
     try:
-        transform = tf_buffer.lookup_transform("map", "camera_link", rospy.Time(0))
+        transform = tf_buffer.lookup_transform("odom", "camera_link", rospy.Time(0))
         for marker in msg.markers:
             cone_id = marker.id  # Use marker ID as the unique cone identifier
             cone_camera = [marker.pose.position.x, marker.pose.position.y, marker.pose.position.z]

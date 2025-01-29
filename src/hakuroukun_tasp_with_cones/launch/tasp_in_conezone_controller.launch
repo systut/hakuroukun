@@ -6,6 +6,15 @@
     <!-- Load parameters from YAML -->
     <rosparam file="$(find hakuroukun_tasp_with_cones)/config/tasp_config.yaml" command="load" />
     <rosparam file="$(find hakuroukun_tasp_with_cones)/config/path_follower_config.yaml" command="load" />
+    <rosparam file="$(find hakuroukun_tasp_with_cones)/config/gmapping_params.yaml" command="load" />
+
+    <!-- Start gmapping -->
+    <node pkg="gmapping" type="slam_gmapping" name="gmapping">
+        <remap from="scan" to="/scan_multi" />
+        <remap from="odom" to="/hakuroukun_pose/rear_wheel_odometry" />
+    </node>
+
+    <!-- <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_map_to_odom" args="0 0 0 0 0 0 1 map odom 10" /> -->
 
     <!-- TASP with cones -->
     <node pkg="hakuroukun_tasp_with_cones" type="main.py" name="tasp_with_cones" output="screen">
@@ -22,8 +31,8 @@
     </group>
 
     <!-- Start costmap_2d node with your parameter files -->
-    <node pkg="costmap_2d" type="costmap_2d_node" name="my_costmap_node" output="screen">
-        <rosparam file="$(find hakuroukun_tasp_with_cones)/config/my_costmap_params.yaml" command="load" ns="costmap" />
+    <node pkg="costmap_2d" type="costmap_2d_node" name="costmap_node" output="screen">
+        <rosparam file="$(find hakuroukun_tasp_with_cones)/config/costmap_params.yaml" command="load" ns="costmap" />
     </node>
 
     <!-- Cone zone creator -->

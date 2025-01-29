@@ -122,7 +122,7 @@ def publish_filtered_cone_markers(detected_cones):
     for cone_id, position in detected_cones.items():
         marker = Marker()
         marker.header.stamp = rospy.Time.now()
-        marker.header.frame_id = "map"
+        marker.header.frame_id = "odom"
         marker.ns = "detected_cones"
         marker.id = cone_id
         marker.type = Marker.SPHERE
@@ -153,7 +153,7 @@ def create_marker_array(cone_lines):
         if len(line) < 2:
             continue
         line_marker = Marker()
-        line_marker.header.frame_id = "map"
+        line_marker.header.frame_id = "odom"
         line_marker.header.stamp = rospy.Time.now()
         line_marker.ns = "cone_lines"
         line_marker.id = marker_id
@@ -181,7 +181,7 @@ def publish_raw_cones_point_cloud(cone_id, sliding_window_positions):
     Publish the sliding window positions of a specific cone as a PointCloud2 message.
     """
     header = rospy.Header()
-    header.frame_id = "map"  # Use the appropriate frame
+    header.frame_id = "odom"  # Use the appropriate frame
     header.stamp = rospy.Time.now()
 
     # Convert sliding window positions to PointCloud2 format
@@ -194,7 +194,7 @@ def publish_raw_cones_point_cloud(cone_id, sliding_window_positions):
 def detected_cones_callback(msg):
     global detected_cones, cone_lines, cone_positions_by_id
     try:
-        transform = tf_buffer.lookup_transform("map", "camera_link", rospy.Time(0))
+        transform = tf_buffer.lookup_transform("odom", "camera_link", rospy.Time(0))
         for marker in msg.markers:
             cone_id = marker.id  # Use marker ID as the unique cone identifier
             cone_camera = [marker.pose.position.x, marker.pose.position.y, marker.pose.position.z]
@@ -317,7 +317,7 @@ def publish_obstacles(cone_lines, resolution):
 
     # Create PointCloud2 message
     header = rospy.Header()
-    header.frame_id = "map"
+    header.frame_id = "odom"
     header.stamp = rospy.Time.now()
     point_cloud_msg = pc2.create_cloud_xyz32(header, points)
 

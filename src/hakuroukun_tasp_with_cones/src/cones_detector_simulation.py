@@ -71,7 +71,7 @@ def transform_cone_to_camera(cone_position):
     """
     try:
         # Lookup the transform from map frame to camera_link frame
-        transform = tf_buffer.lookup_transform("camera_link", "map", rospy.Time(0))
+        transform = tf_buffer.lookup_transform("camera_link", "odom", rospy.Time(0))
 
         # Extract translation and rotation
         translation = transform.transform.translation

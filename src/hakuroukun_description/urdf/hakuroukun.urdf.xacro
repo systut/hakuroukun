@@ -82,7 +82,7 @@
     </joint>
 
     <!-- lidar center-->
-    <link name="lidar_center">
+    <link name="laser_link">
         <visual>
         <geometry>
             <box size="0.01 0.01 0.01"/>
@@ -90,12 +90,12 @@
         <material name="Red"/>
         </visual>
     </link>
-    <gazebo reference="lidar_center">
+    <gazebo reference="laser_link">
         <material>Gazebo/Red</material>
     </gazebo>
-    <joint name="rear_axis_center_to_lidar_center" type="fixed">
+    <joint name="laser_link" type="fixed">
         <parent link="rear_axis_center" />
-        <child link="lidar_center" />
+        <child link="laser_link" />
         <origin xyz="1.03 0.0 ${0.365-rear_radius}" />
     </joint>
 

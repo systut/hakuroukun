@@ -234,11 +234,26 @@ class HakuroukunPose:
         @return: yaw
         @ yaw: The yaw angle of the robot
         """
+        # Extract quaternion values from IMU data
         self.quaternion_x = data.orientation.x
         self.quaternion_y = data.orientation.y
         self.quaternion_z = data.orientation.z
         self.quaternion_w = data.orientation.w
 
+        # Normalize the quaternion to ensure it's valid
+        norm = math.sqrt(self.quaternion_x**2 + self.quaternion_y**2 +
+                        self.quaternion_z**2 + self.quaternion_w**2)
+
+        if norm == 0:
+            rospy.logerr("Received quaternion with zero norm, skipping update.")
+            return
+
+        self.quaternion_x /= norm
+        self.quaternion_y /= norm
+        self.quaternion_z /= norm
+        self.quaternion_w /= norm
+
+        # Extract angular velocity and linear acceleration from IMU data
         self.angular_velocity_x = data.angular_velocity.x
         self.angular_velocity_y = data.angular_velocity.y
         self.angular_velocity_z = data.angular_velocity.z
@@ -247,40 +262,40 @@ class HakuroukunPose:
         self.linear_acceleration_y = data.linear_acceleration.y
         self.linear_acceleration_z = data.linear_acceleration.z
 
+        # Handle IMU data based on mode
         if self._imu_mode == "quaternion":
-
+            # Convert quaternion to Euler angles
             self.euler = tf.transformations.euler_from_quaternion(
-                [self.quaternion_x,
-                self.quaternion_y,
-                self.quaternion_z,
-                self.quaternion_w])
+                [self.quaternion_x, self.quaternion_y, self.quaternion_z, self.quaternion_w]
+            )
 
+            # Calculate yaw and normalize it
             new_yaw = self.euler[2] - self._imu_offset
             new_yaw = math.atan2(math.sin(new_yaw), math.cos(new_yaw))  # Normalize yaw
 
         else:
+            # Integrate angular velocity to compute yaw
             new_yaw = self._integrate_yaw(self._yaw, self.angular_velocity_z, 0.01)
 
-        # Filter noise using a threshold
-        threshold = 0.1  # Adjust this value based on your noise tolerance
-
+        # Filter out noise using a threshold
+        threshold = 0.1  # Adjust this based on your noise tolerance
         if hasattr(self, 'previous_yaw'):  # Check if previous_yaw exists
             yaw_change = abs(new_yaw - self.previous_yaw)
             if yaw_change > math.pi:  # Handle wrap-around
                 yaw_change = abs(yaw_change - 2 * math.pi)
 
-            if yaw_change < threshold:  # Only update yaw if change is below threshold
+            if yaw_change < threshold:  # Update yaw if the change is below the threshold
                 self._yaw = new_yaw
             else:
-                # Ignore the update if the change is too large (noise detected)
-                pass
+                rospy.logwarn(f"Detected large yaw change ({yaw_change}), ignoring update.")
         else:
-            # Initialize previous_yaw for the first callback
+            # Initialize yaw on the first callback
             self._yaw = new_yaw
 
         # Update previous_yaw
         self.previous_yaw = self._yaw
 
+        # Recompute quaternion from updated yaw
         (self.quaternion_x, self.quaternion_y,
         self.quaternion_z, self.quaternion_w) = tf.transformations.quaternion_from_euler(0, 0, self._yaw)
 

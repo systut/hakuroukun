@@ -33,7 +33,7 @@
 
     <!-- LaserScan Multi-Merger -->
     <node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger" output="screen" required="true">
-        <param name="destination_frame" value="lidar_center" />
+        <param name="destination_frame" value="laser_link" />
         <param name="cloud_destination_topic" value="/merged_cloud" />
         <param name="scan_destination_topic" value="/scan_multi" />
         <param name="laserscan_topics" value="/left_lidar/scan_filtered /right_lidar/scan_filtered" />
@@ -42,7 +42,7 @@
         <param name="angle_increment" value="0.034906"/>
         <param name="scan_time" value="0.066666" />
         <param name="range_min" value="1" />
-        <param name="range_max" value="6.0" />
+        <param name="range_max" value="20.0" />
     </node>
 
     <!-- Hakuroukun Pose Node -->

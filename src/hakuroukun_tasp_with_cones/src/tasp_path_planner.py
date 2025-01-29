@@ -24,7 +24,6 @@ class TASPPathPlanner:
         self.TASPtrajectory = []
         self.goto_closest_BTP = False
         self.is_initial_position = True
-        self.max_allowed_distance = rospy.get_param("range_max", 6)
         self.tasp_cell_size = rospy.get_param("tasp_cell_size", 1.0)
         self.inflated_tasp_cell = rospy.get_param("inflated_tasp_cell", 3.0)
 
@@ -252,7 +251,7 @@ class TASPPathPlanner:
     def get_distance_to_obstacle(self, current_pos, cell, costmap):
         """
         From 'cell' in direction from 'current_pos'->'cell', step by self.tasp_cell_size
-        until occupancy >= 50 (occupied or unknown). Return total distance.
+        until occupancy = 100 occupied. Return total distance.
         """
         dx = cell[0] - current_pos[0]
         dy = cell[1] - current_pos[1]
@@ -269,7 +268,7 @@ class TASPPathPlanner:
             next_x = current_x + ux * self.tasp_cell_size
             next_y = current_y + uy * self.tasp_cell_size
             occ_val = self.get_occupancy_value(costmap, next_x, next_y)
-            if occ_val >= 50:  # treat 50 or 100 as occupied/unknown
+            if occ_val == 100:
                 break
             distance += self.tasp_cell_size
             current_x, current_y = next_x, next_y

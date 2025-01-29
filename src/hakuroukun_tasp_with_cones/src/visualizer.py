@@ -1,20 +1,28 @@
 #!/usr/bin/env python3
 
-import rospy
+import rospy, math, tf2_ros
 from visualization_msgs.msg import Marker, MarkerArray
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, Point
 from nav_msgs.msg import Path
+from tf.transformations import euler_from_quaternion
 
 class TASPVisualizer:
-    def __init__(self, frame_id="map"):
+    def __init__(self, frame_id="odom"):
+        # Initialize TF2 Buffer and Listener
+        self.tf_buffer = tf2_ros.Buffer()
+        self.tf_listener = tf2_ros.TransformListener(self.tf_buffer)
+
         # Publishers for various visualization messages
         self.btp_pub = rospy.Publisher('/tasp/btp_markers', MarkerArray, queue_size=10)
         self.goal_pub = rospy.Publisher('/tasp/goal_pose', PoseStamped, queue_size=10)
         self.goal_marker_pub = rospy.Publisher('/tasp/goal_marker', Marker, queue_size=10)
         self.path_pub = rospy.Publisher('/tasp/astar_path', Path, queue_size=10)
         self.start_marker_pub = rospy.Publisher('/tasp/start_marker', Marker, queue_size=10)
+        self.fov_pub = rospy.Publisher("/camera_fov", Marker, queue_size=10)
 
         self.frame_id = frame_id
+        self.camera_fov = math.radians(rospy.get_param("camera_fov", 70))
+        self.camera_range = rospy.get_param("camera_range", 4) / math.cos(self.camera_fov / 2)
 
     def publish_start(self, start_pose):
         """
@@ -139,6 +147,69 @@ class TASPVisualizer:
         marker.color.a = 1.0
 
         self.goal_marker_pub.publish(marker)
+
+    def publish_camera_fov(self):
+        """
+        Publishes a Field of View (FoV) marker based on the camera_link's pose in the map frame.
+
+        This function calculates the camera's FoV boundaries using its pose and orientation
+        relative to the map frame and visualizes the FoV as a triangle marker in RViz.
+        """
+        try:
+            # Lookup the transform from 'map' to 'camera_link'
+            transform_camera = self.tf_buffer.lookup_transform(
+                'odom',           # Target frame
+                'camera_link',   # Source frame
+                rospy.Time(0)    # Most recent transform available
+            )
+
+            # Extract camera's position and orientation
+            camera_pose = transform_camera.transform.translation
+            camera_orientation = transform_camera.transform.rotation
+            camera_x = camera_pose.x
+            camera_y = camera_pose.y
+
+            # Convert orientation quaternion to Euler angles (yaw = theta)
+            quaternion = [camera_orientation.x, camera_orientation.y, camera_orientation.z, camera_orientation.w]
+            _, _, camera_theta = euler_from_quaternion(quaternion)
+
+            # Initialize the FoV marker
+            fov_marker = Marker()
+            fov_marker.header.frame_id = self.frame_id
+            fov_marker.header.stamp = rospy.Time.now()
+            fov_marker.ns = "camera_fov"
+            fov_marker.id = 0
+            fov_marker.type = Marker.LINE_STRIP  # Line strip to draw the FoV triangle
+            fov_marker.action = Marker.ADD
+            fov_marker.scale.x = 0.05  # Line thickness
+            fov_marker.color.r = 0.0
+            fov_marker.color.g = 1.0
+            fov_marker.color.b = 0.0
+            fov_marker.color.a = 1.0
+
+            # Calculate the FoV boundaries (left and right rays)
+            left_angle = camera_theta - self.camera_fov / 2
+            right_angle = camera_theta + self.camera_fov / 2
+
+            # Compute the boundary points based on camera_pose
+            left_x = camera_x + self.camera_range * math.cos(left_angle)
+            left_y = camera_y + self.camera_range * math.sin(left_angle)
+            right_x = camera_x + self.camera_range * math.cos(right_angle)
+            right_y = camera_y + self.camera_range * math.sin(right_angle)
+
+            # Define the points of the FoV triangle
+            fov_marker.points = [
+                Point(camera_x, camera_y, 0.0),  # Camera position
+                Point(left_x, left_y, 0.0),     # Left boundary point
+                Point(right_x, right_y, 0.0),   # Right boundary point
+                Point(camera_x, camera_y, 0.0)  # Close the triangle
+            ]
+
+            # Publish the FoV marker
+            self.fov_pub.publish(fov_marker)
+
+        except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException) as e:
+            rospy.logwarn(f"Failed to lookup transform from 'map' to 'camera_link': {e}")
 
     def publish_astar_path(self, path_points):
         """

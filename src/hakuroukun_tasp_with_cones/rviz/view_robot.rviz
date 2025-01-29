@@ -102,7 +102,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        lidar_center:
+        laser_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -156,7 +156,7 @@ Visualization Manager:
           Value: true
         left_lidar:
           Value: true
-        lidar_center:
+        laser_link:
           Value: true
         odom:
           Value: true
@@ -191,7 +191,7 @@ Visualization Manager:
                 {}
               left_lidar:
                 {}
-              lidar_center:
+              laser_link:
                 {}
               rear_wheel:
                 {}

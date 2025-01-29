@@ -1,0 +1,46 @@
+slam_gmapping:
+  # Frames
+  base_frame: "base_link"    # The frame attached to the robot base
+  odom_frame: "odom"         # The frame representing the odometry
+  map_frame: "map"           # The frame representing the map.
+  tf_broadcast: false
+  
+  # Topics
+  scan_topic: "/scan_multi"  # Topic where LIDAR data is published
+
+  # Map settings
+  maxUrange: 20.0             # Maximum range of the LIDAR (meters)
+  maxRange: 21.0              # Maximum usable range of the LIDAR (meters)
+  minimumScore: 10          # Minimum score for scan matching
+  # delta: 0.05                # Map resolution (meters per grid cell)
+
+  # Map update thresholds
+  linearUpdate: 3.0          # Minimum linear movement before updating the map (meters)
+  angularUpdate: 1.0         # Minimum angular movement before updating the map (radians)
+  mapUpdateInterval: 10     # Time interval to update the map (seconds)
+
+  # Motion model (odometry-based localization noise parameters)
+  srr: 0.001                  # Odometry error in translation from translation
+  srt: 0.001                  # Odometry error in rotation from translation
+  str: 0.001                  # Odometry error in translation from rotation
+  stt: 0.001                  # Odometry error in rotation from rotation
+
+  # Particle filter settings
+  particles: 30             # Number of particles used in the particle filter
+  # llsamplerange: 0.1         # Initial sampling range for the particle filter (linear)
+  # llsamplestep: 0.05         # Step size for linear sampling
+  # lasamplerange: 0.2         # Initial sampling range for the particle filter (angular)
+  # lasamplestep: 0.05         # Step size for angular sampling
+
+  # # Scan matching parameters
+  # lskip: 0                   # Skip every lskip'th laser beam (0 = no skip)
+  # kernelSize: 1              # Size of the scan matching kernel
+  # iterations: 5              # Number of iterations for scan matching
+  # lsigma: 0.05               # Sigma of the scan matching Gaussian
+  # ogain: 3.0                 # Gain for smoothing
+
+  # # Map parameters
+  resampleThreshold: 0.8     # Resampling threshold for particle filter
+  occ_thresh: 0.5           # Threshold for considering a cell as occupied
+  # min_occ: -1                # Minimum occupancy probability
+  # max_occ: 1                 # Maximum occupancy probability

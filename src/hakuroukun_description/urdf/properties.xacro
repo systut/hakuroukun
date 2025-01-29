@@ -51,7 +51,7 @@
   <xacro:property name="lidar_length" value="0.041" />
   <xacro:property name="lidar_radius" value="0.038" />
   <xacro:property name="lidar_min_range" value="0.2" />
-  <xacro:property name="lidar_max_range" value="8.0" />
+  <xacro:property name="lidar_max_range" value="25.0" />
   <xacro:property name="lidar_stdv" value="0.01" />
   <xacro:property name="lidar_range_resolution" value="0.01" />
   <xacro:property name="lidar_min_angle" value="${-2*pi}" />

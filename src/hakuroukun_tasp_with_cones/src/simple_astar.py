@@ -39,7 +39,7 @@ def grid_to_world(ogrid, gx, gy):
     wy = ogrid.origin_y + (gy + 0.5) * ogrid.resolution
     return (wx, wy)
 
-def is_occupied(ogrid, gx, gy, treat_unknown_as_occupied=True):
+def is_occupied(ogrid, gx, gy, treat_unknown_as_occupied=False):
     """
     Return True if cell (gx, gy) is occupied or out of bounds.
     If 'treat_unknown_as_occupied=True', we consider -1 as occupied.
@@ -50,7 +50,7 @@ def is_occupied(ogrid, gx, gy, treat_unknown_as_occupied=True):
     val = ogrid.data[idx]  # 0=free, 100=occupied, -1=unknown
     if val < 0:
         return treat_unknown_as_occupied
-    return (val >= 50)  # e.g., treat >=50 as occupied
+    return (val >=50)  # e.g., treat >=50 as occupied
 
 def get_neighbors(gx, gy, connectivity=8):
     """
@@ -102,7 +102,7 @@ def astar_plan(ogrid, wx_start, wy_start, wx_goal, wy_goal, connectivity=8):
 
     if is_occupied(ogrid, goal_g[0], goal_g[1]):
         rospy.logwarn("[A*] Goal cell is occupied!")
-        return []
+        return "GOAL_OCCUPIED"
 
     # 2. Setup open/closed sets
     open_set = []
