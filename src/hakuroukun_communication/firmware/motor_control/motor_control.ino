@@ -1,9 +1,9 @@
 #define SPEED_st 255
 #define SPEED_ac 255
-#define PM_st_N 520 //565 250
-#define PM_st_LIMR 150
-#define PM_st_LIML 240
-#define PM_ac_N 290 //290
+#define PM_st_N 555  //565 250
+#define PM_st_LIMR 205
+#define PM_st_LIML 290
+#define PM_ac_N 290  //290
 #define PM_ac_LIMU 390
 #define PM_ac_LIMD 20
 #define TIME 1000
@@ -36,10 +36,10 @@ int com_ac = PM_ac_N;
 
 String command = "";
 String acceleration = "290";
-String steering = "565";
+String steering = "555";
 String control_status = "0";
 String direction = "0";
-String direction_mode = "0"; // 0 for forward, 1 for backward
+String direction_mode = "0";  // 0 for forward, 1 for backward
 
 void setup() {
 
@@ -83,8 +83,7 @@ void loop() {
     if (command.length() != 10) {
       control_status = "1";
 
-    }
-    else {
+    } else {
       control_status = "0";
 
       direction = command.substring(1, 2);
@@ -109,11 +108,9 @@ void loop() {
 
   } else {
     switch_forward();
-
   }
 
-  if ((com_st > PM_st_N + PM_st_LIML || com_st < PM_st_N - PM_st_LIMR) || (com_ac > PM_ac_N + PM_ac_LIMU || com_ac < PM_ac_N - PM_ac_LIMD))
-  {
+  if ((com_st > PM_st_N + PM_st_LIML || com_st < PM_st_N - PM_st_LIMR) || (com_ac > PM_ac_N + PM_ac_LIMU || com_ac < PM_ac_N - PM_ac_LIMD)) {
     com_st = PM_st_N;
     com_ac = PM_ac_N;
   }
@@ -140,25 +137,18 @@ void switch_forward() {
   direction_mode = "0";
 }
 
-void motor_st(int PM_st_REF)
-{
-  if (PM_st_REF != pre_st || millis() - time_st > TIME)
-  {
+void motor_st(int PM_st_REF) {
+  if (PM_st_REF != pre_st || millis() - time_st > TIME) {
     PM_st = analogRead(0);
 
-    if (PM_st > PM_st_REF)
-    {
-      while (PM_st > PM_st_REF)
-      {
+    if (PM_st > PM_st_REF) {
+      while (PM_st > PM_st_REF) {
         digitalWrite(MD_st_DIR, LOW);
         analogWrite(MD_st_PWM, SPEED_st);
         PM_st = analogRead(0);
       }
-    }
-    else if (PM_st < PM_st_REF)
-    {
-      while (PM_st < PM_st_REF)
-      {
+    } else if (PM_st < PM_st_REF) {
+      while (PM_st < PM_st_REF) {
         digitalWrite(MD_st_DIR, HIGH);
         analogWrite(MD_st_PWM, SPEED_st);
         PM_st = analogRead(0);
@@ -173,25 +163,18 @@ void motor_st(int PM_st_REF)
 }
 
 
-void motor_ac(int PM_ac_REF)
-{
-  if (PM_ac_REF != pre_ac || millis() - time_ac > TIME)
-  {
+void motor_ac(int PM_ac_REF) {
+  if (PM_ac_REF != pre_ac || millis() - time_ac > TIME) {
     PM_ac = analogRead(1);
 
-    if (PM_ac < PM_ac_REF)
-    {
-      while (PM_ac < PM_ac_REF)
-      {
+    if (PM_ac < PM_ac_REF) {
+      while (PM_ac < PM_ac_REF) {
         digitalWrite(MD_ac_DIR, LOW);
         analogWrite(MD_ac_PWM, SPEED_ac);
         PM_ac = analogRead(1);
       }
-    }
-    else if (PM_ac > PM_ac_REF)
-    {
-      while (PM_ac > PM_ac_REF)
-      {
+    } else if (PM_ac > PM_ac_REF) {
+      while (PM_ac > PM_ac_REF) {
         digitalWrite(MD_ac_DIR, HIGH);
         analogWrite(MD_ac_PWM, SPEED_ac);
         PM_ac = analogRead(1);
@@ -205,11 +188,11 @@ void motor_ac(int PM_ac_REF)
   pre_ac = PM_ac_REF;
 }
 
-void robot_stop()
-{
+void robot_stop() {
   motor_ac(PM_ac_N);
   motor_st(PM_st_N);
   Serial.print("stopped");
   Serial.write(10);
-  while (1);
+  while (1)
+    ;
 }

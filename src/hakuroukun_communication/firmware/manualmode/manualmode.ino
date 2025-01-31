@@ -3,9 +3,9 @@
 
 #define SPEED_ST 255    //stモーター速度 (0-255)
 #define SPEED_AC 255    //acモーター速度
-#define PM_ST_N 553     //直進時のst pm値 //565 250
-#define PM_ST_LIMR 187  //PM_ST_Nと右操舵限度のpm値の差
-#define PM_ST_LIML 193  //PM_ST_Nと左操舵限度のpm値の差
+#define PM_ST_N 555     //直進時のst pm値 //565 250
+#define PM_ST_LIMR 200  //PM_ST_Nと右操舵限度のpm値の差
+#define PM_ST_LIML 290  //PM_ST_Nと左操舵限度のpm値の差
 #define PM_AC_N 290     //停止時のac pm値290
 #define PM_AC_LIMU 390  //PM_AC_Nとアクセル踏込限度のpm値の差
 #define PM_AC_LIMD 20   //PM_AC_Nとアクセル戻し限度のpm値の差

@@ -26,7 +26,7 @@ line_publisher = rospy.Publisher('/cone_lines_markers', MarkerArray, queue_size=
 # Publisher for cone lines as obstacles
 obstacle_publisher = rospy.Publisher('/cone_lines_obstacles', PointCloud2, queue_size=10, latch=True)
 # Publisher for filtered_cones as markers
-marker_publisher = rospy.Publisher('filtered_cones', MarkerArray, queue_size=10)
+marker_publisher = rospy.Publisher('/filtered_cones', MarkerArray, queue_size=10)
 # Publisher for raw_cones point cloud
 raw_cones_publisher = rospy.Publisher('/raw_cones', PointCloud2, queue_size=10)
 

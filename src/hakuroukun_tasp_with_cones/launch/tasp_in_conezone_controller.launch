@@ -14,8 +14,6 @@
         <remap from="odom" to="/hakuroukun_pose/rear_wheel_odometry" />
     </node>
 
-    <!-- <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_map_to_odom" args="0 0 0 0 0 0 1 map odom 10" /> -->
-
     <!-- TASP with cones -->
     <node pkg="hakuroukun_tasp_with_cones" type="main.py" name="tasp_with_cones" output="screen">
     </node>

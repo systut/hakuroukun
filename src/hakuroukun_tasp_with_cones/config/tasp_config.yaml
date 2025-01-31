@@ -6,9 +6,9 @@ map_width: 4000          # Number of cells
 map_height: 4000         # Number of cells
 map_origin: [-100, -100]   # [x, y]
 tasp_cell_size: 1        # Size of TASP planning cells
-inflated_tasp_cell: 3    # inflate TASP cell x times
+inflated_tasp_cell: 2    # inflate TASP cell x times
 tasp_goal_tolerance: 1.5 # Meters
-wait_duration: 5.0       # Seconds to allow for map updates
+wait_duration: 10.0       # Seconds to allow for map updates
 rate_hz: 2               # Main loop rate
 
 # Parameters for TASPPathPlanner
@@ -16,7 +16,7 @@ remove_btp_threshold_distance: 0.1 # Threshold for removing points near the chos
 sampling_resolution: 0.1     # Sampling resolution for checking area occupancy
 
 # Parameters for cone zone creator
-circular_region_radius: 4.0
-duplicate_threshold: 1.5
-sliding_window: 10
-batch: 5
+circular_region_radius: 5.0
+duplicate_threshold: 2
+sliding_window: 20
+batch: 10
