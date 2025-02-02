@@ -114,7 +114,7 @@ class PurePursuitNode:
         # Saturate steering to physical limits
         steering = max(min(steering, self.MAX_STEERING), self.MIN_STEERING)
 
-        desired_speed = (self.MAX_SPEED - self.MIN_SPEED)* (1.0 - abs(steering) / self.MAX_STEERING) + self.MIN_SPEED
+        desired_speed = (self.MAX_SPEED - self.MIN_SPEED)* (1 - abs(steering) / self.MAX_STEERING) + self.MIN_SPEED
 
         dt = 1.0 / self.control_rate
         max_delta_v = self.MAX_ACCEL * dt

@@ -160,13 +160,13 @@ class HakuroukunCommunicationNode(object):
             # Counterclockwise adjustment (shifts zero to 650)
             a_ccw = -86.29
             b_ccw = 317.31
-            c_ccw = 650
+            c_ccw = 610 #650
             return a_ccw * (goal_angle_rad ** 2) + b_ccw * goal_angle_rad + c_ccw
         else:
             # Clockwise mapping (shifts zero to 555)
             a_cw = 69.86
             b_cw = 317.31
-            c_cw = 555
+            c_cw = 510 #555
             return a_cw * (goal_angle_rad ** 2) + b_cw * goal_angle_rad + c_cw
 
 if __name__ == "__main__":

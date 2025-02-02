@@ -198,6 +198,14 @@ def detected_cones_callback(msg):
         for marker in msg.markers:
             cone_id = marker.id  # Use marker ID as the unique cone identifier
             cone_camera = [marker.pose.position.x, marker.pose.position.y, marker.pose.position.z]
+
+            # Compute the Euclidean distance in the XY plane
+            xy_distance = np.linalg.norm(np.array(cone_camera[:2]))  # sqrt(x^2 + y^2)
+
+            # Skip if the XY distance is greater than 6 meters
+            if xy_distance > 6.0:
+                continue  # Skip this marker and move to the next one
+
             cone_world = transform_cone_to_world(cone_camera, transform)
 
             # Update the cone's estimated position using the Weighted Position Estimation
@@ -238,6 +246,8 @@ def detected_cones_callback(msg):
 def update_position_with_weights(cone_id, new_position):
     global cone_positions_by_id, cone_weights_by_id, new_position_count_by_id
     
+    sigma = 0.5  # Define the standard deviation for Gaussian weight decay
+
     # Initialize storage if not already present
     if cone_id not in cone_positions_by_id:
         cone_positions_by_id[cone_id] = []  # List of positions
@@ -275,7 +285,7 @@ def update_position_with_weights(cone_id, new_position):
     # Update weights based on proximity to the estimated position
     for i, pos in enumerate(positions):
         distance = np.linalg.norm(pos - estimated_position)
-        cone_weights_by_id[cone_id][i] = np.exp(-distance)  # Gaussian weight
+        cone_weights_by_id[cone_id][i] = np.exp(- (distance**2) / (2 * sigma**2))  # Corrected Gaussian weight
 
     return estimated_position
 

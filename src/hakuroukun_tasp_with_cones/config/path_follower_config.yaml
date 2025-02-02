@@ -1,6 +1,6 @@
 pure_pursuit_hakuroukun:
-  max_speed: 0.6            # Maximum speed [m/s]
-  min_speed: 0.4            # Miximum speed [m/s]
-  lookahead_distance: 1.2   # Lookahead distance [m]
+  max_speed: 0.35            # Maximum speed [m/s]
+  min_speed: 0.25            # Miximum speed [m/s]
+  lookahead_distance: 1.1   # Lookahead distance [m]
   wheelbase: 1.2            # Wheelbase [m]
-  control_rate: 1           # Control loop rate [Hz]
+  control_rate: 10           # Control loop rate [Hz]

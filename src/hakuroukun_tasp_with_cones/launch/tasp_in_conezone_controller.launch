@@ -1,7 +1,7 @@
 <launch>
     <!-- Arguments -->
     <arg name="open_rviz" default="true"/>
-    <arg name="simulation" default="true"/>
+    <arg name="simulation" default="false"/>
 
     <!-- Load parameters from YAML -->
     <rosparam file="$(find hakuroukun_tasp_with_cones)/config/tasp_config.yaml" command="load" />
@@ -20,7 +20,7 @@
 
     <!-- Motion control -->
     <node pkg="hakuroukun_tasp_with_cones" type="path_follower.py" name="path_follower" output="screen">
-        <remap from="cmd_controller" to="/hakuroukun_steering_controller/cmd_controller"/>
+        <!-- <remap from="cmd_controller" to="/hakuroukun_steering_controller/cmd_controller"/> -->
     </node>
 
     <!-- Cones detector simulation -->
