@@ -42,7 +42,7 @@
         <param name="angle_increment" value="0.034906"/>
         <param name="scan_time" value="0.066666" />
         <param name="range_min" value="1" />
-        <param name="range_max" value="15.0" />
+        <param name="range_max" value="25.0" />
     </node>
 
     <!-- Hakuroukun Pose Node -->

@@ -278,7 +278,7 @@ class HakuroukunPose:
             new_yaw = self._integrate_yaw(self._yaw, self.angular_velocity_z, 0.01)
 
         # Filter out noise using a threshold
-        threshold = 0.1  # Adjust this based on your noise tolerance
+        threshold = 0.2  # Adjust this based on your noise tolerance
         if hasattr(self, 'previous_yaw'):  # Check if previous_yaw exists
             yaw_change = abs(new_yaw - self.previous_yaw)
             if yaw_change > math.pi:  # Handle wrap-around

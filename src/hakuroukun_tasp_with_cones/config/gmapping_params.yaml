@@ -17,13 +17,13 @@ slam_gmapping:
   # Map update thresholds
   linearUpdate: 3.0          # Minimum linear movement before updating the map (meters)
   angularUpdate: 1.0         # Minimum angular movement before updating the map (radians)
-  mapUpdateInterval: 10     # Time interval to update the map (seconds)
+  mapUpdateInterval: 2     # Time interval to update the map (seconds)
 
   # Motion model (odometry-based localization noise parameters)
-  srr: 0.001                  # Odometry error in translation from translation
-  srt: 0.001                  # Odometry error in rotation from translation
-  str: 0.001                  # Odometry error in translation from rotation
-  stt: 0.001                  # Odometry error in rotation from rotation
+  srr: 0.00                  # Odometry error in translation from translation
+  srt: 0.00                  # Odometry error in rotation from translation
+  str: 0.00                  # Odometry error in translation from rotation
+  stt: 0.00                  # Odometry error in rotation from rotation
 
   # Particle filter settings
   particles: 30             # Number of particles used in the particle filter

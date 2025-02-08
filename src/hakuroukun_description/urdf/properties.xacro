@@ -16,7 +16,7 @@
   <xacro:property name="base_link_to_robot_frame_Z" value="0.440" />
 
   <!-- /////////////////// Steering Unit /////////////////// -->
-  <xacro:property name="rear_axis_center_to_steering_center" value="1.1" /> <!-- approx. value -->
+  <xacro:property name="rear_axis_center_to_steering_center" value="1.0" /> <!-- approx. value -->
   <xacro:property name="steering_X" value="0.3" />
   <xacro:property name="steering_Y" value="0.2" />
   <xacro:property name="steering_Z" value="0.2" />

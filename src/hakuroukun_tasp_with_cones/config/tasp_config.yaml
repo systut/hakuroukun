@@ -18,5 +18,5 @@ sampling_resolution: 0.1     # Sampling resolution for checking area occupancy
 # Parameters for cone zone creator
 circular_region_radius: 5.5
 duplicate_threshold: 2
-sliding_window: 180
-batch: 90
+sliding_window: 90
+batch: 60
