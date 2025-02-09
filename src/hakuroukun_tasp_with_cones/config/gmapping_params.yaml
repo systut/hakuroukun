@@ -15,9 +15,9 @@ slam_gmapping:
   # delta: 0.05                # Map resolution (meters per grid cell)
 
   # Map update thresholds
-  linearUpdate: 3.0          # Minimum linear movement before updating the map (meters)
-  angularUpdate: 1.0         # Minimum angular movement before updating the map (radians)
-  mapUpdateInterval: 2     # Time interval to update the map (seconds)
+  linearUpdate: 0.5          # Minimum linear movement before updating the map (meters)
+  angularUpdate: 0.2         # Minimum angular movement before updating the map (radians)
+  mapUpdateInterval: 1     # Time interval to update the map (seconds)
 
   # Motion model (odometry-based localization noise parameters)
   srr: 0.00                  # Odometry error in translation from translation
@@ -26,7 +26,7 @@ slam_gmapping:
   stt: 0.00                  # Odometry error in rotation from rotation
 
   # Particle filter settings
-  particles: 30             # Number of particles used in the particle filter
+  particles: 50             # Number of particles used in the particle filter
   # llsamplerange: 0.1         # Initial sampling range for the particle filter (linear)
   # llsamplestep: 0.05         # Step size for linear sampling
   # lasamplerange: 0.2         # Initial sampling range for the particle filter (angular)
@@ -40,7 +40,7 @@ slam_gmapping:
   # ogain: 3.0                 # Gain for smoothing
 
   # # Map parameters
-  resampleThreshold: 0.8     # Resampling threshold for particle filter
-  occ_thresh: 0.5           # Threshold for considering a cell as occupied
+  resampleThreshold: 0.5     # Resampling threshold for particle filter
+  occ_thresh: 0.3           # Threshold for considering a cell as occupied
   # min_occ: -1                # Minimum occupancy probability
   # max_occ: 1                 # Maximum occupancy probability

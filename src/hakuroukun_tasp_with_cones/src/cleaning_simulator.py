@@ -70,7 +70,7 @@ def apply_cleaning():
         mask = circular_mask[:mask_height, :mask_width]
 
         # Only mark free space (0) as cleaned (100)
-        roi[mask & (roi == 0)] = 100
+        roi[mask & (roi == 0)] = 50
 
 def map_callback(msg):
     """ Store the map and update global variables. """
@@ -120,7 +120,7 @@ def main():
     rospy.init_node('cleaning_simulator')
 
     rospy.Subscriber("/map", OccupancyGrid, map_callback)
-    rospy.Subscriber("/ground_truth/odometry", Odometry, odom_callback)
+    rospy.Subscriber("/ground_truth/odometry", Odometry, odom_callback)  #/ground_truth/odometry #/hakuroukun_pose/rear_wheel_odometry
 
     cleaned_map_pub = rospy.Publisher("/cleaned_map", OccupancyGrid, queue_size=1)  # Reduce queue size for real-time updates
     rospy.loginfo("Cleaning simulator started!")

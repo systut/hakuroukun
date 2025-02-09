@@ -39,7 +39,7 @@ obstacle_layer:
     topic: "/scan_multi"                 # Replace with the topic of your LIDAR or laser scanner
     marking: true                  # Mark obstacles detected by the laser
     clearing: true                 # Clear obstacles when they are no longer detected
-    obstacle_range: 5.0           # Maximum distance to detect obstacles
+    obstacle_range: 0.0           # Maximum distance to detect obstacles
     raytrace_range: 20.0           # Maximum distance for clearing obstacles
   cone_lines_scan:
     data_type: PointCloud2
@@ -52,4 +52,4 @@ obstacle_layer:
 inflation_layer:
   enabled: true
   cost_scaling_factor: 0.1
-  inflation_radius: 0.8    # meters
+  inflation_radius: 1.2    # meters
