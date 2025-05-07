@@ -188,7 +188,6 @@ class HakuroukunControl(object):
 
         self._controller.update_trajectory(trajectory)
 
-
     def _hakuroukun_odom_callback(self, msg):
         """! Odometry callback
         @param msg<Odometry>: The odometry message
