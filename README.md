@@ -11,10 +11,7 @@ A modular robotics simulation environment with support for various path tracking
   - [Install XLaunch](#install-xlaunch)
   - [Install Docker Desktop](#install-docker-desktop)
   - [Build Docker Images](#build-docker-images)
-- [2 Ubuntu](#12-ubuntu)
-  - [Install Docker](#install-docker)
-  - [Enable X11 Forwarding](#enable-x11-forwarding)
-  - [Build Docker Images](#build-docker-images)
+- [2 Ubuntu](#2-ubuntu)
 
 ### 🧪 Simulation
 - [2.1 Pure Pursuit Control](#21-pure-pursuit-control)
