@@ -1,14 +1,57 @@
-# hakuroukun_ws
-## Code for Hakuroukun Cleaning Robot
+# 🚗 Hakuroukun Project
 
-### Setting up the enviroment
+A modular robotics simulation environment with support for various path tracking algorithms like Pure Pursuit, Stanley, and Fuzzy Logic. Built with Docker and X11 forwarding support for both Windows and Ubuntu.
 
------
+---
 
-* **Enable GUI within Docker containers**
+## 📚 Catalog
 
-  > **! Caution:** This method exposes PC to external source. Therefore, a more secure alternative way is expected for using GUI within Docker containers. This problem was raised in [Using GUI's with Docker](https://wiki.ros.org/es/docker/Tutorials/GUI#:~:text=%2D%2Dpulse.-,Using%20X%20server,-X%20server%20is)
+### 🛠️ Initial Setup
+- [1 Windows](#1-windows)
+  - [Install XLaunch](#install-xlaunch)
+  - [Install Docker Desktop](#install-docker-desktop)
+  - [Build Docker Images](#build-docker-images)
+- [2 Ubuntu](#12-ubuntu)
+  - [Install Docker](#install-docker)
+  - [Enable X11 Forwarding](#enable-x11-forwarding)
+  - [Build Docker Images](#build-docker-images)
 
+### 🧪 Simulation
+- [2.1 Pure Pursuit Control](#21-pure-pursuit-control)
+- [2.2 Stanley Control](#22-stanley-control)
+- [2.3 Fuzzy Logic Control](#23-fuzzy-logic-control)
+
+---
+
+# 🛠️ Initial Setup
+
+## **1. Windows**
+
+### Install XLaunch
+- Download and install [VcXsrv Windows X Server](https://sourceforge.net/projects/vcxsrv/)
+- Open **XLaunch** from the Start Menu
+
+### Install Docker Desktop
+- Install [Docker Desktop for Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
+- Launch **Docker Desktop**
+
+### Build Docker Images
+1.  Build Docker Image
+    ```
+    docker compose -f ./docker-compose.windows.yml up -d
+    ```
+
+2. Exec into running container
+    ```
+    docker exec -it hakuroukun-robot bash
+    ```
+
+3. Stop container
+    ```
+    docker compose -f ./docker-compose.windows.yml down
+    ```
+
+## **2. Ubuntu**
 ```bash
 #This command is required to run every time the PC is restarted
 xhost + 
@@ -21,30 +64,49 @@ cd ./src/hakuroukun_dockerfiles/
 chmod +x ./install/xauth.sh && ./install/xauth.sh
 ```
 
-### Simulation : pure pursuit controller 
-Change mode in hakuroukun_launch/launch/bringup.launch
-```
+
+#### Build Docker Images
+1.  Build Docker Image
+    ```
+    docker compose up -d
+    ```
+
+2. Exec into running container
+    ```
+    docker exec -it hakuroukun-robot bash
+    ```
+
+3. Stop container
+    ```
+    docker compose down
+    ```
+
+# Simulation : 
+## Pure Pursuit controller 
+
+1. Change mode to "simulation" in hakuroukun_launch/launch/bringup.launch
+    ```
     <arg name="simulation" default="true" />
-```
-To run gazebo with ekf localization 
-```
-docker exec -it hakuroukun-robot bash 
-roslaunch hakuroukun_launch bringup.launch
-```
+    ```
+2. Run gazebo with ekf localization 
+    ```
+    docker exec -it hakuroukun-robot bash 
+    roslaunch hakuroukun_launch bringup.launch
+    ```
 
 On another terminal, run pure pursuit controller 
-```
-docker exec -it hakuroukun-robot bash 
-roslaunch hakuroukun_control hakuroukun_control.launch
-```
+    ```
+    docker exec -it hakuroukun-robot bash 
+    roslaunch hakuroukun_control hakuroukun_control.launch
+    ```
 
 ### Experiment : To run robot with any controller:
 0. Check ```cat /dev/ttyACM*``` for GPS, Arduino, IMU
 
 1. Change mode in hakuroukun_launch/launch/bringup.launch
-```
+    ```
     <arg name="simulation" default="false" />
-```
+    ```
 2. GPS Rotation angle _ calibration :
     - need to calculate and update : ``` <param name="~rotation_angle" value="-90"/> ```
     - how measure : 
@@ -67,4 +129,4 @@ In the 2nd terminal
     ```
     docker exec -it hakuroukun-robot bash
     roslaunch hakuroukun_launch experiment_controller.launch
-    ```
+    ``` 
